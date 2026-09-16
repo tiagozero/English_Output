@@ -1,0 +1,2211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WritePath — Guided English Writing Practice</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --line:#e4e7ec; --line-strong:#c9cede;
+    --text:#12141a; --muted:#6b7280;
+    --accent:#4f46e5; --accent-hover:#4338ca; --accent-soft:#eef0ff; --accent-line:#c7c9ff;
+    --green:#047857; --green-soft:#e8f7f1; --green-line:#b9e6d5;
+    --amber:#b45309; --amber-soft:#fdf2e3; --amber-line:#f3e0c2;
+    --red:#b91c1c; --red-soft:#fdeceb; --red-line:#f6d5d3;
+    --hover:#f7f8fa; --hover2:#f1f2f6;
+    --faint:#fafbfc; --chip-bg:#f3f4f6; --bar:#eceef2;
+    --input-bg:#ffffff;
+    --shadow:rgba(20,22,40,.05);
+    --radius:12px;
+  }
+  body.dark{
+    --bg:#0e1117; --panel:#161a22; --line:#262b36; --line-strong:#39414f;
+    --text:#e8eaef; --muted:#8b93a3;
+    --accent:#818cf8; --accent-hover:#a5b4fc; --accent-soft:#1e2138; --accent-line:#3730a3;
+    --green:#34d399; --green-soft:#12291f; --green-line:#1f4a37;
+    --amber:#fbbf24; --amber-soft:#2a2113; --amber-line:#4a3a17;
+    --red:#f87171; --red-soft:#2b1a1a; --red-line:#4a2525;
+    --hover:#1c212b; --hover2:#1f242f;
+    --faint:#12161d; --chip-bg:#1e232d; --bar:#2a2f3a;
+    --input-bg:#12161d;
+    --shadow:rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font:15px/1.55 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    transition:background .15s, color .15s;
+  }
+  button{font:inherit;cursor:pointer}
+  input,select,textarea{font:inherit;color:inherit}
+  h1,h2,h3,h4{margin:0 0 6px;line-height:1.25;letter-spacing:-.01em}
+  h1{font-size:26px} h2{font-size:20px} h3{font-size:16px} h4{font-size:14px}
+  p{margin:0 0 8px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row.between{justify-content:space-between}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px}
+
+  /* top bar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 22px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em}
+  .logo{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;font-size:14px}
+  nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+  .navbtn{background:transparent;border:0;padding:6px 12px;border-radius:999px;color:var(--muted);font-weight:500}
+  .navbtn:hover{background:var(--hover2);color:var(--text)}
+  .navbtn.active{background:var(--accent-soft);color:var(--accent)}
+  a.navbtn{text-decoration:none;display:inline-block;cursor:pointer}
+  .iconbtn{background:transparent;border:1px solid transparent;padding:5px 9px;border-radius:9px;font-size:16px;line-height:1;color:var(--muted)}
+  .iconbtn:hover{background:var(--hover2);color:var(--text)}
+
+  /* buttons */
+  .btn{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:500;color:var(--text);transition:.13s}
+  .btn:hover{background:var(--hover);border-color:var(--line-strong)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+  .btn.ghost:hover{background:var(--hover2);color:var(--text)}
+  .btn.danger{color:var(--red);border-color:var(--red-line)}
+  .btn.danger:hover{background:var(--red-soft)}
+  .btn.sm{padding:4px 9px;font-size:13px;border-radius:7px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* hero */
+  .hero{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:18px}
+  .hero p{color:var(--muted);max-width:620px}
+  .hero .btn{margin-top:8px}
+
+  /* cards */
+  .cards{display:grid;gap:12px}
+  .scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap;cursor:pointer;transition:.13s}
+  .scard:hover{border-color:var(--line-strong);box-shadow:0 2px 10px var(--shadow)}
+  .scard .eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .scard h3{margin:2px 0 4px}
+
+  .eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+
+  /* session header */
+  .sessionbar{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+  .sessionmeta{color:var(--muted);font-size:13.5px}
+  .tabs{display:flex;gap:2px;padding:0 22px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;position:sticky;top:47px;z-index:20}
+  .tab{background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 13px;color:var(--muted);font-weight:500;white-space:nowrap}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* panels */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px}
+  .panel h3,.panel h4{margin-bottom:8px}
+  label.field{display:block;margin-bottom:12px}
+  label.field > span{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--input-bg);outline:none;transition:.13s;color:var(--text);
+  }
+  input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  textarea{resize:vertical;line-height:1.6}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-size:13px;color:var(--text)}
+  .chip:hover{background:var(--hover)}
+  .chip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:500}
+  .minichip{display:inline-block;background:var(--chip-bg);border-radius:6px;padding:2px 8px;font-size:12.5px;color:var(--muted);margin:0 4px 4px 0}
+  .badge{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--chip-bg);color:var(--muted)}
+  .badge.required{background:var(--accent-soft);color:var(--accent)}
+  .badge.chooseOne{background:var(--amber-soft);color:var(--amber)}
+  .badge.optional{background:var(--chip-bg);color:var(--muted)}
+  .badge.used{background:var(--green-soft);color:var(--green)}
+  .badge.missing{background:var(--red-soft);color:var(--red)}
+
+  /* kind colors */
+  .k-chunk .dot,.k-chunk .kdot{background:#6366f1}
+  .k-collocation .dot,.k-collocation .kdot{background:#0ea5e9}
+  .k-phrasalVerb .dot,.k-phrasalVerb .kdot{background:#14b8a6}
+  .k-vocabulary .dot,.k-vocabulary .kdot{background:#f59e0b}
+  .k-grammar .dot,.k-grammar .kdot{background:#ec4899}
+
+  /* target list */
+  .trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hover2)}
+  .trow:last-child{border-bottom:0}
+  .kdot{width:8px;height:8px;border-radius:50%;flex:none;background:#9ca3af}
+  .trow .ttext{flex:1;min-width:0;font-weight:500}
+  .trow select{width:auto;padding:3px 6px;font-size:12.5px;border-radius:7px}
+
+  /* sidebar chips */
+  .tgroup{margin-bottom:14px}
+  .tgroup:last-child{margin-bottom:0}
+  .tgrouphead{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 2px}
+  .tgrouphead .kdot{width:7px;height:7px}
+  .tchip{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;margin-bottom:6px;font-size:13.5px;transition:.13s;color:var(--text)}
+  .tchip .dot{width:8px;height:8px;border-radius:50%;flex:none;background:#9ca3af}
+  .tchip .ttext{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tchip .req{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:1px 5px;border-radius:4px}
+  .tchip:hover{border-color:var(--line-strong)}
+  .tchip.committed{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
+  .tchip.committed .ttext{text-decoration:line-through;opacity:.75}
+  .tchip.live{background:var(--accent-soft);border-color:var(--accent-line)}
+  .legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+  .lg{width:11px;height:11px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+  .lg.committed{background:var(--green-soft);border-color:var(--green-line)}
+  .lg.live{background:var(--accent-soft);border-color:var(--accent-line)}
+
+  /* write layout */
+  .writewrap{display:grid;grid-template-columns:1fr 306px;gap:16px;align-items:start}
+  @media(max-width:900px){.writewrap{grid-template-columns:1fr}}
+  .sidebar{position:sticky;top:110px;max-height:calc(100vh - 130px);overflow-y:auto}
+  .editor{min-height:110px;font-size:16px}
+  .instr{background:linear-gradient(180deg,var(--panel),var(--faint))}
+  .instr h3{font-size:17px}
+
+  /* transcript */
+  .sent{border-left:3px solid var(--line);padding:6px 0 6px 13px;margin-bottom:12px}
+  .sent .stext{font-size:15.5px}
+  .sent .smeta{font-size:12px;color:var(--muted);margin-top:3px}
+
+  /* node cards */
+  .nodecard{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:14px 16px;margin-bottom:12px}
+  .nodehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .nodeidx{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:6px}
+  .branchrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+  .branchrow input{flex:1}
+  .branchrow select{width:190px;flex:none}
+
+  /* review */
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  @media(max-width:760px){.statgrid{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .stat .num{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .bar{height:7px;background:var(--bar);border-radius:99px;overflow:hidden;margin-top:8px}
+  .bar > i{display:block;height:100%;background:var(--accent);border-radius:99px}
+
+  .fb{padding:10px 12px;border-radius:9px;margin-bottom:8px;font-size:14px;border:1px solid transparent}
+  .fb.error{background:var(--red-soft);border-color:var(--red-line)}
+  .fb.warn{background:var(--amber-soft);border-color:var(--amber-line)}
+  .fb.tip{background:var(--hover2);border-color:var(--line)}
+  .fb .lvl{font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+  .fb.error .lvl{color:var(--red)} .fb.warn .lvl{color:var(--amber)} .fb.tip .lvl{color:var(--muted)}
+
+  .quote{background:var(--faint);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14.5px;margin:0}
+  .quote.rev{background:var(--green-soft);border-color:var(--green-line)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  @media(max-width:700px){.compare{grid-template-columns:1fr}}
+  .lbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .history{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  .histrow{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+  .histrow .before{text-decoration:line-through;color:var(--muted);opacity:.7}
+  .histrow .arrow{color:var(--muted)}
+  .histrow .after{color:var(--green);font-weight:500}
+
+  /* progress table */
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--hover2);font-size:14px}
+  th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--faint)}
+  tr:last-child td{border-bottom:0}
+  .usebar{height:6px;background:var(--bar);border-radius:99px;width:80px;overflow:hidden;display:inline-block;vertical-align:middle}
+  .usebar > i{display:block;height:100%;background:var(--accent)}
+
+  /* import/export */
+  pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  details summary{cursor:pointer;user-select:none}
+  details summary:hover{color:var(--text)}
+
+  /* toast */
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;opacity:0;pointer-events:none;transition:.2s;z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .empty{padding:30px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:var(--radius)}
+  .choice{border-color:var(--accent-line);background:linear-gradient(180deg,var(--panel),var(--faint))}
+  .branchbtn{text-align:left}
+
+  /* reset row */
+  .resetrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+
+  /* library */
+  .pickbanner{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .selbar{background:var(--panel);border:1px solid var(--accent-line);border-radius:var(--radius);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:100px;z-index:10;box-shadow:0 2px 8px var(--shadow)}
+  .librow{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--hover2);border-radius:6px}
+  .librow:last-child{border-bottom:0}
+  .librow.sel{background:var(--accent-soft)}
+  .librow .libtext{flex:1;min-width:0;font-weight:500;word-break:break-word}
+  .librow input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex:none;cursor:pointer}
+  .librow .minichip{margin:0}
+  .danger-zone{border-color:var(--red-line)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="fileImport" accept=".json,.csv,application/json,text/csv" hidden />
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   WritePath — guided English writing practice
+   ============================================================ */
+
+/* ---------- tiny helpers ---------- */
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const wordsIn = t => (String(t).trim().match(/[A-Za-z0-9'’\-]+/g) || []).length;
+const norm = t => String(t).toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const escRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/* ---------- constants ---------- */
+const KINDS = {
+  chunk:       'Chunk',
+  collocation: 'Collocation',
+  phrasalVerb: 'Phrasal verb',
+  vocabulary:  'Vocabulary',
+  grammar:     'Grammar point'
+};
+const KIND_ORDER = ['chunk','collocation','phrasalVerb','vocabulary','grammar'];
+const REQS = { required:'Required', chooseOne:'Choose one', optional:'Optional' };
+const TEXT_TYPES = ['Journal','Mini-essay','Story','Reddit post','Free writing'];
+const KEY = 'writepath.v1';
+const THEME_KEY = 'writepath.theme';
+const BACKUP_APP = 'WritePath';
+const BACKUP_VERSION = 1;
+
+/* ---------- state ---------- */
+let state = { sessions: [], library: [] };
+let ui = {
+  view:'home', sessionId:null, step:'setup', reviseDraft:{},
+  librarySearch:'', libraryFilter:'all', librarySelected:[],
+  libraryPickForSession:null
+};
+let theme = 'light';
+let pendingImportMode = 'targets'; // 'targets' | 'library' | 'backup'
+
+/* ---------- persistence ---------- */
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = parsed.state || { sessions: [] };
+      const u = parsed.ui || {};
+      ui.view = u.view || 'home';
+      ui.sessionId = u.sessionId || null;
+      ui.step = u.step || 'setup';
+    }
+  }catch(e){ console.warn('load failed', e); }
+  if(!Array.isArray(state.sessions)) state.sessions = [];
+  if(!Array.isArray(state.library)) state.library = [];
+  state.sessions.forEach(hydrate);
+  state.library.forEach(hydrateLibraryItem);
+  theme = localStorage.getItem(THEME_KEY) || 'light';
+}
+function hydrate(s){
+  s.targets = s.targets || [];
+  s.nodes = s.nodes || [];
+  s.sentences = s.sentences || [];
+  s.revisions = s.revisions || [];
+  s.manualUsed = s.manualUsed || [];
+  s.draft = s.draft || '';
+  s.draftManual = s.draftManual || [];
+  s.currentNodeId = s.currentNodeId || null;
+  s.textType = s.textType || 'Journal';
+  s.targetWords = s.targetWords ?? 120;
+  s.nodes.forEach(n => { n.branches = n.branches || []; n.targetIds = n.targetIds || []; n.instruction = n.instruction || ''; });
+  s.sentences.forEach(x => { x.usedTargetIds = x.usedTargetIds || []; x.manualUsedIds = x.manualUsedIds || []; x.original = x.original ?? x.text; });
+  return s;
+}
+function hydrateLibraryItem(it){
+  it.tags = Array.isArray(it.tags) ? it.tags : [];
+  it.kind = it.kind || 'vocabulary';
+  it.requirement = it.requirement || 'optional';
+  it.group = it.group || '';
+  it.text = it.text || '';
+  return it;
+}
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      state,
+      ui: { view: ui.view, sessionId: ui.sessionId, step: ui.step }
+    }));
+  }catch(e){ console.warn('save failed', e); }
+}
+function touch(s){ s.updatedAt = Date.now(); save(); updateMeta(); }
+
+let toastTimer;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2100);
+}
+
+/* ---------- theme ---------- */
+function applyTheme(){
+  document.body.classList.toggle('dark', theme === 'dark');
+}
+
+/* ---------- session helpers ---------- */
+function newSession(){
+  const now = Date.now();
+  return {
+    id: uid(), title:'', topic:'', textType:'Journal', targetWords:120,
+    createdAt: now, updatedAt: now,
+    targets: [], nodes: [], sentences: [], revisions: [], manualUsed: [],
+    currentNodeId: null, pathComplete: false, awaitingChoice: false,
+    draft: '', draftManual: []
+  };
+}
+function currentSession(){
+  return state.sessions.find(s => s.id === ui.sessionId) || null;
+}
+function countWords(s){ return s.sentences.reduce((a, x) => a + wordsIn(x.text), 0); }
+function committedUsed(s){
+  const set = new Set();
+  s.sentences.forEach(x => (x.usedTargetIds || []).forEach(id => set.add(id)));
+  (s.manualUsed || []).forEach(id => set.add(id));
+  return set;
+}
+function autoMatch(text, targets){
+  const n = ' ' + norm(text) + ' ';
+  const out = new Set();
+  if(!n.trim()) return out;
+  for(const t of targets){
+    if(t.kind === 'grammar') continue;
+    const needle = norm(t.text);
+    if(!needle) continue;
+    const re = new RegExp('(^|[^a-z0-9])' + escRe(needle) + '([^a-z0-9]|$)');
+    if(re.test(n)) out.add(t.id);
+  }
+  return out;
+}
+function ensureCursor(s){
+  if(!s.nodes.length || s.pathComplete) return;
+  if(!s.currentNodeId || !s.nodes.some(n => n.id === s.currentNodeId)){
+    s.currentNodeId = s.nodes[0].id;
+  }
+}
+function advanceSequential(s){
+  const i = s.nodes.findIndex(n => n.id === s.currentNodeId);
+  if(i >= 0 && i + 1 < s.nodes.length) s.currentNodeId = s.nodes[i + 1].id;
+  else { s.currentNodeId = null; s.pathComplete = true; }
+}
+function nodeLabel(s, id){
+  const i = s.nodes.findIndex(n => n.id === id);
+  if(i < 0) return '—';
+  const n = s.nodes[i];
+  return 'Step ' + (i + 1) + (n.instruction ? ': ' + n.instruction.slice(0, 28) : '');
+}
+function kindName(k){ return KINDS[k] || k; }
+
+/* ============================================================
+   LIBRARY HELPERS
+   ============================================================ */
+function addLibraryItemsToSession(libIds, session){
+  let added = 0;
+  const existing = new Set(session.targets.map(t => t.kind + '::' + norm(t.text)));
+  libIds.forEach(id => {
+    const it = state.library.find(x => x.id === id);
+    if(!it) return;
+    const key = it.kind + '::' + norm(it.text);
+    if(existing.has(key)) return;
+    session.targets.push({
+      id: uid(), kind: it.kind, text: it.text,
+      requirement: it.requirement, group: it.group || ''
+    });
+    existing.add(key);
+    added++;
+  });
+  if(added) session.updatedAt = Date.now();
+  return added;
+}
+function saveTargetsToLibrary(targets){
+  let added = 0;
+  const existing = new Set(state.library.map(it => it.kind + '::' + norm(it.text)));
+  targets.forEach(t => {
+    const key = t.kind + '::' + norm(t.text);
+    if(existing.has(key)) return;
+    state.library.push({
+      id: uid(), kind: t.kind, text: t.text,
+      requirement: t.requirement, group: t.group || '',
+      tags: [], addedAt: Date.now()
+    });
+    existing.add(key);
+    added++;
+  });
+  return added;
+}
+
+/* ============================================================
+   IMPORT / EXPORT
+   ============================================================ */
+function download(filename, content, type){
+  const blob = new Blob([content], { type: type || 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+function csvCell(v){
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function splitCSVLine(line){
+  const out = []; let cur = ''; let q = false;
+  for(let i = 0; i < line.length; i++){
+    const c = line[i];
+    if(q){
+      if(c === '"'){ if(line[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else {
+      if(c === '"') q = true;
+      else if(c === ','){ out.push(cur); cur = ''; }
+      else cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
+function normalizeKind(v){
+  const k = String(v || '').trim().toLowerCase().replace(/[\s_-]/g, '');
+  if(k === 'chunk' || k === 'chunks') return 'chunk';
+  if(k === 'collocation' || k === 'collocations') return 'collocation';
+  if(k === 'phrasalverb' || k === 'phrasal' || k === 'phrasalverbs') return 'phrasalVerb';
+  if(k === 'vocabulary' || k === 'vocab' || k === 'word') return 'vocabulary';
+  if(k === 'grammar' || k === 'grammarpoint' || k === 'grammarpoints') return 'grammar';
+  return 'vocabulary';
+}
+function normalizeReq(v){
+  const r = String(v || '').trim().toLowerCase().replace(/[\s_-]/g, '');
+  if(r === 'required' || r === 'req' || r === 'must') return 'required';
+  if(r === 'chooseone' || r === 'choice' || r === 'oneof') return 'chooseOne';
+  return 'optional';
+}
+function normalizeItem(obj){
+  const text = String(obj.text ?? obj.term ?? obj.item ?? obj.value ?? obj.phrase ?? '').trim();
+  if(!text) return null;
+  const kind = normalizeKind(obj.kind ?? obj.type ?? obj.category);
+  const requirement = normalizeReq(obj.requirement ?? obj.req ?? obj.priority);
+  const group = String(obj.group ?? obj.groupName ?? obj.category_group ?? '').trim();
+  const tagsRaw = obj.tags ?? '';
+  const tags = Array.isArray(tagsRaw)
+    ? tagsRaw.map(x => String(x).trim()).filter(Boolean)
+    : String(tagsRaw).split(/[|,]/).map(t => t.trim()).filter(Boolean);
+  return { kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '', tags };
+}
+function parseJSONTargets(text){
+  let data = JSON.parse(text);
+  if(data && !Array.isArray(data)){
+    if(Array.isArray(data.targets)) data = data.targets;
+    else if(Array.isArray(data.items)) data = data.items;
+    else if(Array.isArray(data.library)) data = data.library;
+    else throw new Error('Expected an array of items');
+  }
+  if(!Array.isArray(data)) throw new Error('Expected an array of items');
+  return data.map(item => typeof item === 'string'
+    ? { kind:'vocabulary', text:item.trim(), requirement:'optional', group:'', tags:[] }
+    : normalizeItem(item)
+  ).filter(Boolean);
+}
+function parseCSVTargets(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+  if(!lines.length) return [];
+  const first = lines[0].toLowerCase();
+  const hasHeader = /\b(text|term|item|kind|type|requirement|group|tags)\b/.test(first);
+  const header = hasHeader
+    ? splitCSVLine(lines[0]).map(h => h.toLowerCase().trim())
+    : ['text','kind','requirement','group','tags'];
+  const rows = hasHeader ? lines.slice(1) : lines;
+  return rows.map(line => {
+    const cells = splitCSVLine(line);
+    const obj = {};
+    header.forEach((h, i) => obj[h] = cells[i] || '');
+    return normalizeItem(obj);
+  }).filter(Boolean);
+}
+function parseTargetsFile(name, text){
+  const lower = name.toLowerCase();
+  const trimmed = text.trim();
+  if(lower.endsWith('.json') || trimmed.startsWith('[') || trimmed.startsWith('{')){
+    return parseJSONTargets(text);
+  }
+  return parseCSVTargets(text);
+}
+function exportTargetsCSV(s){
+  const header = 'text,kind,requirement,group';
+  const rows = s.targets.map(t => [
+    csvCell(t.text), t.kind, t.requirement, csvCell(t.group || '')
+  ].join(','));
+  return [header, ...rows].join('\n') + '\n';
+}
+function exportLibraryCSV(){
+  const header = 'text,kind,requirement,group,tags';
+  const rows = state.library.map(it => [
+    csvCell(it.text), it.kind, it.requirement, csvCell(it.group || ''),
+    csvCell((it.tags || []).join('|'))
+  ].join(','));
+  return [header, ...rows].join('\n') + '\n';
+}
+
+/* ---------- FULL BACKUP (everything: library + sessions) ---------- */
+function buildBackup(){
+  return {
+    app: BACKUP_APP,
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    counts: {
+      sessions: state.sessions.length,
+      library: state.library.length,
+      sentences: state.sessions.reduce((a, s) => a + s.sentences.length, 0),
+      targets: state.sessions.reduce((a, s) => a + s.targets.length, 0)
+    },
+    library: state.library,
+    sessions: state.sessions
+  };
+}
+function downloadBackup(){
+  const backup = buildBackup();
+  if(!backup.sessions.length && !backup.library.length){
+    toast('Nothing to export yet.');
+    return;
+  }
+  const stamp = new Date().toISOString().slice(0,10);
+  download(`writepath-backup-${stamp}.json`, JSON.stringify(backup, null, 2), 'application/json');
+  toast(`Exported ${backup.sessions.length} session${backup.sessions.length===1?'':'s'} + ${backup.library.length} library item${backup.library.length===1?'':'s'}`);
+}
+
+/* ---------- FULL RESTORE ---------- */
+function applyBackup(data, mode /* 'replace' | 'merge' */){
+  const lib = Array.isArray(data.library) ? data.library : [];
+  const sess = Array.isArray(data.sessions) ? data.sessions : [];
+  if(mode === 'replace'){
+    state.library = lib.map(it => hydrateLibraryItem({ ...it, id: uid() }));
+    state.sessions = sess.map(s => hydrate({ ...s, id: uid() }));
+    ui.view = 'home'; ui.sessionId = null; ui.step = 'setup';
+    ui.librarySelected = []; ui.libraryPickForSession = null;
+    return { libAdded: state.library.length, sessAdded: state.sessions.length, replaced: true };
+  }
+  // merge
+  const existingLib = new Set(state.library.map(it => it.kind + '::' + norm(it.text)));
+  let libAdded = 0;
+  lib.forEach(it => {
+    const t = String(it.text || '').trim();
+    if(!t) return;
+    const k = (it.kind || 'vocabulary') + '::' + norm(t);
+    if(existingLib.has(k)) return;
+    state.library.push(hydrateLibraryItem({ ...it, id: uid(), addedAt: Date.now() }));
+    existingLib.add(k); libAdded++;
+  });
+  let sessAdded = 0;
+  sess.forEach(s => {
+    state.sessions.push(hydrate({ ...s, id: uid() }));
+    sessAdded++;
+  });
+  return { libAdded, sessAdded, replaced: false };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  applyTheme();
+  const app = $('#app');
+  if(ui.view === 'progress'){
+    app.innerHTML = renderProgress();
+  } else if(ui.view === 'library'){
+    app.innerHTML = renderLibrary();
+  } else if(ui.view === 'session' && currentSession()){
+    app.innerHTML = renderSession();
+  } else {
+    ui.view = 'home'; ui.sessionId = null;
+    app.innerHTML = renderHome();
+  }
+  updateMeta();
+}
+
+function topbar(active){
+  const icon = theme === 'dark' ? '☀️' : '🌙';
+  return `<header class="topbar">
+    <div class="brand"><span class="logo">✎</span> WritePath</div>
+    <nav>
+      <a class="navbtn" href="Dashboard.html" title="Back to Dashboard">🏠 Home</a>
+      <button class="navbtn ${active==='home'?'active':''}" data-act="nav" data-view="home">Sessions</button>
+      <button class="navbtn ${active==='library'?'active':''}" data-act="nav" data-view="library">Library</button>
+      <button class="navbtn ${active==='progress'?'active':''}" data-act="nav" data-view="progress">Progress</button>
+      <button class="iconbtn" data-act="toggle-theme" title="Toggle dark mode">${icon}</button>
+    </nav>
+  </header>`;
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const sessions = state.sessions.slice().sort((a,b) => b.updatedAt - a.updatedAt);
+  return `
+  ${topbar('home')}
+  <main class="wrap">
+    <div class="hero">
+      <h1>Guided English writing practice</h1>
+      <p>Plan your target language, build a sentence path, then write every sentence yourself — one at a time. WritePath never writes for you; it keeps you on track.</p>
+      <div class="row">
+        <button class="btn primary" data-act="new-session">+ New writing session</button>
+        <button class="btn" data-act="export-all-json">📤 Export all data</button>
+        <button class="btn" data-act="import-all-data">📥 Import backup</button>
+      </div>
+    </div>
+    <div class="cards">
+      ${sessions.length ? sessions.map(sessionCard).join('') :
+        `<div class="empty">No sessions yet. Create your first one above.</div>`}
+    </div>
+  </main>`;
+}
+
+function sessionCard(s){
+  const used = committedUsed(s);
+  const req = s.targets.filter(t => t.requirement === 'required');
+  const reqUsed = req.filter(t => used.has(t.id)).length;
+  const words = countWords(s);
+  const status = s.sentences.length === 0 ? 'Not started'
+    : (s.reviewedAt ? 'Reviewed' : 'In progress');
+  return `<div class="scard" data-act="open-session" data-id="${s.id}">
+    <div>
+      <div class="eyebrow">${esc(s.textType)} · ${status}</div>
+      <h3>${esc(s.title || s.topic || 'Untitled session')}</h3>
+      <div class="muted small">${words} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'} · ${used.size}/${s.targets.length} targets used${req.length ? ` · ${reqUsed}/${req.length} required` : ''}</div>
+    </div>
+    <div class="row">
+      <button class="btn primary sm" data-act="open-session" data-id="${s.id}">Open</button>
+      <button class="btn danger sm" data-act="del-session" data-id="${s.id}">Delete</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- LIBRARY ---------- */
+function renderLibrary(){
+  const lib = state.library;
+  const search = ui.librarySearch.trim().toLowerCase();
+  const filter = ui.libraryFilter;
+  const filtered = lib.filter(it => {
+    if(filter !== 'all' && it.kind !== filter) return false;
+    if(search){
+      const hay = (it.text + ' ' + (it.tags||[]).join(' ') + ' ' + (it.group||'')).toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  const selected = new Set(ui.librarySelected);
+  const byKind = {};
+  filtered.forEach(it => (byKind[it.kind] = byKind[it.kind] || []).push(it));
+  const counts = {};
+  KIND_ORDER.forEach(k => counts[k] = lib.filter(it => it.kind === k).length);
+  const pickFor = ui.libraryPickForSession ? state.sessions.find(s => s.id === ui.libraryPickForSession) : null;
+  const sessions = state.sessions;
+  const defaultSession = ui.sessionId || (sessions[0] && sessions[0].id) || '';
+
+  return `
+  ${topbar('library')}
+  <main class="wrap">
+    ${pickFor ? `
+      <div class="pickbanner">
+        <div>
+          <strong>Choose items to add to “${esc(pickFor.title || pickFor.topic || 'Untitled session')}”</strong>
+          <div class="muted small">Tick items below, then click “Add selected”.</div>
+        </div>
+        <button class="btn ghost" data-act="cancel-library-picker">Cancel</button>
+      </div>
+    ` : ''}
+
+    <div class="row between" style="align-items:flex-start; flex-wrap:wrap; gap:12px">
+      <div>
+        <h1 style="margin-bottom:4px">Library</h1>
+        <p class="muted" style="margin:0">Your reusable collection of target language across all sessions.</p>
+      </div>
+      <div class="row">
+        <button class="btn" data-act="import-library">📥 Import terms (JSON / CSV)</button>
+        <button class="btn" data-act="export-library-csv">📤 Export library (CSV)</button>
+        <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h3>Add new item</h3>
+      <div class="grid2">
+        <label class="field"><span>Type</span>
+          <select id="libKind">${Object.entries(KINDS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+        </label>
+        <label class="field"><span>Requirement</span>
+          <select id="libReq">
+            <option value="optional" selected>Optional</option>
+            <option value="required">Required</option>
+            <option value="chooseOne">Choose one</option>
+          </select>
+        </label>
+      </div>
+      <label class="field"><span>Item</span>
+        <input type="text" id="libText" placeholder="e.g. take into account / as far as I'm concerned" />
+      </label>
+      <div class="grid2">
+        <label class="field"><span>Group <span class="muted">(only for “choose one”)</span></span>
+          <input type="text" id="libGroup" placeholder="e.g. Linking words" />
+        </label>
+        <label class="field"><span>Tags <span class="muted">(comma-separated, optional)</span></span>
+          <input type="text" id="libTags" placeholder="e.g. B2, essay, opinion" />
+        </label>
+      </div>
+      <button class="btn primary" data-act="add-library-item">+ Add to library</button>
+    </div>
+
+    <div class="panel">
+      <div class="row between" style="margin-bottom:10px">
+        <input type="text" id="libSearch" value="${esc(ui.librarySearch)}" placeholder="Search library…" style="max-width:320px" />
+        <span class="muted small">${filtered.length} of ${lib.length} item${lib.length===1?'':'s'}</span>
+      </div>
+      <div class="row" style="gap:6px">
+        <button class="chip ${ui.libraryFilter==='all'?'on':''}" data-act="filter-library" data-kind="all">All (${lib.length})</button>
+        ${KIND_ORDER.map(k => `<button class="chip ${ui.libraryFilter===k?'on':''}" data-act="filter-library" data-kind="${k}">${KINDS[k]} (${counts[k]})</button>`).join('')}
+      </div>
+    </div>
+
+    ${selected.size ? `
+      <div class="selbar">
+        <span><strong>${selected.size}</strong> selected</span>
+        <div class="row">
+          ${pickFor ? `
+            <button class="btn primary" data-act="confirm-library-picker">Add selected to session</button>
+          ` : `
+            <select id="bulkSessionSelect" style="width:auto; padding:6px 10px" ${sessions.length ? '' : 'disabled'}>
+              ${sessions.length ? sessions.map(s => `<option value="${s.id}" ${defaultSession===s.id?'selected':''}>${esc(s.title || s.topic || 'Untitled session')}</option>`).join('') : '<option>— no sessions —</option>'}
+            </select>
+            <button class="btn primary" data-act="bulk-add-to-session" ${sessions.length ? '' : 'disabled'}>Add to session</button>
+            <button class="btn danger" data-act="bulk-delete-library">Delete</button>
+          `}
+          <button class="btn ghost" data-act="clear-library-selection">Clear</button>
+        </div>
+      </div>
+    ` : ''}
+
+    ${lib.length === 0 ? `
+      <div class="empty">Your library is empty. Add items above, or save target language from a session.</div>
+    ` : filtered.length === 0 ? `
+      <div class="empty">No items match your search or filter.</div>
+    ` : KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
+      <div class="panel">
+        <div class="eyebrow" style="display:flex;align-items:center;gap:6px">
+          <span class="kdot k-${kind}"></span>${KINDS[kind]} (${byKind[kind].length})
+        </div>
+        ${byKind[kind].map(it => {
+          const isSel = selected.has(it.id);
+          return `
+          <label class="librow ${isSel?'sel':''}">
+            <input type="checkbox" ${isSel?'checked':''} data-act="toggle-library-select" data-id="${it.id}" />
+            <span class="kdot k-${it.kind}"></span>
+            <span class="libtext">${esc(it.text)}</span>
+            ${it.requirement === 'chooseOne' && it.group ? `<span class="badge chooseOne">${esc(it.group)}</span>`
+              : it.requirement !== 'optional' ? `<span class="badge ${it.requirement}">${REQS[it.requirement]}</span>` : ''}
+            ${(it.tags||[]).map(tg => `<span class="minichip">${esc(tg)}</span>`).join('')}
+            <button class="btn ghost sm" data-act="del-library-item" data-id="${it.id}" title="Delete from library" type="button">✕</button>
+          </label>`;
+        }).join('')}
+      </div>
+    `).join('')}
+  </main>`;
+}
+
+/* ---------- SESSION SHELL ---------- */
+function renderSession(){
+  const s = currentSession();
+  const steps = [
+    ['setup','Setup'], ['targets','Target language'], ['path','Sentence path'],
+    ['write','Write'], ['review','Review'], ['revise','Revise']
+  ];
+  return `
+  ${topbar('home')}
+  <div class="sessionbar">
+    <div>
+      <div class="eyebrow">${esc(s.textType)}</div>
+      <h2>${esc(s.title || s.topic || 'Untitled session')}</h2>
+    </div>
+    <div class="sessionmeta" id="sessionmeta"></div>
+  </div>
+  <div class="tabs">
+    ${steps.map(([k,l]) => `<button class="tab ${ui.step===k?'active':''}" data-act="step" data-step="${k}">${l}</button>`).join('')}
+  </div>
+  <main class="wrap">${stepContent(s)}</main>`;
+}
+
+function updateMeta(){
+  const el = $('#sessionmeta');
+  const s = currentSession();
+  if(!el || !s) return;
+  el.textContent = `${countWords(s)} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'}`;
+}
+
+function stepContent(s){
+  switch(ui.step){
+    case 'targets': return targetsStep(s);
+    case 'path':    return pathStep(s);
+    case 'write':   return writeStep(s);
+    case 'review':  return reviewStep(s);
+    case 'revise':  return reviseStep(s);
+    default:        return setupStep(s);
+  }
+}
+
+/* ---------- STEP: SETUP ---------- */
+function setupStep(s){
+  return `
+  <div class="panel">
+    <h3>Session setup</h3>
+    <p class="muted small">Decide what you are writing before you plan the language.</p>
+    <label class="field">
+      <span>Topic / prompt</span>
+      <textarea rows="2" data-sfield="topic" placeholder="e.g. A decision that changed my routine">${esc(s.topic)}</textarea>
+    </label>
+    <label class="field">
+      <span>Title (optional)</span>
+      <input type="text" data-sfield="title" value="${esc(s.title)}" placeholder="Give this session a name" />
+    </label>
+    <div class="grid2">
+      <label class="field">
+        <span>Text type</span>
+        <select data-sfield="textType">
+          ${TEXT_TYPES.map(t => `<option ${s.textType===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </label>
+      <label class="field">
+        <span>Target word count</span>
+        <input type="number" min="0" step="10" data-sfield="targetWords" value="${s.targetWords}" />
+      </label>
+    </div>
+    <button class="btn primary" data-act="step" data-step="targets">Next: target language →</button>
+  </div>`;
+}
+
+/* ---------- STEP: TARGETS ---------- */
+function targetsStep(s){
+  const byKind = {};
+  s.targets.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
+  const reqCount = s.targets.filter(t => t.requirement === 'required').length;
+
+  return `
+  <div class="panel">
+    <h3>Add target language</h3>
+    <p class="muted small">Add the chunks, collocations, phrasal verbs, vocabulary and grammar points you want to force yourself to use.</p>
+    <div class="grid2">
+      <label class="field">
+        <span>Type</span>
+        <select id="ntKind">${Object.entries(KINDS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+      </label>
+      <label class="field">
+        <span>Requirement</span>
+        <select id="ntReq">
+          <option value="required">Required — must appear</option>
+          <option value="chooseOne">Choose one — pick from a group</option>
+          <option value="optional" selected>Optional — nice to have</option>
+        </select>
+      </label>
+    </div>
+    <label class="field">
+      <span>Item</span>
+      <input type="text" id="ntText" placeholder="e.g. take into account / as far as I'm concerned / used to + verb" />
+    </label>
+    <label class="field">
+      <span>Group name <span class="muted">(only for “choose one” — items sharing a group name compete)</span></span>
+      <input type="text" id="ntGroup" placeholder="e.g. Linking words" />
+    </label>
+    <button class="btn primary" data-act="add-target">+ Add target</button>
+  </div>
+
+  <div class="panel">
+    <h3>Library</h3>
+    <p class="muted small">Save the targets below to your library for reuse, or pull in items you've saved before.</p>
+    <div class="row">
+      <button class="btn" data-act="save-targets-to-library" ${s.targets.length ? '' : 'disabled'}>💾 Save all to library</button>
+      <button class="btn" data-act="open-library-picker">📚 Load from library</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row between">
+      <h3 style="margin:0">Your target language</h3>
+      <span class="muted small">${s.targets.length} item${s.targets.length===1?'':'s'} · ${reqCount} required</span>
+    </div>
+    ${s.targets.length ? KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
+      <div style="margin-top:14px">
+        <div class="eyebrow" style="display:flex;align-items:center;gap:6px">
+          <span class="kdot k-${kind}"></span>${kindName(kind)}
+        </div>
+        ${byKind[kind].map(t => `
+          <div class="trow">
+            <span class="kdot k-${kind}"></span>
+            <span class="ttext">${esc(t.text)}</span>
+            ${t.requirement === 'chooseOne' && t.group ? `<span class="badge chooseOne">${esc(t.group)}</span>` : `<span class="badge ${t.requirement}">${REQS[t.requirement]}</span>`}
+            <select data-target-id="${t.id}" data-tfield="requirement">
+              ${Object.entries(REQS).map(([k,v]) => `<option value="${k}" ${t.requirement===k?'selected':''}>${v}</option>`).join('')}
+            </select>
+            <button class="btn ghost sm" data-act="save-one-to-library" data-id="${t.id}" title="Save this item to library">📚</button>
+            <button class="btn ghost sm" data-act="del-target" data-id="${t.id}">✕</button>
+          </div>`).join('')}
+      </div>`).join('') : `<p class="muted small" style="margin-top:10px">Nothing added yet.</p>`}
+  </div>
+
+  <div class="panel">
+    <h3>Import &amp; export</h3>
+    <p class="muted small">Import individual terms from JSON/CSV, or back up and restore everything — all sessions and all library items — as one file.</p>
+    <div class="row">
+      <button class="btn" data-act="import-targets">📥 Import terms (JSON / CSV)</button>
+      <button class="btn" data-act="export-targets-csv">📤 Export this session's targets (CSV)</button>
+      <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
+      <button class="btn" data-act="import-all-data">📥 Import backup</button>
+    </div>
+    <details style="margin-top:12px">
+      <summary class="muted small">File format examples</summary>
+      <div class="small" style="margin-top:10px">
+        <div class="eyebrow">Terms — JSON</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">[
+  {"text": "at the end of the day", "kind": "chunk", "requirement": "required"},
+  {"text": "make a decision", "kind": "collocation", "requirement": "chooseOne", "group": "decisions"},
+  {"text": "used to + verb", "kind": "grammar", "requirement": "optional"}
+]</pre>
+        <div class="eyebrow">Terms — CSV</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">text,kind,requirement,group,tags
+at the end of the day,chunk,required,,
+make a decision,collocation,chooseOne,decisions,
+used to + verb,grammar,optional,,</pre>
+        <p class="muted">Valid kinds: <code>chunk</code>, <code>collocation</code>, <code>phrasalVerb</code>, <code>vocabulary</code>, <code>grammar</code>. Valid requirements: <code>required</code>, <code>chooseOne</code>, <code>optional</code>.</p>
+        <p class="muted">The <strong>Export all data</strong> file is a full backup (sessions + library) and can be restored with <strong>Import backup</strong>.</p>
+      </div>
+    </details>
+  </div>
+
+  <button class="btn primary" data-act="step" data-step="path">Next: build sentence path →</button>`;
+}
+
+/* ---------- STEP: PATH ---------- */
+function pathStep(s){
+  return `
+  <div class="panel">
+    <h3>Sentence path</h3>
+    <p class="muted small">Each node is one sentence you will write. Give it an instruction, assign target language, and optionally add branches so you can choose where the text goes next.</p>
+    <button class="btn primary" data-act="add-node">+ Add sentence node</button>
+  </div>
+  ${s.nodes.length ? s.nodes.map((n, i) => nodeCard(s, n, i)).join('') :
+    `<div class="empty">No nodes yet. Add your first sentence node above — or skip this and write freely.</div>`}
+  ${s.nodes.length ? `<button class="btn primary" data-act="step" data-step="write">Start writing →</button>` : ''}`;
+}
+
+function nodeCard(s, n, i){
+  const byKind = {};
+  s.targets.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
+
+  return `
+  <div class="nodecard">
+    <div class="nodehead">
+      <span class="nodeidx">Step ${i + 1}</span>
+      <button class="btn ghost sm" data-act="del-node" data-id="${n.id}">Delete</button>
+    </div>
+    <label class="field">
+      <span>Instruction</span>
+      <textarea rows="2" data-node-id="${n.id}" data-nfield="instruction" placeholder="e.g. Open with a hook about the topic.">${esc(n.instruction)}</textarea>
+    </label>
+    <div class="field" style="margin-bottom:12px">
+      <span style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">Assign target language</span>
+      ${s.targets.length ? `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          ${KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
+            <div>
+              <div class="eyebrow" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:11px;">
+                <span class="kdot k-${kind}"></span>${kindName(kind)}
+              </div>
+              <div class="row">
+                ${byKind[kind].map(t => `<button class="chip ${n.targetIds.includes(t.id)?'on':''}" data-act="toggle-node-target" data-id="${n.id}" data-tid="${t.id}">${esc(t.text)}</button>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `<span class="muted small">Add target language first.</span>`}
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <span style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">Branches <span class="muted">(optional — if empty, the path continues to the next node)</span></span>
+      ${n.branches.map(b => `
+        <div class="branchrow">
+          <input type="text" value="${esc(b.label)}" data-branch-id="${b.id}" data-bfield="label" placeholder="Branch label e.g. Agree" />
+          <select data-branch-id="${b.id}" data-bfield="targetNodeId">
+            <option value="">— choose node —</option>
+            ${s.nodes.filter(x => x.id !== n.id).map(x => `<option value="${x.id}" ${b.targetNodeId===x.id?'selected':''}>${esc(nodeLabel(s, x.id))}</option>`).join('')}
+          </select>
+          <button class="btn ghost sm" data-act="del-branch" data-nid="${n.id}" data-id="${b.id}">✕</button>
+        </div>`).join('')}
+      <button class="btn sm" data-act="add-branch" data-id="${n.id}" style="margin-top:6px">+ Add branch</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- sidebar grouping ---------- */
+function sidebarTargetsHTML(s, committed, auto, manual){
+  if(!s.targets.length) return '<p class="muted small">No target language added.</p>';
+  const groups = {};
+  s.targets.forEach(t => (groups[t.kind] = groups[t.kind] || []).push(t));
+
+  return KIND_ORDER.filter(k => groups[k] && groups[k].length).map(k => `
+    <div class="tgroup">
+      <div class="tgrouphead"><span class="kdot k-${k}"></span>${KINDS[k]}</div>
+      ${groups[k].map(t => {
+        const isC = committed.has(t.id);
+        const isL = !isC && (auto.has(t.id) || manual.has(t.id));
+        return `<button class="tchip k-${t.kind} ${isC?'committed':''} ${isL?'live':''}" data-act="toggle-draft-target" data-tid="${t.id}">
+          <span class="dot k-${t.kind}"></span>
+          <span class="ttext">${esc(t.text)}</span>
+          ${t.requirement === 'required' ? '<span class="req">req</span>' : ''}
+        </button>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+/* ---------- STEP: WRITE ---------- */
+function writeStep(s){
+  ensureCursor(s);
+  const node = s.nodes.find(n => n.id === s.currentNodeId) || null;
+  const committed = committedUsed(s);
+  const auto = autoMatch(s.draft || '', s.targets);
+  const manual = new Set(s.draftManual || []);
+  const awaiting = s.awaitingChoice && node && node.branches.length;
+
+  let instruction;
+  if(node) instruction = node.instruction || 'Write the next sentence.';
+  else if(s.nodes.length) instruction = 'Free writing — the path is complete. Keep going or finish.';
+  else instruction = 'Free writing — write any sentence that fits your topic.';
+
+  const nodeTargets = node ? s.targets.filter(t => node.targetIds.includes(t.id)) : [];
+  const hasAnyProgress = s.sentences.length > 0 || (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
+  const hasDraft = (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
+
+  return `
+  <div class="writewrap">
+    <div class="writeMain">
+      <div class="panel instr">
+        <div class="eyebrow">Sentence ${s.sentences.length + 1}${node ? ' · step ' + (s.nodes.indexOf(node) + 1) : ' · free'}</div>
+        <h3>${esc(instruction)}</h3>
+        ${nodeTargets.length ? `<div style="margin-top:8px">${nodeTargets.map(t => `<span class="minichip k-${t.kind}">${esc(t.text)}</span>`).join('')}</div>` : ''}
+      </div>
+
+      ${awaiting ? `
+        <div class="panel choice">
+          <h4>Where next?</h4>
+          <p class="muted small">Sentence added. Choose the branch your text takes now.</p>
+          <div class="row">
+            ${node.branches.map(b => `<button class="btn branchbtn" data-act="choose-branch" data-id="${b.id}">
+              ${esc(b.label || 'Continue')} <span class="muted small">→ ${esc(nodeLabel(s, b.targetNodeId))}</span>
+            </button>`).join('')}
+          </div>
+          <div class="resetrow">
+            <span class="muted small">Added the wrong sentence?</span>
+            <button class="btn danger sm" data-act="undo-last-sentence">↶ Undo last sentence</button>
+          </div>
+        </div>` : `
+        <div class="panel">
+          <textarea class="editor" data-draft rows="4" placeholder="Write one sentence…">${esc(s.draft || '')}</textarea>
+          <div class="row between" style="margin-top:10px">
+            <span class="muted small">${wordsIn(s.draft || '')} word${wordsIn(s.draft||'')===1?'':'s'} in this sentence</span>
+            <div class="row">
+              <button class="btn ${hasDraft ? '' : 'ghost'}" data-act="reset-draft" ${hasDraft ? '' : 'disabled title="Nothing to reset"'}>↺ Reset draft</button>
+              <button class="btn" data-act="finish">Finish &amp; review</button>
+              <button class="btn primary" data-act="add-sentence">Add sentence →</button>
+            </div>
+          </div>
+          ${hasAnyProgress ? `
+            <div class="resetrow">
+              <span class="muted small">Start this writing session over from the first node.</span>
+              <button class="btn danger sm" data-act="reset-writing">↺ Reset all writing</button>
+            </div>` : ''}
+        </div>`}
+
+      ${transcriptHTML(s)}
+    </div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h4>Target language</h4>
+        <p class="muted small">Matched items light up as you type. Click any item to mark it used in this sentence (grammar points aren’t auto-detected).</p>
+        ${sidebarTargetsHTML(s, committed, auto, manual)}
+        <div class="legend">
+          <span class="lg committed"></span> used
+          <span class="lg live"></span> in this sentence
+        </div>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function transcriptHTML(s){
+  if(!s.sentences.length) return '';
+  return `<div class="panel">
+    <h4>Your text so far</h4>
+    ${s.sentences.map((x, i) => {
+      const node = s.nodes.find(n => n.id === x.nodeId);
+      const usedTargets = s.targets.filter(t => (x.usedTargetIds||[]).includes(t.id));
+      return `<div class="sent">
+        <div class="stext">${esc(x.text)}</div>
+        <div class="smeta">
+          #${i + 1}${node ? ' · ' + esc(node.instruction || 'step') : ''}
+          ${usedTargets.length ? ' · ' + usedTargets.map(t => esc(t.text)).join(', ') : ''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---------- STEP: REVIEW ---------- */
+function reviewStep(s){
+  const used = committedUsed(s);
+  const total = countWords(s);
+  const target = s.targetWords || 0;
+  const pct = target ? Math.min(100, Math.round(total / target * 100)) : 0;
+
+  const required = s.targets.filter(t => t.requirement === 'required');
+  const missingRequired = required.filter(t => !used.has(t.id));
+
+  const groups = {};
+  s.targets.filter(t => t.requirement === 'chooseOne').forEach(t => {
+    const g = (t.group || 'Group').trim() || 'Group';
+    (groups[g] = groups[g] || []).push(t);
+  });
+  const unmetGroups = Object.entries(groups).filter(([, items]) => !items.some(t => used.has(t.id)));
+
+  const analysis = analyzeSession(s);
+
+  return `
+  <div class="statgrid">
+    <div class="stat"><div class="lbl">Words</div><div class="num">${total}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="muted small" style="margin-top:5px">target ${target || '—'}</div>
+    </div>
+    <div class="stat"><div class="lbl">Sentences</div><div class="num">${s.sentences.length}</div>
+      <div class="muted small" style="margin-top:5px">avg ${s.sentences.length ? Math.round(total / s.sentences.length) : 0} words</div>
+    </div>
+    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div>
+      <div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div>
+    </div>
+    <div class="stat"><div class="lbl">Grammar points</div><div class="num">${s.targets.filter(t => t.kind === 'grammar' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'grammar').length}</span></div>
+      <div class="muted small" style="margin-top:5px">used in your text</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Missing requirements</h3>
+    ${(missingRequired.length || unmetGroups.length) ? `
+      ${missingRequired.map(t => `<div class="fb error"><span class="lvl">Required</span>“${esc(t.text)}” (${kindName(t.kind)}) was never used.</div>`).join('')}
+      ${unmetGroups.map(([g, items]) => `<div class="fb error"><span class="lvl">Choose one</span>Group “${esc(g)}” — none of these were used: ${items.map(t => esc(t.text)).join(', ')}.</div>`).join('')}
+    ` : `<div class="fb tip"><span class="lvl">All clear</span> Every required item and every “choose one” group is covered. 🎉</div>`}
+  </div>
+
+  <div class="panel">
+    <h3>Target language</h3>
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">Used (${used.size})</div>
+        ${s.targets.filter(t => used.has(t.id)).map(t => `
+          <div class="trow">
+            <span class="kdot k-${t.kind}"></span>
+            <span class="ttext">${esc(t.text)}</span>
+            <span class="badge used">${kindName(t.kind)}</span>
+            <button class="btn ghost sm" data-act="mark-used" data-id="${t.id}">unmark</button>
+          </div>`).join('') || '<p class="muted small">Nothing used yet.</p>'}
+      </div>
+      <div>
+        <div class="eyebrow">Unused (${s.targets.length - used.size})</div>
+        ${s.targets.filter(t => !used.has(t.id)).map(t => `
+          <div class="trow">
+            <span class="kdot k-${t.kind}"></span>
+            <span class="ttext">${esc(t.text)}</span>
+            <span class="badge ${t.requirement}">${t.requirement === 'chooseOne' ? esc(t.group || 'Choose one') : REQS[t.requirement]}</span>
+            <button class="btn sm" data-act="mark-used" data-id="${t.id}">mark used</button>
+          </div>`).join('') || '<p class="muted small">Everything was used. Nice.</p>'}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Grammar &amp; naturalness feedback</h3>
+    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `
+      <div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('')
+      : '<p class="muted small">No session-level issues spotted.</p>'}
+  </div>
+
+  <div class="panel">
+    <h3>Sentence-by-sentence check</h3>
+    ${s.sentences.length ? s.sentences.map((x, i) => {
+      const issues = analysis.perSentence[i];
+      if(!issues.length) return `<div class="fb tip" style="background:var(--green-soft);border-color:var(--green-line)">
+        <span class="lvl" style="color:var(--green)">#${i+1} OK</span>${esc(x.text)}</div>`;
+      return `<div style="margin-bottom:12px">
+        <div class="quote">#${i + 1} ${esc(x.text)}</div>
+        ${issues.map(f => `<div class="fb ${f.level}" style="margin-top:6px"><span class="lvl">${f.level}</span>${esc(f.msg)}</div>`).join('')}
+      </div>`;
+    }).join('') : '<p class="muted small">No sentences written yet.</p>'}
+  </div>
+
+  <div class="panel">
+    <h3>Sentences worth rewriting</h3>
+    ${analysis.suggestions.length ? analysis.suggestions.map(sg => `
+      <div class="trow">
+        <span class="ttext">#${sg.index + 1} ${esc(sg.text)}</span>
+        <span class="muted small">${esc(sg.reason)}</span>
+        <button class="btn sm" data-act="revise-jump" data-id="${sg.sentenceId}">Revise</button>
+      </div>`).join('') : '<p class="muted small">Nothing flagged. Your sentences read cleanly.</p>'}
+  </div>
+
+  <div class="row between" style="margin-top:14px">
+    <button class="btn danger" data-act="reset-writing">↺ Reset all writing</button>
+    <button class="btn primary" data-act="step" data-step="revise">Go to revision →</button>
+  </div>`;
+}
+
+/* ---------- STEP: REVISE ---------- */
+function reviseStep(s){
+  if(!s.sentences.length){
+    return `<div class="empty">Write some sentences first — then you can revise them here.</div>`;
+  }
+  return `
+  <div class="panel">
+    <h3>Revise your sentences</h3>
+    <p class="muted small">Rewrite any sentence and keep the original for comparison. Target-language matches update automatically.</p>
+  </div>
+  ${s.sentences.map((x, i) => {
+    const revs = (s.revisions || []).filter(r => r.sentenceId === x.id);
+    const changed = x.text !== x.original;
+    const draft = (x.id in ui.reviseDraft) ? ui.reviseDraft[x.id] : x.text;
+    return `<div class="panel" id="rev-${x.id}">
+      <div class="row between" style="margin-bottom:8px">
+        <h4 style="margin:0">Sentence ${i + 1}</h4>
+        <span class="muted small">${esc(s.nodes.find(n => n.id === x.nodeId)?.instruction || 'free writing')}</span>
+      </div>
+      ${changed ? `<div class="compare">
+        <div><div class="lbl">Original</div><p class="quote">${esc(x.original)}</p></div>
+        <div><div class="lbl">Current</div><p class="quote rev">${esc(x.text)}</p></div>
+      </div>` : `<p class="quote">${esc(x.text)}</p>`}
+      <div style="margin-top:10px">
+        <textarea rows="3" data-revise="${x.id}" placeholder="Rewrite this sentence…">${esc(draft)}</textarea>
+      </div>
+      <div class="row" style="margin-top:9px">
+        <button class="btn primary" data-act="save-revision" data-id="${x.id}">Save revision</button>
+        ${changed ? `<button class="btn ghost" data-act="revert-revision" data-id="${x.id}">Revert to original</button>` : ''}
+      </div>
+      ${revs.length ? `<div class="history">
+        <div class="lbl">Revision history</div>
+        ${revs.map(r => `<div class="histrow">
+          <span class="before">${esc(r.before)}</span>
+          <span class="arrow">→</span>
+          <span class="after">${esc(r.after)}</span>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+  }).join('')}`;
+}
+
+/* ---------- PROGRESS ---------- */
+function renderProgress(){
+  const rows = computeProgress();
+  const totalSessions = state.sessions.length;
+  const totalSentences = state.sessions.reduce((a, s) => a + s.sentences.length, 0);
+  const totalWords = state.sessions.reduce((a, s) => a + countWords(s), 0);
+  const maxTimes = rows.reduce((a, r) => Math.max(a, r.times), 1);
+  const totalLibrary = state.library.length;
+
+  return `
+  ${topbar('progress')}
+  <main class="wrap">
+    <div class="row between" style="align-items:flex-start">
+      <div>
+        <h1 style="margin-bottom:4px">Progress</h1>
+        <p class="muted" style="margin-bottom:18px">How often you have actually used each piece of target language across all sessions.</p>
+      </div>
+    </div>
+
+    <div class="statgrid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat"><div class="lbl">Sessions</div><div class="num">${totalSessions}</div></div>
+      <div class="stat"><div class="lbl">Sentences</div><div class="num">${totalSentences}</div></div>
+      <div class="stat"><div class="lbl">Words written</div><div class="num">${totalWords}</div></div>
+      <div class="stat"><div class="lbl">Library items</div><div class="num">${totalLibrary}</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="row between" style="align-items:flex-start; flex-wrap:wrap; gap:10px">
+        <div>
+          <h3 style="margin-bottom:2px">Backup &amp; restore</h3>
+          <p class="muted small" style="margin:0">Export a single file containing every session, every library item, and all settings.</p>
+        </div>
+        <div class="row">
+          <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
+          <button class="btn" data-act="import-all-data">📥 Import backup</button>
+        </div>
+      </div>
+    </div>
+
+    ${rows.length ? `
+      <table>
+        <thead><tr><th>Item</th><th>Type</th><th>Sessions</th><th>Times used</th><th></th></tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td>${esc(r.text)}</td>
+            <td class="muted">${kindName(r.kind)}</td>
+            <td>${r.sessions}</td>
+            <td>${r.times}</td>
+            <td><span class="usebar"><i style="width:${Math.round(r.times / maxTimes * 100)}%"></i></span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>` : `<div class="empty">No target language tracked yet. Create a session and add some targets.</div>`}
+  </main>`;
+}
+
+function computeProgress(){
+  const map = new Map();
+  for(const s of state.sessions){
+    const usedInSession = committedUsed(s);
+    const counts = {};
+    for(const sen of s.sentences){
+      (sen.usedTargetIds || []).forEach(id => counts[id] = (counts[id] || 0) + 1);
+    }
+    for(const t of s.targets){
+      const key = t.kind + '::' + norm(t.text);
+      if(!map.has(key)) map.set(key, { text: t.text, kind: t.kind, sessions: 0, times: 0 });
+      const rec = map.get(key);
+      if(usedInSession.has(t.id)) rec.sessions++;
+      rec.times += counts[t.id] || 0;
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.times - a.times || b.sessions - a.sessions);
+}
+
+/* ============================================================
+   FEEDBACK ENGINE
+   ============================================================ */
+const SPELLING = [
+  [/\balot\b/gi, '"alot" is two words: "a lot".'],
+  [/\bteh\b/gi, 'Typo: "teh" → "the".'],
+  [/\brecieve\w*/gi, 'Spelling: "receive" (i before e except after c).'],
+  [/\bseperate\w*/gi, 'Spelling: "separate".'],
+  [/\bdefinately\b/gi, 'Spelling: "definitely".'],
+  [/\bbecuase\b/gi, 'Spelling: "because".'],
+  [/\bthier\b/gi, 'Spelling: "their".'],
+  [/\bwich\b/gi, 'Spelling: "which".'],
+  [/\boccured\b/gi, 'Spelling: "occurred".'],
+  [/\buntill\b/gi, 'Spelling: "until".'],
+  [/\bgoverment\b/gi, 'Spelling: "government".'],
+  [/\b(could|would|should|must|might)\s+of\b/gi, 'Use "have", not "of": could have / would have.']
+];
+const APOSTROPHE = {
+  dont:"don't", cant:"can't", wont:"won't", isnt:"isn't", didnt:"didn't",
+  doesnt:"doesn't", wasnt:"wasn't", werent:"weren't", im:"I'm", ive:"I've",
+  youre:"you're", theyre:"they're", thats:"that's", wouldnt:"wouldn't",
+  couldnt:"couldn't", shouldnt:"shouldn't", hasnt:"hasn't", havent:"haven't"
+};
+const FILLERS = ['very','really','just','actually','basically','quite','totally','stuff','things','nice','good','a lot'];
+
+function analyzeSentence(text){
+  const issues = [];
+  const t = String(text).trim();
+  if(!t) return issues;
+  const add = (level, msg) => issues.push({ level, msg });
+
+  if(/^[a-z]/.test(t)) add('error', 'This sentence starts with a lowercase letter.');
+  if(!/[.!?…"')\]]\s*$/.test(t)) add('error', 'This sentence has no ending punctuation.');
+
+  if(/\s{2,}/.test(t)) add('warn', 'Double space detected.');
+  if(/\s+[,.;:!?]/.test(t)) add('warn', 'There is a space before a punctuation mark.');
+  if(/[,;:][^\s\d]/.test(t)) add('warn', 'Missing space after a punctuation mark.');
+
+  if(/(^|\s)i(\s|$)/.test(t)) add('error', 'The pronoun "I" is always capitalized.');
+
+  const rep = t.match(/\b(\w+)\s+\1\b/i);
+  if(rep) add('error', `Repeated word: “${rep[1]} ${rep[1]}”.`);
+
+  const aVowel = t.match(/\ba\s+([A-Za-z]\w*)/);
+  if(aVowel && /^[aeiou]/i.test(aVowel[1]) && !/^(uni|use|usu|eu|one|ubiq)/i.test(aVowel[1])){
+    add('warn', `Use “an” before “${aVowel[1]}”.`);
+  }
+  const anCons = t.match(/\ban\s+([A-Za-z]\w*)/);
+  if(anCons && /^[bcdfgjklmnpqrstvwxyz]/i.test(anCons[1]) && !/^(hour|honest|honor|heir|herb)/i.test(anCons[1])){
+    add('warn', `Use “a” before “${anCons[1]}”.`);
+  }
+
+  for(const [re, msg] of SPELLING){
+    if(re.test(t)) add('error', msg);
+  }
+  const lower = t.toLowerCase();
+  for(const bad in APOSTROPHE){
+    const re = new RegExp('\\b' + bad + '\\b');
+    if(re.test(lower)) add('warn', `Missing apostrophe: “${bad}” → “${APOSTROPHE[bad]}”.`);
+  }
+
+  const wc = wordsIn(t);
+  if(wc > 34) add('tip', `This sentence is ${wc} words long — consider splitting it into two.`);
+  if(wc < 4) add('tip', 'This sentence is very short. Is it doing enough work?');
+
+  const filler = FILLERS.find(f => new RegExp('\\b' + escRe(f) + '\\b', 'i').test(t));
+  if(filler) add('tip', `“${filler}” is a weak filler word — a more specific word usually reads better.`);
+
+  if(/\b(is|are|was|were|be|been|being)\s+\w+(ed|en)\b/i.test(t)){
+    add('tip', 'Possible passive voice — an active version is usually clearer and more direct.');
+  }
+  if(/^(there\s+(is|are|was|were))\b/i.test(t)){
+    add('tip', 'Starting with “there is/are” is flat. Try leading with the real subject.');
+  }
+  if(/^(and|but|so)\b/i.test(t)){
+    add('tip', 'Starting a sentence with a conjunction is fine in informal writing — just be aware of it.');
+  }
+  return issues;
+}
+
+function analyzeSession(s){
+  const perSentence = s.sentences.map(x => analyzeSentence(x.text));
+
+  const sessionFeedback = [];
+  if(!s.sentences.length){
+    return { perSentence, sessionFeedback, suggestions: [] };
+  }
+
+  const total = countWords(s);
+  if(s.targetWords && total < s.targetWords * 0.75){
+    sessionFeedback.push({ level:'warn', msg:`You are under your target: ${total} of ${s.targetWords} words.` });
+  }
+  if(s.targetWords && total > s.targetWords * 1.4){
+    sessionFeedback.push({ level:'tip', msg:`You went well past your target (${total} vs ${s.targetWords} words). Cutting usually strengthens a text.` });
+  }
+
+  const openers = {};
+  s.sentences.forEach(x => {
+    const w = (x.text.trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^a-z']/g, '');
+    if(w) openers[w] = (openers[w] || 0) + 1;
+  });
+  Object.entries(openers).filter(([, c]) => c >= 3).forEach(([w, c]) => {
+    sessionFeedback.push({ level:'tip', msg:`${c} sentences begin with “${w}”. Varying your openers makes the writing flow better.` });
+  });
+
+  const allWords = s.sentences.flatMap(x => (x.text.toLowerCase().match(/[a-z']+/g) || []));
+  const unique = new Set(allWords);
+  if(allWords.length > 40){
+    const ttr = unique.size / allWords.length;
+    if(ttr < 0.45){
+      sessionFeedback.push({ level:'tip', msg:`Your vocabulary repeats a lot (type–token ratio ${ttr.toFixed(2)}). Try swapping in more precise words.` });
+    }
+  }
+
+  const lens = s.sentences.map(x => wordsIn(x.text));
+  if(lens.length >= 4){
+    const avg = lens.reduce((a, b) => a + b, 0) / lens.length;
+    const variance = lens.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / lens.length;
+    if(Math.sqrt(variance) < 2.5){
+      sessionFeedback.push({ level:'tip', msg:'All your sentences are a similar length. Mix short punchy sentences with longer ones for rhythm.' });
+    }
+  }
+
+  const errCount = perSentence.flat().filter(f => f.level === 'error').length;
+  if(errCount === 0){
+    sessionFeedback.push({ level:'tip', msg:'No basic grammar or punctuation errors detected. Solid control.' });
+  } else {
+    sessionFeedback.push({ level:'warn', msg:`${errCount} basic error${errCount === 1 ? '' : 's'} detected across your sentences — see the list below.` });
+  }
+
+  const suggestions = [];
+  perSentence.forEach((issues, i) => {
+    const x = s.sentences[i];
+    const serious = issues.filter(f => f.level === 'error' || f.level === 'warn');
+    if(serious.length){
+      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: serious[0].msg });
+    } else if(issues.length >= 2){
+      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: issues[0].msg });
+    } else if(wordsIn(x.text) > 30){
+      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason:'Very long — could be split or tightened.' });
+    }
+  });
+
+  return { perSentence, sessionFeedback, suggestions };
+}
+
+/* ============================================================
+   EVENT HANDLING
+   ============================================================ */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  const act = btn.dataset.act;
+  const s = currentSession();
+
+  switch(act){
+
+    case 'nav': {
+      ui.view = btn.dataset.view;
+      if(ui.view === 'home') ui.sessionId = null;
+      if(ui.view !== 'library') { ui.libraryPickForSession = null; ui.librarySelected = []; }
+      save(); render();
+      break;
+    }
+
+    case 'toggle-theme': {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_KEY, theme);
+      applyTheme();
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      break;
+    }
+
+    case 'new-session': {
+      const ns = newSession();
+      state.sessions.push(ns);
+      ui.view = 'session'; ui.sessionId = ns.id; ui.step = 'setup';
+      save(); render();
+      break;
+    }
+
+    case 'open-session': {
+      ui.view = 'session'; ui.sessionId = btn.dataset.id; ui.step = 'setup';
+      save(); render();
+      break;
+    }
+
+    case 'del-session': {
+      const id = btn.dataset.id;
+      if(confirm('Delete this session? This cannot be undone.')){
+        state.sessions = state.sessions.filter(x => x.id !== id);
+        if(ui.sessionId === id){ ui.view = 'home'; ui.sessionId = null; }
+        save(); render();
+      }
+      break;
+    }
+
+    case 'step': {
+      if(!s) break;
+      ui.step = btn.dataset.step;
+      if(ui.step === 'write') ensureCursor(s);
+      if(ui.step === 'review'){ s.reviewedAt = Date.now(); }
+      save(); render();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      break;
+    }
+
+    /* ---- targets ---- */
+    case 'add-target': {
+      if(!s) break;
+      const kind = $('#ntKind').value;
+      const text = $('#ntText').value.trim();
+      const requirement = $('#ntReq').value;
+      const group = $('#ntGroup').value.trim();
+      if(!text){ toast('Type the target language first.'); break; }
+      s.targets.push({ id: uid(), kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '' });
+      $('#ntText').value = ''; $('#ntGroup').value = '';
+      touch(s); render();
+      toast('Target added');
+      break;
+    }
+
+    case 'del-target': {
+      if(!s) break;
+      const id = btn.dataset.id;
+      s.targets = s.targets.filter(t => t.id !== id);
+      s.nodes.forEach(n => n.targetIds = n.targetIds.filter(x => x !== id));
+      s.sentences.forEach(x => {
+        x.usedTargetIds = (x.usedTargetIds || []).filter(x2 => x2 !== id);
+        x.manualUsedIds = (x.manualUsedIds || []).filter(x2 => x2 !== id);
+      });
+      s.manualUsed = (s.manualUsed || []).filter(x => x !== id);
+      s.draftManual = (s.draftManual || []).filter(x => x !== id);
+      touch(s); render();
+      break;
+    }
+
+    /* ---- library: save from session ---- */
+    case 'save-targets-to-library': {
+      if(!s) break;
+      if(!s.targets.length){ toast('No targets to save.'); break; }
+      const added = saveTargetsToLibrary(s.targets);
+      save(); render();
+      toast(added ? `Saved ${added} new item${added===1?'':'s'} to library` : 'All items already in library.');
+      break;
+    }
+
+    case 'save-one-to-library': {
+      if(!s) break;
+      const t = s.targets.find(x => x.id === btn.dataset.id);
+      if(!t) break;
+      const added = saveTargetsToLibrary([t]);
+      save(); render();
+      toast(added ? 'Saved to library' : 'Already in library.');
+      break;
+    }
+
+    case 'open-library-picker': {
+      if(!s) break;
+      ui.libraryPickForSession = s.id;
+      ui.librarySelected = [];
+      ui.view = 'library';
+      save(); render();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      break;
+    }
+
+    case 'cancel-library-picker': {
+      const sid = ui.libraryPickForSession;
+      ui.libraryPickForSession = null;
+      ui.librarySelected = [];
+      if(sid){ ui.view = 'session'; ui.sessionId = sid; ui.step = 'targets'; }
+      save(); render();
+      break;
+    }
+
+    case 'confirm-library-picker': {
+      const sid = ui.libraryPickForSession;
+      const ts = state.sessions.find(x => x.id === sid);
+      if(!ts){ toast('Session not found.'); ui.libraryPickForSession = null; ui.librarySelected = []; save(); render(); break; }
+      if(!ui.librarySelected.length){ toast('Nothing selected.'); break; }
+      const added = addLibraryItemsToSession(ui.librarySelected, ts);
+      ui.libraryPickForSession = null;
+      ui.librarySelected = [];
+      ui.view = 'session'; ui.sessionId = sid; ui.step = 'targets';
+      save(); render();
+      toast(added ? `Added ${added} item${added===1?'':'s'} to session` : 'All selected items were already in the session.');
+      break;
+    }
+
+    /* ---- library: main view ---- */
+    case 'add-library-item': {
+      const kind = $('#libKind').value;
+      const text = $('#libText').value.trim();
+      const requirement = $('#libReq').value;
+      const group = $('#libGroup').value.trim();
+      const tags = $('#libTags').value.split(',').map(t => t.trim()).filter(Boolean);
+      if(!text){ toast('Type the item first.'); break; }
+      const dup = state.library.some(it => it.kind === kind && norm(it.text) === norm(text));
+      if(dup){ toast('That item is already in your library.'); break; }
+      state.library.push({
+        id: uid(), kind, text, requirement,
+        group: requirement === 'chooseOne' ? (group || 'Group 1') : '',
+        tags, addedAt: Date.now()
+      });
+      $('#libText').value = ''; $('#libGroup').value = ''; $('#libTags').value = '';
+      save(); render();
+      toast('Added to library');
+      break;
+    }
+
+    case 'del-library-item': {
+      e.preventDefault();
+      e.stopPropagation();
+      if(!confirm('Remove this item from your library?')) break;
+      state.library = state.library.filter(it => it.id !== btn.dataset.id);
+      ui.librarySelected = ui.librarySelected.filter(id => id !== btn.dataset.id);
+      save(); render();
+      break;
+    }
+
+    case 'toggle-library-select': {
+      const id = btn.dataset.id;
+      const set = new Set(ui.librarySelected);
+      if(set.has(id)) set.delete(id); else set.add(id);
+      ui.librarySelected = Array.from(set);
+      render();
+      break;
+    }
+
+    case 'clear-library-selection': {
+      ui.librarySelected = [];
+      render();
+      break;
+    }
+
+    case 'filter-library': {
+      ui.libraryFilter = btn.dataset.kind;
+      ui.librarySelected = [];
+      render();
+      break;
+    }
+
+    case 'bulk-delete-library': {
+      const ids = ui.librarySelected.slice();
+      if(!ids.length) break;
+      if(!confirm(`Delete ${ids.length} item${ids.length===1?'':'s'} from your library?`)) break;
+      state.library = state.library.filter(it => !ids.includes(it.id));
+      ui.librarySelected = [];
+      save(); render();
+      toast('Deleted');
+      break;
+    }
+
+    case 'bulk-add-to-session': {
+      const targetSid = $('#bulkSessionSelect') ? $('#bulkSessionSelect').value : '';
+      if(!targetSid){ toast('Choose a session.'); break; }
+      const ts = state.sessions.find(x => x.id === targetSid);
+      if(!ts){ toast('Session not found.'); break; }
+      if(!ui.librarySelected.length){ toast('Nothing selected.'); break; }
+      const added = addLibraryItemsToSession(ui.librarySelected, ts);
+      const count = ui.librarySelected.length;
+      ui.librarySelected = [];
+      save(); render();
+      toast(added ? `Added ${added} item${added===1?'':'s'} to session` : `${count} item${count===1?'':'s'} already in that session.`);
+      break;
+    }
+
+    case 'import-library': {
+      pendingImportMode = 'library';
+      $('#fileImport').click();
+      break;
+    }
+
+    case 'export-library-csv': {
+      if(!state.library.length){ toast('Library is empty.'); break; }
+      download(`writepath-library-${new Date().toISOString().slice(0,10)}.csv`, exportLibraryCSV(), 'text/csv;charset=utf-8');
+      toast('Library exported as CSV');
+      break;
+    }
+
+    /* ---- full backup ---- */
+    case 'export-all-json': {
+      downloadBackup();
+      break;
+    }
+    case 'import-all-data': {
+      pendingImportMode = 'backup';
+      $('#fileImport').click();
+      break;
+    }
+
+    /* ---- session-level imports/exports ---- */
+    case 'import-targets': {
+      if(!s) break;
+      pendingImportMode = 'targets';
+      $('#fileImport').click();
+      break;
+    }
+    case 'export-targets-csv': {
+      if(!s) break;
+      if(!s.targets.length){ toast('No targets to export.'); break; }
+      download(`writepath-targets-${s.id}.csv`, exportTargetsCSV(s), 'text/csv;charset=utf-8');
+      toast('Targets exported as CSV');
+      break;
+    }
+
+    /* ---- path ---- */
+    case 'add-node': {
+      if(!s) break;
+      s.nodes.push({ id: uid(), instruction:'', targetIds: [], branches: [] });
+      touch(s); render();
+      break;
+    }
+
+    case 'del-node': {
+      if(!s) break;
+      const id = btn.dataset.id;
+      s.nodes = s.nodes.filter(n => n.id !== id);
+      s.nodes.forEach(n => { n.branches = n.branches.filter(b => b.targetNodeId !== id); });
+      if(s.currentNodeId === id) s.currentNodeId = s.nodes[0]?.id || null;
+      touch(s); render();
+      break;
+    }
+
+    case 'toggle-node-target': {
+      if(!s) break;
+      const n = s.nodes.find(x => x.id === btn.dataset.id);
+      if(!n) break;
+      const tid = btn.dataset.tid;
+      n.targetIds = n.targetIds.includes(tid) ? n.targetIds.filter(x => x !== tid) : n.targetIds.concat(tid);
+      touch(s); render();
+      break;
+    }
+
+    case 'add-branch': {
+      if(!s) break;
+      const n = s.nodes.find(x => x.id === btn.dataset.id);
+      if(!n) break;
+      n.branches.push({ id: uid(), label:'', targetNodeId:'' });
+      touch(s); render();
+      break;
+    }
+
+    case 'del-branch': {
+      if(!s) break;
+      const n = s.nodes.find(x => x.id === btn.dataset.nid);
+      if(!n) break;
+      n.branches = n.branches.filter(b => b.id !== btn.dataset.id);
+      touch(s); render();
+      break;
+    }
+
+    /* ---- writing ---- */
+    case 'add-sentence': {
+      if(!s) break;
+      const text = (s.draft || '').trim();
+      if(!text){ toast('Write a sentence first.'); break; }
+      const auto = autoMatch(text, s.targets);
+      const manual = new Set(s.draftManual || []);
+      const usedIds = Array.from(new Set([...auto, ...manual]));
+      s.sentences.push({
+        id: uid(), nodeId: s.currentNodeId, text,
+        original: text,
+        usedTargetIds: usedIds,
+        manualUsedIds: Array.from(manual),
+        at: Date.now()
+      });
+      s.draft = ''; s.draftManual = [];
+
+      const node = s.nodes.find(n => n.id === s.currentNodeId);
+      if(node && node.branches.length){
+        s.awaitingChoice = true;
+      } else if(node){
+        advanceSequential(s);
+      }
+      touch(s); render();
+      break;
+    }
+
+    case 'choose-branch': {
+      if(!s) break;
+      const node = s.nodes.find(n => n.id === s.currentNodeId);
+      const b = node && node.branches.find(x => x.id === btn.dataset.id);
+      s.awaitingChoice = false;
+      if(b && b.targetNodeId && s.nodes.some(n => n.id === b.targetNodeId)){
+        s.currentNodeId = b.targetNodeId;
+      } else {
+        advanceSequential(s);
+      }
+      touch(s); render();
+      break;
+    }
+
+    case 'toggle-draft-target': {
+      if(!s) break;
+      const tid = btn.dataset.tid;
+      const committed = committedUsed(s);
+      if(committed.has(tid)) break;
+      const set = new Set(s.draftManual || []);
+      if(set.has(tid)) set.delete(tid); else set.add(tid);
+      s.draftManual = Array.from(set);
+      save();
+      updateSidebarLive();
+      break;
+    }
+
+    case 'finish': {
+      if(!s) break;
+      ui.step = 'review';
+      s.reviewedAt = Date.now();
+      touch(s); render();
+      break;
+    }
+
+    /* ---- reset writing ---- */
+    case 'reset-draft': {
+      if(!s) break;
+      const hasText = (s.draft || '').trim().length > 0;
+      const hasManual = (s.draftManual || []).length > 0;
+      if(!hasText && !hasManual){ toast('Nothing to reset.'); break; }
+      if(hasText && !confirm('Clear the sentence you are currently writing?')) break;
+      s.draft = '';
+      s.draftManual = [];
+      save(); render();
+      toast('Draft cleared');
+      break;
+    }
+
+    case 'reset-writing': {
+      if(!s) break;
+      const hasAnything = s.sentences.length > 0 || (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
+      if(!hasAnything){ toast('Nothing to reset.'); break; }
+      const msg = s.sentences.length
+        ? `Reset all writing in this session?\n\nThis will delete ${s.sentences.length} sentence${s.sentences.length===1?'':'s'} and any revisions, and move you back to the first node. Your target language and sentence path will be kept.`
+        : 'Reset all writing in this session?\n\nThis will clear the current draft and move you back to the first node.';
+      if(!confirm(msg)) break;
+      s.sentences = [];
+      s.revisions = [];
+      s.manualUsed = [];
+      s.draft = '';
+      s.draftManual = [];
+      s.awaitingChoice = false;
+      s.pathComplete = false;
+      s.currentNodeId = s.nodes[0]?.id || null;
+      s.reviewedAt = null;
+      touch(s); render();
+      toast('Writing reset — back to the first node');
+      break;
+    }
+
+    case 'undo-last-sentence': {
+      if(!s) break;
+      if(!s.sentences.length){ toast('No sentence to undo.'); break; }
+      const last = s.sentences[s.sentences.length - 1];
+      if(!confirm(`Undo the last sentence?\n\n"${last.text.slice(0, 80)}${last.text.length > 80 ? '…' : ''}"`)) break;
+      s.sentences.pop();
+      s.awaitingChoice = false;
+      s.pathComplete = false;
+      if(last.nodeId && s.nodes.some(n => n.id === last.nodeId)){
+        s.currentNodeId = last.nodeId;
+      } else {
+        s.currentNodeId = s.nodes[0]?.id || null;
+      }
+      touch(s); render();
+      toast('Last sentence removed');
+      break;
+    }
+
+    /* ---- review ---- */
+    case 'mark-used': {
+      if(!s) break;
+      const id = btn.dataset.id;
+      const used = committedUsed(s);
+      if(used.has(id)){
+        s.manualUsed = (s.manualUsed || []).filter(x => x !== id);
+        s.sentences.forEach(x => {
+          x.usedTargetIds = (x.usedTargetIds || []).filter(x2 => x2 !== id);
+          x.manualUsedIds = (x.manualUsedIds || []).filter(x2 => x2 !== id);
+        });
+      } else {
+        s.manualUsed = Array.from(new Set([...(s.manualUsed || []), id]));
+      }
+      touch(s); render();
+      break;
+    }
+
+    case 'revise-jump': {
+      ui.step = 'revise';
+      save(); render();
+      const el = document.getElementById('rev-' + btn.dataset.id);
+      if(el){ el.scrollIntoView({ behavior:'smooth', block:'center' }); el.querySelector('textarea')?.focus(); }
+      break;
+    }
+
+    /* ---- revision ---- */
+    case 'save-revision': {
+      if(!s) break;
+      const id = btn.dataset.id;
+      const sen = s.sentences.find(x => x.id === id);
+      if(!sen) break;
+      const next = (ui.reviseDraft[id] ?? sen.text).trim();
+      if(!next){ toast('The revision is empty.'); break; }
+      if(next === sen.text){ toast('Nothing changed.'); break; }
+      s.revisions.push({ id: uid(), sentenceId: id, before: sen.text, after: next, at: Date.now() });
+      sen.text = next;
+      const auto = autoMatch(next, s.targets);
+      sen.usedTargetIds = Array.from(new Set([...auto, ...(sen.manualUsedIds || [])]));
+      delete ui.reviseDraft[id];
+      touch(s); render();
+      toast('Revision saved');
+      break;
+    }
+
+    case 'revert-revision': {
+      if(!s) break;
+      const id = btn.dataset.id;
+      const sen = s.sentences.find(x => x.id === id);
+      if(!sen) break;
+      if(!confirm('Revert this sentence to its original version?')) break;
+      s.revisions.push({ id: uid(), sentenceId: id, before: sen.text, after: sen.original, at: Date.now() });
+      sen.text = sen.original;
+      const auto = autoMatch(sen.text, s.targets);
+      sen.usedTargetIds = Array.from(new Set([...auto, ...(sen.manualUsedIds || [])]));
+      delete ui.reviseDraft[id];
+      touch(s); render();
+      break;
+    }
+  }
+});
+
+/* ---------- live field updates (no re-render, keeps focus) ---------- */
+function onField(e){
+  const t = e.target;
+
+  if(t.id === 'libSearch'){
+    ui.librarySearch = t.value;
+    const pos = t.selectionStart;
+    render();
+    const el = $('#libSearch');
+    if(el){ el.focus(); el.setSelectionRange(pos, pos); }
+    return;
+  }
+
+  if(!t.dataset) return;
+  const s = currentSession();
+
+  if('sfield' in t.dataset && s){
+    let v = t.value;
+    if(t.type === 'number') v = Math.max(0, Number(v) || 0);
+    s[t.dataset.sfield] = v;
+    s.updatedAt = Date.now();
+    save();
+    if(t.dataset.sfield === 'targetWords') updateMeta();
+    return;
+  }
+  if(!s) return;
+
+  if('tfield' in t.dataset){
+    const tg = s.targets.find(x => x.id === t.dataset.targetId);
+    if(tg){ tg[t.dataset.tfield] = t.value; touch(s); }
+    return;
+  }
+  if('nfield' in t.dataset){
+    const n = s.nodes.find(x => x.id === t.dataset.nodeId);
+    if(n){ n[t.dataset.nfield] = t.value; touch(s); }
+    return;
+  }
+  if('bfield' in t.dataset){
+    for(const n of s.nodes){
+      const b = n.branches.find(x => x.id === t.dataset.branchId);
+      if(b){ b[t.dataset.bfield] = t.value; touch(s); break; }
+    }
+    return;
+  }
+  if('draft' in t.dataset){
+    s.draft = t.value;
+    s.updatedAt = Date.now();
+    save();
+    updateSidebarLive();
+    return;
+  }
+  if('revise' in t.dataset){
+    ui.reviseDraft[t.dataset.revise] = t.value;
+    return;
+  }
+}
+document.addEventListener('input', onField);
+document.addEventListener('change', onField);
+
+/* ---------- live sidebar highlighting while typing ---------- */
+function updateSidebarLive(){
+  const s = currentSession();
+  if(!s) return;
+  const chips = $$('.tchip');
+  if(!chips.length) return;
+  const committed = committedUsed(s);
+  const auto = autoMatch(s.draft || '', s.targets);
+  const manual = new Set(s.draftManual || []);
+  chips.forEach(chip => {
+    const id = chip.dataset.tid;
+    const isC = committed.has(id);
+    const isL = !isC && (auto.has(id) || manual.has(id));
+    chip.classList.toggle('committed', isC);
+    chip.classList.toggle('live', isL);
+  });
+  const counter = $('.editor')?.closest('.panel')?.querySelector('.muted.small');
+  if(counter) counter.textContent = `${wordsIn(s.draft || '')} word${wordsIn(s.draft||'')===1?'':'s'} in this sentence`;
+}
+
+/* ---------- file import (targets OR library OR full backup) ---------- */
+$('#fileImport').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if(!file){ pendingImportMode = 'targets'; return; }
+
+  let text = '';
+  try { text = await file.text(); }
+  catch(err){
+    toast('Could not read file.');
+    e.target.value = ''; pendingImportMode = 'targets';
+    return;
+  }
+
+  /* ----- FULL BACKUP ----- */
+  if(pendingImportMode === 'backup'){
+    let data;
+    try { data = JSON.parse(text); }
+    catch(err){
+      toast('Invalid backup file (not JSON).');
+      e.target.value = ''; pendingImportMode = 'targets';
+      return;
+    }
+    const lib = Array.isArray(data.library) ? data.library : [];
+    const sess = Array.isArray(data.sessions) ? data.sessions : [];
+    if(!lib.length && !sess.length){
+      toast('Backup contains no sessions or library items.');
+      e.target.value = ''; pendingImportMode = 'targets';
+      return;
+    }
+    const replace = confirm(
+      `Import backup?\n\n` +
+      `• ${sess.length} session${sess.length === 1 ? '' : 's'}\n` +
+      `• ${lib.length} library item${lib.length === 1 ? '' : 's'}\n\n` +
+      `OK = Replace all current data\n` +
+      `Cancel = Merge into current data`
+    );
+    const result = applyBackup(data, replace ? 'replace' : 'merge');
+    save(); render();
+    if(result.replaced){
+      toast(`Backup restored — ${result.sessAdded} session(s), ${result.libAdded} library item(s)`);
+    } else {
+      toast(`Merged — added ${result.sessAdded} session(s), ${result.libAdded} library item(s)`);
+    }
+    e.target.value = ''; pendingImportMode = 'targets';
+    return;
+  }
+
+  /* ----- TARGETS / LIBRARY ----- */
+  let items = [];
+  try { items = parseTargetsFile(file.name, text); }
+  catch(err){
+    toast('Could not parse file: ' + err.message);
+    e.target.value = ''; pendingImportMode = 'targets';
+    return;
+  }
+  if(!items.length){
+    toast('No terms found in the file.');
+    e.target.value = ''; pendingImportMode = 'targets';
+    return;
+  }
+
+  if(pendingImportMode === 'library'){
+    const existing = new Set(state.library.map(it => it.kind + '::' + norm(it.text)));
+    let added = 0;
+    items.forEach(it => {
+      const key = it.kind + '::' + norm(it.text);
+      if(existing.has(key)) return;
+      state.library.push({
+        id: uid(), kind: it.kind, text: it.text,
+        requirement: it.requirement, group: it.group || '',
+        tags: it.tags || [], addedAt: Date.now()
+      });
+      existing.add(key);
+      added++;
+    });
+    save(); render();
+    toast(added ? `Imported ${added} item${added === 1 ? '' : 's'} to library` : 'All items already in library.');
+  } else {
+    const s = currentSession();
+    if(!s){
+      toast('Open a session first.');
+      e.target.value = ''; pendingImportMode = 'targets';
+      return;
+    }
+    items.forEach(it => {
+      s.targets.push({
+        id: uid(), kind: it.kind, text: it.text,
+        requirement: it.requirement,
+        group: it.requirement === 'chooseOne' ? (it.group || 'Group 1') : ''
+      });
+    });
+    touch(s); render();
+    toast(`Imported ${items.length} item${items.length === 1 ? '' : 's'}`);
+  }
+
+  e.target.value = '';
+  pendingImportMode = 'targets';
+});
+
+/* ---------- keyboard shortcut: Ctrl/Cmd + Enter adds a sentence ---------- */
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){
+    if(ui.step === 'write' && ui.view === 'session' && !currentSession()?.awaitingChoice){
+      e.preventDefault();
+      document.querySelector('[data-act="add-sentence"]')?.click();
+    }
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+load();
+applyTheme();
+if(ui.view === 'session' && !currentSession()){ ui.view = 'home'; ui.sessionId = null; }
+render();
+</script>
+</body>
+</html>
