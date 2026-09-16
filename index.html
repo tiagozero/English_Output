@@ -4,9 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Language Study Hub</title>
-<meta name="description" content="Combined dashboard for Grammar Study, 30 Words a Day and WritePath.">
-<meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='28'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#f5f6f8; --panel:#ffffff; --faint:#fafbfc; --line:#e4e7ec; --line-strong:#c9cede;
@@ -89,7 +86,7 @@
     display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;
   }
   .hero h1{margin-bottom:2px}
-  .hero p{color:var(--muted);margin:0;max-width:600px}
+  .hero p{color:var(--muted);margin:0;max-width:560px}
   .hero .streak{
     display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
     border-radius:12px;padding:10px 14px;flex-shrink:0;
@@ -268,15 +265,16 @@
   };
   const THEME_KEY = 'hub-theme';
 
-  /* File names must match the originals EXACTLY (Linux is case-sensitive). */
   const MODULES = {
     grammar:    { file:'GrammarStudy.html', name:'Grammar Study',  icon:'📘', cls:'g' },
     vocabulary: { file:'Vocabulary.html',   name:'30 Words a Day', icon:'📚', cls:'v' },
     writepath:  { file:'WritePath.html',    name:'WritePath',      icon:'✍️', cls:'w' }
   };
 
-  /* Any anchor that should send the user to the hub instead of 404-ing. */
-  const HUB_LINK = /^(?:\.\.\/)*(?:Dashboard|index)\.html(?:[?#].*)?$/i;
+  /* Any anchor whose href points at a "Home"/"Dashboard"/"index" file —
+     at any depth of ../ — should be treated as a hub link, not a real
+     navigation target. Handles ?query and #hash too. */
+  const HUB_LINK = /^(?:\.{1,2}\/)*(?:Dashboard|index)\.html(?:[?#].*)?$/i;
 
   /* ============================================================
      TINY HELPERS
@@ -370,7 +368,7 @@
   }
 
   /* ============================================================
-     THE METRICS
+     METRICS
      ============================================================ */
   function vocabStatus(it){
     if(it.masteredAt || it.stage >= 6) return 'mastered';
@@ -389,7 +387,7 @@
   }
   function vocabMetrics(v){
     const T = todayKey();
-    const due   = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
+    const due = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
     const inbox = v.items.filter(i => i.inbox).length;
     return { review: due, inbox };
   }
@@ -398,32 +396,6 @@
       sessions: w.sessions.length,
       library:  w.library.length
     };
-  }
-
-  /* ---------- "last activity" per app (used in the meta line) ---------- */
-  function lastGrammar(g){
-    let last = 0;
-    g.attempts.forEach(a => { if(a.ts > last) last = a.ts; });
-    return last || null;
-  }
-  function lastVocab(v){
-    let last = 0;
-    v.items.forEach(it => {
-      [it.dateAdded, it.studiedAt, it.practicedAt, it.activeAt, it.masteredAt].forEach(d => {
-        const ts = toTsFromDay(d);
-        if(ts && ts > last) last = ts;
-      });
-    });
-    return last || null;
-  }
-  function lastWriting(w){
-    let last = 0;
-    w.sessions.forEach(s => { if(s.updatedAt && s.updatedAt > last) last = s.updatedAt; });
-    return last || null;
-  }
-  function withLast(meta, ts){
-    if(!ts) return meta;
-    return meta + ' · ' + fmtRel(ts);
   }
 
   /* ============================================================
@@ -468,7 +440,7 @@
   }
 
   /* ============================================================
-     UNIFIED RECENT ACTIVITY FEED
+     RECENT FEED
      ============================================================ */
   function buildFeed(data){
     const items = [];
@@ -515,7 +487,7 @@
   }
 
   /* ============================================================
-     HEATMAP RENDERER
+     HEATMAP
      ============================================================ */
   function hmLevel(n){
     if(!n) return 0;
@@ -578,7 +550,7 @@
   }
 
   /* ============================================================
-     OVERVIEW RENDERER
+     OVERVIEW RENDER
      ============================================================ */
   function renderOverview(){
     const data = loadAll();
@@ -597,7 +569,6 @@
                     || w.sessions || w.library
                     || allActiveDays;
 
-    /* ---- module cards (exact metrics you asked for) ---- */
     const grammarCard = card({
       cls:'g', icon:'📘', title:'Grammar Study', sub:'Topics & exercises',
       metrics:[
@@ -606,12 +577,9 @@
         { label:'Exercises', value: g.exercises }
       ],
       cols: 3,
-      meta: withLast(
-        g.exercises
-          ? g.exercises + ' exercise' + (g.exercises===1?'':'s')
-          : 'Not started',
-        lastGrammar(data.grammar)
-      ),
+      meta: g.exercises
+        ? g.exercises + ' exercise' + (g.exercises===1?'':'s') + ' · ' + g.materials + ' material' + (g.materials===1?'':'s')
+        : 'Not started',
       route:'grammar'
     });
 
@@ -622,12 +590,9 @@
         { label:'Inbox',           value: v.inbox,  hi: v.inbox  > 0 }
       ],
       cols: 2,
-      meta: withLast(
-        (v.review + v.inbox) > 0
-          ? v.review + ' due · ' + v.inbox + ' to triage'
-          : 'Nothing waiting',
-        lastVocab(data.vocab)
-      ),
+      meta: (v.review + v.inbox) > 0
+        ? v.review + ' due · ' + v.inbox + ' to triage'
+        : 'Nothing waiting',
       route:'vocabulary'
     });
 
@@ -638,16 +603,12 @@
         { label:'Library terms', value: w.library }
       ],
       cols: 2,
-      meta: withLast(
-        w.sessions
-          ? w.sessions + ' session' + (w.sessions===1?'':'s')
-          : 'Not started',
-        lastWriting(data.writepath)
-      ),
+      meta: w.sessions
+        ? w.sessions + ' session' + (w.sessions===1?'':'s') + ' · ' + w.library + ' library term' + (w.library===1?'':'s')
+        : 'Not started',
       route:'writepath'
     });
 
-    /* ---- recent feed ---- */
     const feedItems = buildFeed(data);
     const feedHTML = feedItems.length
       ? feedItems.map(f => `
@@ -661,11 +622,13 @@
         </div>`).join('')
       : `<div class="empty small">No activity yet — open a module to get started.</div>`;
 
+    const totalStudy = data.grammar.studySeconds;
+
     const html = `
       <div class="hero">
         <div>
           <h1>Your language study at a glance</h1>
-          <p>Live numbers pulled straight from each module. All three apps share this page's <code>localStorage</code>, so nothing needs to be synced. Open any card to study.</p>
+          <p>Live numbers pulled straight from each module. Open any card to study — the hub updates itself as you go.</p>
         </div>
         <div class="streak" title="Consecutive days with activity in any module">
           <span class="flame">🔥</span>
@@ -704,7 +667,7 @@
           <div class="k">Active days total</div>
         </div>
         <div class="stat">
-          <div class="v">${fmtTime(data.grammar.studySeconds)}</div>
+          <div class="v">${fmtTime(totalStudy)}</div>
           <div class="k">Grammar study time</div>
         </div>
       </div>
@@ -803,7 +766,7 @@
   }
 
   /* ============================================================
-     ROUTER + IFRAME
+     ROUTER
      ============================================================ */
   let currentRoute = 'overview';
   let iframeLoadedFor = null;
@@ -830,76 +793,103 @@
       return;
     }
 
+    const mod = MODULES[route];
+    if(!mod){ go('overview'); return; }
+
     $('#overview').hidden = true;
     $('#moduleView').hidden = false;
-
-    const mod = MODULES[route];
     $('#modTitle').textContent = mod.icon + '  ' + mod.name;
 
     const frame = $('#frame');
     if(iframeLoadedFor !== route){
-      frame.setAttribute('src', mod.file);
-      iframeLoadedFor = route;
       frame.dataset.route = route;
+      iframeLoadedFor = route;
+      frame.setAttribute('src', mod.file);
     } else {
       decorateFrame();
     }
   }
 
-  /* ---------------- iframe link bridge ----------------
-     Rewrites any "Home"-style link inside the module so it points
-     back at the hub, and intercepts clicks in case the link is
-     re-rendered between decoration passes. */
+  /* ============================================================
+     IFRAME DECORATION
+     Runs after each module load. Three jobs:
+       1. Rewrite any Home-style anchor so hovering shows the hub URL.
+       2. Intercept clicks on those anchors in the capture phase — this
+          fires BEFORE the browser navigates, so even if the anchor
+          was somehow not rewritten we never hit a 404.
+       3. Watch for DOM mutations (re-rendered Home links).
+     ============================================================ */
   function decorateFrame(){
     const frame = $('#frame');
     const route = frame.dataset.route || 'overview';
+    if(!route || route === 'overview') return;
 
-    let doc, win;
-    try{
+    let doc;
+    try {
       doc = frame.contentDocument;
-      win = frame.contentWindow;
-    }catch(e){ return; }
+    } catch(err){
+      // Cross-origin — usually means file:// or a sandbox without
+      // allow-same-origin. Nothing we can do; log and bail.
+      console.warn('[hub] cannot access iframe document:', err && err.message);
+      return;
+    }
     if(!doc || !doc.documentElement) return;
 
-    /* Intercept clicks in the CAPTURE phase — this runs before the
-       anchor's default navigation, so we can rescue 404-bound links. */
-    if(!doc.documentElement.dataset.hubClickBound){
-      doc.documentElement.dataset.hubClickBound = '1';
-      doc.addEventListener('click', function(e){
-        const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
-        if(!a) return;
-        const href = a.getAttribute('href') || '';
-        if(HUB_LINK.test(href)){
-          e.preventDefault();
-          e.stopPropagation();
-          go(route); // stay on the same module, just go back to the hub shell
-        }
-      }, true);
-    }
-
-    /* Rewrite hrefs so hovering a Home link shows the hub URL. */
     rewriteHubLinks(doc, route);
-
-    /* Watch for re-renders that add fresh Home links. */
-    if(!doc.documentElement.dataset.hubObserverBound){
-      doc.documentElement.dataset.hubObserverBound = '1';
-      try{
-        const mo = new MutationObserver(() => rewriteHubLinks(doc, route));
-        mo.observe(doc.documentElement, {
-          childList:true, subtree:true,
-          attributes:true, attributeFilter:['href']
-        });
-      }catch(e){}
-    }
+    bindHubClickCapture(doc);
+    bindHubObserver(doc, route);
   }
+
   function rewriteHubLinks(doc, route){
-    doc.querySelectorAll('a[href]').forEach(a => {
+    let list;
+    try { list = doc.querySelectorAll('a[href]'); }
+    catch(err){ return; }
+    list.forEach(a => {
       const href = a.getAttribute('href') || '';
       if(HUB_LINK.test(href)){
         a.setAttribute('href', 'index.html#' + route);
         a.setAttribute('target', '_top');
       }
     });
+  }
+
+  function bindHubClickCapture(doc){
+    if(doc.documentElement._hubClickBound) return;
+    doc.documentElement._hubClickBound = true;
+
+    doc.addEventListener('click', function(e){
+      // Walk up from the click target to find an anchor.
+      let node = e.target;
+      while(node && node !== doc.documentElement){
+        if(node.tagName === 'A' && node.hasAttribute('href')){
+          const href = node.getAttribute('href') || '';
+          if(HUB_LINK.test(href)){
+            // Stop the browser from ever attempting navigation.
+            e.preventDefault();
+            e.stopPropagation();
+            // Route the hub itself to overview.
+            go('overview');
+          }
+          return;
+        }
+        node = node.parentNode;
+      }
+    }, true);
+  }
+
+  function bindHubObserver(doc, route){
+    if(doc.documentElement._hubObserved) return;
+    doc.documentElement._hubObserved = true;
+    if(!window.MutationObserver) return;
+    try{
+      const mo = new MutationObserver(() => rewriteHubLinks(doc, route));
+      mo.observe(doc.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['href']
+      });
+    }catch(err){ /* ignore */ }
   }
 
   /* ============================================================
@@ -919,7 +909,6 @@
 
   $('#frame').addEventListener('load', () => decorateFrame());
 
-  /* Refresh numbers when the hub tab regains focus. */
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible' && currentRoute === 'overview'){
       renderOverview();
