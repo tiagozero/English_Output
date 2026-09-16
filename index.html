@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Language Study Hub</title>
+<meta name="description" content="Combined dashboard for Grammar Study, 30 Words a Day and WritePath.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='28'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#f5f6f8; --panel:#ffffff; --faint:#fafbfc; --line:#e4e7ec; --line-strong:#c9cede;
@@ -86,7 +89,7 @@
     display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;
   }
   .hero h1{margin-bottom:2px}
-  .hero p{color:var(--muted);margin:0;max-width:560px}
+  .hero p{color:var(--muted);margin:0;max-width:600px}
   .hero .streak{
     display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
     border-radius:12px;padding:10px 14px;flex-shrink:0;
@@ -105,7 +108,7 @@
   .section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 10px}
   .section-head h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 
-  /* ---------- module cards (the part with the exact metrics) ---------- */
+  /* ---------- module cards ---------- */
   .modules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   @media (max-width:820px){ .modules{grid-template-columns:1fr} }
   .mod{
@@ -265,11 +268,15 @@
   };
   const THEME_KEY = 'hub-theme';
 
+  /* File names must match the originals EXACTLY (Linux is case-sensitive). */
   const MODULES = {
     grammar:    { file:'GrammarStudy.html', name:'Grammar Study',  icon:'📘', cls:'g' },
     vocabulary: { file:'Vocabulary.html',   name:'30 Words a Day', icon:'📚', cls:'v' },
     writepath:  { file:'WritePath.html',    name:'WritePath',      icon:'✍️', cls:'w' }
   };
+
+  /* Any anchor that should send the user to the hub instead of 404-ing. */
+  const HUB_LINK = /^(?:\.\.\/)*(?:Dashboard|index)\.html(?:[?#].*)?$/i;
 
   /* ============================================================
      TINY HELPERS
@@ -322,9 +329,6 @@
     if(m) return m+'m';
     return sec+'s';
   }
-  function fmtLong(d){
-    return d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
-  }
 
   /* ============================================================
      DATA LOADING (reads each app's own localStorage key)
@@ -366,7 +370,7 @@
   }
 
   /* ============================================================
-     THE METRICS YOU ASKED FOR
+     THE METRICS
      ============================================================ */
   function vocabStatus(it){
     if(it.masteredAt || it.stage >= 6) return 'mastered';
@@ -376,7 +380,6 @@
     return 'new';
   }
 
-  /* Grammar:  Topics, Materials, Exercises */
   function grammarMetrics(g){
     return {
       topics:    g.topics.length,
@@ -384,16 +387,12 @@
       exercises: g.exercises.length
     };
   }
-
-  /* Vocabulary: words to review (due), inbox */
   function vocabMetrics(v){
     const T = todayKey();
-    const due = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
+    const due   = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
     const inbox = v.items.filter(i => i.inbox).length;
     return { review: due, inbox };
   }
-
-  /* Writing: Sessions, Library terms */
   function writingMetrics(w){
     return {
       sessions: w.sessions.length,
@@ -401,8 +400,34 @@
     };
   }
 
+  /* ---------- "last activity" per app (used in the meta line) ---------- */
+  function lastGrammar(g){
+    let last = 0;
+    g.attempts.forEach(a => { if(a.ts > last) last = a.ts; });
+    return last || null;
+  }
+  function lastVocab(v){
+    let last = 0;
+    v.items.forEach(it => {
+      [it.dateAdded, it.studiedAt, it.practicedAt, it.activeAt, it.masteredAt].forEach(d => {
+        const ts = toTsFromDay(d);
+        if(ts && ts > last) last = ts;
+      });
+    });
+    return last || null;
+  }
+  function lastWriting(w){
+    let last = 0;
+    w.sessions.forEach(s => { if(s.updatedAt && s.updatedAt > last) last = s.updatedAt; });
+    return last || null;
+  }
+  function withLast(meta, ts){
+    if(!ts) return meta;
+    return meta + ' · ' + fmtRel(ts);
+  }
+
   /* ============================================================
-     UNIFIED ACTIVITY MAP + STREAK (across all three modules)
+     UNIFIED ACTIVITY MAP + STREAK
      ============================================================ */
   function buildActivityMap(data){
     const map = {};
@@ -572,7 +597,7 @@
                     || w.sessions || w.library
                     || allActiveDays;
 
-    /* ----- module cards, leading with the exact metrics you asked for ----- */
+    /* ---- module cards (exact metrics you asked for) ---- */
     const grammarCard = card({
       cls:'g', icon:'📘', title:'Grammar Study', sub:'Topics & exercises',
       metrics:[
@@ -581,9 +606,12 @@
         { label:'Exercises', value: g.exercises }
       ],
       cols: 3,
-      meta: g.exercises
-        ? g.exercises + ' exercise' + (g.exercises===1?'':'s') + ' · ' + g.materials + ' material' + (g.materials===1?'':'s')
-        : 'Not started',
+      meta: withLast(
+        g.exercises
+          ? g.exercises + ' exercise' + (g.exercises===1?'':'s')
+          : 'Not started',
+        lastGrammar(data.grammar)
+      ),
       route:'grammar'
     });
 
@@ -594,9 +622,12 @@
         { label:'Inbox',           value: v.inbox,  hi: v.inbox  > 0 }
       ],
       cols: 2,
-      meta: (v.review + v.inbox) > 0
-        ? v.review + ' due · ' + v.inbox + ' to triage'
-        : 'Nothing waiting',
+      meta: withLast(
+        (v.review + v.inbox) > 0
+          ? v.review + ' due · ' + v.inbox + ' to triage'
+          : 'Nothing waiting',
+        lastVocab(data.vocab)
+      ),
       route:'vocabulary'
     });
 
@@ -607,13 +638,16 @@
         { label:'Library terms', value: w.library }
       ],
       cols: 2,
-      meta: w.sessions
-        ? w.sessions + ' session' + (w.sessions===1?'':'s') + ' · ' + w.library + ' library term' + (w.library===1?'':'s')
-        : 'Not started',
+      meta: withLast(
+        w.sessions
+          ? w.sessions + ' session' + (w.sessions===1?'':'s')
+          : 'Not started',
+        lastWriting(data.writepath)
+      ),
       route:'writepath'
     });
 
-    /* ----- unified recent feed ----- */
+    /* ---- recent feed ---- */
     const feedItems = buildFeed(data);
     const feedHTML = feedItems.length
       ? feedItems.map(f => `
@@ -627,15 +661,11 @@
         </div>`).join('')
       : `<div class="empty small">No activity yet — open a module to get started.</div>`;
 
-    /* ----- top stat strip ----- */
-    const totalStudy = data.grammar.studySeconds;
-    const totalSessions = w.sessions;
-
     const html = `
       <div class="hero">
         <div>
           <h1>Your language study at a glance</h1>
-          <p>Live numbers pulled straight from each module. Open any card to study — the hub updates itself as you go.</p>
+          <p>Live numbers pulled straight from each module. All three apps share this page's <code>localStorage</code>, so nothing needs to be synced. Open any card to study.</p>
         </div>
         <div class="streak" title="Consecutive days with activity in any module">
           <span class="flame">🔥</span>
@@ -674,7 +704,7 @@
           <div class="k">Active days total</div>
         </div>
         <div class="stat">
-          <div class="v">${fmtTime(totalStudy)}</div>
+          <div class="v">${fmtTime(data.grammar.studySeconds)}</div>
           <div class="k">Grammar study time</div>
         </div>
       </div>
@@ -726,7 +756,7 @@
   function card({ cls, icon, title, sub, metrics, cols, meta, route }){
     const metricsHTML = metrics.map(m => {
       const zero = (m.value === 0 && !m.warn) ? ' zero' : '';
-      const hi   = m.hi && m.value > 0 ? ' hi' : (m.hi ? ' hi' : '');
+      const hi   = m.hi ? ' hi' : '';
       const warn = m.warn ? ' warn' : '';
       return `
         <div class="mmetric${hi}${warn}${zero}">
@@ -815,16 +845,58 @@
       decorateFrame();
     }
   }
+
+  /* ---------------- iframe link bridge ----------------
+     Rewrites any "Home"-style link inside the module so it points
+     back at the hub, and intercepts clicks in case the link is
+     re-rendered between decoration passes. */
   function decorateFrame(){
     const frame = $('#frame');
-    const route = frame.dataset.route;
-    let doc;
-    try{ doc = frame.contentDocument; }catch(e){ return; }
-    if(!doc) return;
+    const route = frame.dataset.route || 'overview';
+
+    let doc, win;
+    try{
+      doc = frame.contentDocument;
+      win = frame.contentWindow;
+    }catch(e){ return; }
+    if(!doc || !doc.documentElement) return;
+
+    /* Intercept clicks in the CAPTURE phase — this runs before the
+       anchor's default navigation, so we can rescue 404-bound links. */
+    if(!doc.documentElement.dataset.hubClickBound){
+      doc.documentElement.dataset.hubClickBound = '1';
+      doc.addEventListener('click', function(e){
+        const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if(!a) return;
+        const href = a.getAttribute('href') || '';
+        if(HUB_LINK.test(href)){
+          e.preventDefault();
+          e.stopPropagation();
+          go(route); // stay on the same module, just go back to the hub shell
+        }
+      }, true);
+    }
+
+    /* Rewrite hrefs so hovering a Home link shows the hub URL. */
+    rewriteHubLinks(doc, route);
+
+    /* Watch for re-renders that add fresh Home links. */
+    if(!doc.documentElement.dataset.hubObserverBound){
+      doc.documentElement.dataset.hubObserverBound = '1';
+      try{
+        const mo = new MutationObserver(() => rewriteHubLinks(doc, route));
+        mo.observe(doc.documentElement, {
+          childList:true, subtree:true,
+          attributes:true, attributeFilter:['href']
+        });
+      }catch(e){}
+    }
+  }
+  function rewriteHubLinks(doc, route){
     doc.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href') || '';
-      if(/^(?:\.\.\/)?(?:Dashboard|index)\.html$/i.test(href)){
-        a.setAttribute('href', 'index.html#' + (route || 'overview'));
+      if(HUB_LINK.test(href)){
+        a.setAttribute('href', 'index.html#' + route);
         a.setAttribute('target', '_top');
       }
     });
@@ -847,16 +919,12 @@
 
   $('#frame').addEventListener('load', () => decorateFrame());
 
-  /* Refresh numbers when the hub tab regains focus (e.g. coming back
-     from a module in another tab/window). */
+  /* Refresh numbers when the hub tab regains focus. */
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible' && currentRoute === 'overview'){
       renderOverview();
     }
   });
-
-  /* Also refresh whenever the user re-enters the overview route
-     — this is where the numbers live. */
   window.addEventListener('focus', () => {
     if(currentRoute === 'overview') renderOverview();
   });
