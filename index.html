@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Language Study Hub</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --faint:#fafbfc; --line:#e4e7ec; --line-strong:#c9cede;
+    --text:#12141a; --muted:#6b7280; --soft:#9aa0ad;
+    --accent:#4f46e5; --accent-hover:#4338ca; --accent-soft:#eef0ff; --accent-line:#c7c9ff;
+    --green:#047857; --green-soft:#e8f7f1; --green-line:#b9e6d5;
+    --amber:#b45309; --amber-soft:#fdf2e3; --amber-line:#f3e0c2;
+    --red:#b91c1c; --red-soft:#fdeceb; --red-line:#f6d5d3;
+    --violet:#6d28d9; --violet-soft:#f0ebff; --violet-line:#ddd6fe;
+    --bar:#eceef2; --hm0:#eceef2; --hm1:#c7d2fe; --hm2:#818cf8; --hm3:#4f46e5; --hm4:#312e81;
+    --shadow:rgba(20,22,40,.05);
+    --radius:12px;
+  }
+  [data-theme="dark"]{
+    --bg:#0e1117; --panel:#161a22; --faint:#12161d; --line:#262b36; --line-strong:#39414f;
+    --text:#e8eaef; --muted:#8b93a3; --soft:#6b7280;
+    --accent:#818cf8; --accent-hover:#a5b4fc; --accent-soft:#1e2138; --accent-line:#3730a3;
+    --green:#34d399; --green-soft:#12291f; --green-line:#1f4a37;
+    --amber:#fbbf24; --amber-soft:#2a2113; --amber-line:#4a3a17;
+    --red:#f87171; --red-soft:#2b1a1a; --red-line:#4a2525;
+    --violet:#c4b5fd; --violet-soft:#2c1f52; --violet-line:#4338ca;
+    --bar:#2a2f3a; --hm0:#22262e; --hm1:#312e81; --hm2:#4338ca; --hm3:#6366f1; --hm4:#a5b4fc;
+    --shadow:rgba(0,0,0,.4);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); font-size:14px; line-height:1.5;
+    display:flex; flex-direction:column; height:100vh; overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    transition:background .15s, color .15s;
+  }
+  h1,h2,h3,h4{margin:0 0 6px;letter-spacing:-.01em;line-height:1.25}
+  h1{font-size:24px} h2{font-size:18px} h3{font-size:15px} h4{font-size:13.5px}
+  p{margin:0 0 8px}
+  button{font:inherit;cursor:pointer;color:inherit}
+  .muted{color:var(--muted)}
+  .small{font-size:12.5px}
+  .tiny{font-size:11.5px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row.between{justify-content:space-between}
+
+  /* ---------- header ---------- */
+  header{
+    flex:0 0 auto;
+    background:var(--panel); border-bottom:1px solid var(--line);
+    padding:8px 14px; display:flex; align-items:center; gap:12px; z-index:10;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em;font-size:13.5px;white-space:nowrap}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);flex-shrink:0}
+  nav{display:flex;gap:3px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;min-width:0}
+  nav::-webkit-scrollbar{display:none}
+  nav a{
+    padding:6px 12px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:13px;
+    font-weight:500;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+    border:1px solid transparent;transition:background .12s,color .12s,border-color .12s;cursor:pointer;
+  }
+  nav a:hover{background:var(--accent-soft);color:var(--text)}
+  nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600;border-color:var(--accent-soft)}
+  nav a .icon{font-size:14px;line-height:1}
+  .iconbtn{
+    background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;
+    font-size:14px;line-height:1;color:var(--muted);transition:all .12s;flex-shrink:0;
+  }
+  .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ---------- main / pages ---------- */
+  main{flex:1;min-height:0;position:relative;background:var(--bg);overflow:hidden}
+  .page{position:absolute;inset:0}
+  #overview{overflow-y:auto;padding:20px 22px 60px}
+  #frame{width:100%;height:100%;border:0;background:var(--bg)}
+  [hidden]{display:none !important}
+
+  /* ---------- overview ---------- */
+  .wrap{max-width:1080px;margin:0 auto}
+  .hero{
+    background:linear-gradient(180deg,var(--panel),var(--faint));
+    border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;
+  }
+  .hero h1{margin-bottom:2px}
+  .hero p{color:var(--muted);margin:0;max-width:560px}
+  .hero .streak{
+    display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:10px 14px;flex-shrink:0;
+  }
+  .hero .streak .num{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .hero .streak .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  .hero .streak .flame{font-size:22px}
+
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  @media (max-width:820px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px}
+  .stat .v{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .stat .v small{font-size:13px;color:var(--soft);font-weight:700}
+  .stat .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-top:3px}
+
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 10px}
+  .section-head h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+
+  /* ---------- module cards (the part with the exact metrics) ---------- */
+  .modules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media (max-width:820px){ .modules{grid-template-columns:1fr} }
+  .mod{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 17px;display:flex;flex-direction:column;gap:12px;transition:.15s;
+  }
+  .mod:hover{border-color:var(--line-strong);box-shadow:0 4px 14px var(--shadow);transform:translateY(-1px)}
+  .mod .mhead{display:flex;align-items:center;gap:10px}
+  .mod .micon{
+    width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;
+    background:var(--accent-soft);color:var(--accent);flex-shrink:0;
+  }
+  .mod.g .micon{background:var(--violet-soft);color:var(--violet)}
+  .mod.v .micon{background:var(--green-soft);color:var(--green)}
+  .mod.w .micon{background:var(--amber-soft);color:var(--amber)}
+  .mod .mtitle{font-weight:700;font-size:14.5px;line-height:1.2}
+  .mod .msub{font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-top:2px}
+
+  .mmetrics{display:grid;gap:8px}
+  .mmetrics.cols-3{grid-template-columns:repeat(3,1fr)}
+  .mmetrics.cols-2{grid-template-columns:repeat(2,1fr)}
+  .mmetric{
+    background:var(--faint);border:1px solid var(--line);border-radius:10px;
+    padding:11px 12px;min-width:0;
+  }
+  .mmetric b{
+    display:block;font-size:24px;font-weight:800;letter-spacing:-.04em;line-height:1;
+    color:var(--text);font-variant-numeric:tabular-nums;
+  }
+  .mmetric span{
+    display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--soft);font-weight:700;margin-top:6px;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .mmetric.hi{background:var(--accent-soft);border-color:var(--accent-line)}
+  .mmetric.hi b{color:var(--accent)}
+  .mod.g .mmetric.hi{background:var(--violet-soft);border-color:var(--violet-line)}
+  .mod.g .mmetric.hi b{color:var(--violet)}
+  .mod.v .mmetric.hi{background:var(--green-soft);border-color:var(--green-line)}
+  .mod.v .mmetric.hi b{color:var(--green)}
+  .mod.w .mmetric.hi{background:var(--amber-soft);border-color:var(--amber-line)}
+  .mod.w .mmetric.hi b{color:var(--amber)}
+  .mmetric.warn b{color:var(--amber)}
+  .mmetric.zero b{color:var(--soft)}
+
+  .mod .mgo{
+    margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding-top:10px;border-top:1px dashed var(--line);
+  }
+  .mod .mgo .open{
+    background:var(--accent);color:#fff;border:0;padding:7px 13px;border-radius:8px;
+    font-weight:600;font-size:12.5px;
+  }
+  .mod.g .mgo .open{background:var(--violet)}
+  .mod.v .mgo .open{background:var(--green)}
+  .mod.w .mgo .open{background:var(--amber)}
+  .mod .mgo .open:hover{opacity:.9}
+  .mod .mgo .meta{font-size:11.5px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* heatmap */
+  .heatcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px}
+  .heatcard .htop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .heatcard .htop h3{margin:0}
+  .heatcard .htop .legend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+  .hmcell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--hm0)}
+  .hmcell.l1{background:var(--hm1)} .hmcell.l2{background:var(--hm2)}
+  .hmcell.l3{background:var(--hm3)} .hmcell.l4{background:var(--hm4)}
+  .hmwrap{display:flex;flex-direction:column;gap:5px;overflow-x:auto;padding-bottom:4px}
+  .hm-months{display:grid;grid-auto-flow:column;grid-auto-columns:12px;gap:3px;margin-left:30px;font-size:10.5px;color:var(--muted);white-space:nowrap}
+  .hm-months span{grid-row:1;line-height:1}
+  .hm-body{display:flex;gap:8px;align-items:flex-start}
+  .hm-daylabels{display:grid;grid-template-rows:repeat(7,11px);gap:3px;width:22px;flex-shrink:0;font-size:10px;color:var(--muted);line-height:11px}
+  .hm-daylabels span:nth-child(1){grid-row:2}
+  .hm-daylabels span:nth-child(2){grid-row:4}
+  .hm-daylabels span:nth-child(3){grid-row:6}
+  .hm-weeks{display:flex;gap:3px}
+  .hm-week{display:grid;grid-template-rows:repeat(7,11px);gap:3px}
+  .hm-week .hmcell{width:11px;height:11px}
+  .hm-week .hmcell.out{background:transparent;opacity:.25}
+  .hm-week .hmcell.today{box-shadow:0 0 0 1.5px var(--accent)}
+
+  /* feed */
+  .feed{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .feedit{display:flex;gap:11px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--bar)}
+  .feedit:last-child{border-bottom:0}
+  .feedit .ficon{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex-shrink:0;background:var(--accent-soft);color:var(--accent)}
+  .feedit.g .ficon{background:var(--violet-soft);color:var(--violet)}
+  .feedit.v .ficon{background:var(--green-soft);color:var(--green)}
+  .feedit.w .ficon{background:var(--amber-soft);color:var(--amber)}
+  .feedit .fmain{min-width:0;flex:1}
+  .feedit .ftitle{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .feedit .fsub{font-size:11.5px;color:var(--muted)}
+  .feedit .fmeta{font-size:11px;color:var(--soft);white-space:nowrap;flex-shrink:0}
+
+  .empty{background:var(--panel);border:1px dashed var(--line);border-radius:var(--radius);padding:30px 20px;text-align:center;color:var(--muted)}
+
+  .modbanner{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);border-bottom:1px solid var(--line);padding:7px 14px;font-size:12.5px;color:var(--muted)}
+  .modbanner .back{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--text)}
+  .modbanner .back:hover{border-color:var(--accent);color:var(--accent)}
+
+  @media (max-width:560px){
+    header{padding:7px 10px;gap:8px}
+    .brand .label{display:none}
+    nav a{padding:6px 9px;font-size:12.5px;gap:4px}
+    nav a .label{display:none}
+    nav a .icon{font-size:15px}
+    #overview{padding:16px 14px 40px}
+    .hero{padding:18px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand" title="Language Study Hub">
+    <span class="dot"></span><span class="label">Language Study Hub</span>
+  </div>
+  <nav id="nav" aria-label="Modules">
+    <a href="#overview"   data-route="overview"   title="Overview"><span class="icon">🏠</span><span class="label">Overview</span></a>
+    <a href="#grammar"    data-route="grammar"    title="Grammar Study"><span class="icon">📘</span><span class="label">Grammar</span></a>
+    <a href="#vocabulary" data-route="vocabulary" title="30 Words a Day"><span class="icon">📚</span><span class="label">Vocabulary</span></a>
+    <a href="#writepath"  data-route="writepath"  title="WritePath"><span class="icon">✍️</span><span class="label">WritePath</span></a>
+  </nav>
+  <button class="iconbtn" id="themeBtn" type="button" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+</header>
+
+<main>
+  <section id="overview" class="page">
+    <div class="wrap" id="overviewContent"></div>
+  </section>
+
+  <section id="moduleView" class="page" hidden>
+    <div class="modbanner">
+      <button class="back" id="backBtn" type="button">← Back to overview</button>
+      <span id="modTitle">Module</span>
+      <span style="width:1px"></span>
+    </div>
+    <div style="position:absolute;top:38px;left:0;right:0;bottom:0;">
+      <iframe id="frame" title="Module content" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+  </section>
+</main>
+
+<noscript><p style="padding:20px">Please enable JavaScript to use the Language Study Hub.</p></noscript>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================================================
+     CONSTANTS
+     ============================================================ */
+  const KEYS = {
+    grammar:  'grammar-study-app-v6',
+    vocab:    'words30.v2',
+    writepath:'writepath.v1'
+  };
+  const THEME_KEY = 'hub-theme';
+
+  const MODULES = {
+    grammar:    { file:'GrammarStudy.html', name:'Grammar Study',  icon:'📘', cls:'g' },
+    vocabulary: { file:'Vocabulary.html',   name:'30 Words a Day', icon:'📚', cls:'v' },
+    writepath:  { file:'WritePath.html',    name:'WritePath',      icon:'✍️', cls:'w' }
+  };
+
+  /* ============================================================
+     TINY HELPERS
+     ============================================================ */
+  const $  = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const wordsIn = t => (String(t||'').trim().match(/[A-Za-z0-9'’\-]+/g) || []).length;
+  const safeParse = (raw, fb) => { try{ if(!raw) return fb; const v = JSON.parse(raw); return v||fb; }catch(e){ return fb; } };
+  const pct = (n, d) => d ? Math.round((n/d)*100) : 0;
+
+  function dateKey(d){
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day;
+  }
+  const todayKey = () => dateKey(new Date());
+
+  function toDayKey(v){
+    if(!v) return null;
+    if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    const d = new Date(v);
+    if(isNaN(d)) return null;
+    return dateKey(d);
+  }
+  function toTsFromDay(v){
+    if(!v) return null;
+    if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)){
+      const [y,m,d] = v.split('-').map(Number);
+      return new Date(y, m-1, d).getTime();
+    }
+    const d = new Date(v);
+    return isNaN(d) ? null : d.getTime();
+  }
+  function fmtRel(ts){
+    if(!ts) return '';
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff/60000);
+    if(m < 1) return 'just now';
+    if(m < 60) return m+'m ago';
+    const h = Math.floor(m/60);
+    if(h < 24) return h+'h ago';
+    const d = Math.floor(h/24);
+    if(d < 7) return d+'d ago';
+    return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+  }
+  function fmtTime(sec){
+    sec = Math.round(sec||0);
+    const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60);
+    if(h) return h+'h '+m+'m';
+    if(m) return m+'m';
+    return sec+'s';
+  }
+  function fmtLong(d){
+    return d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+  }
+
+  /* ============================================================
+     DATA LOADING (reads each app's own localStorage key)
+     ============================================================ */
+  function readGrammar(){
+    const d = safeParse(localStorage.getItem(KEYS.grammar), null);
+    if(!d) return { topics:[], materials:[], exercises:[], attempts:[], studySeconds:0, roadmap:{phases:[]} };
+    return {
+      topics: d.topics || [],
+      materials: d.materials || [],
+      exercises: d.exercises || [],
+      attempts: d.attempts || [],
+      studySeconds: d.studySeconds || 0,
+      roadmap: d.roadmap || { phases: [] }
+    };
+  }
+  function readVocab(){
+    const d = safeParse(localStorage.getItem(KEYS.vocab), null);
+    if(!d) return { settings:{target:30}, items:[], days:{}, resources:[], challenges:[] };
+    return {
+      settings: d.settings || { target:30 },
+      items: d.items || [],
+      days: d.days || {},
+      resources: d.resources || [],
+      challenges: d.challenges || []
+    };
+  }
+  function readWritePath(){
+    const d = safeParse(localStorage.getItem(KEYS.writepath), null);
+    if(!d) return { sessions:[], library:[] };
+    const s = d.state || {};
+    return {
+      sessions: s.sessions || [],
+      library:  s.library  || []
+    };
+  }
+  function loadAll(){
+    return { grammar: readGrammar(), vocab: readVocab(), writepath: readWritePath() };
+  }
+
+  /* ============================================================
+     THE METRICS YOU ASKED FOR
+     ============================================================ */
+  function vocabStatus(it){
+    if(it.masteredAt || it.stage >= 6) return 'mastered';
+    if(it.stage >= 3 || it.activeAt)  return 'active';
+    if(it.practicedAt)                return 'practicing';
+    if(it.studiedAt)                  return 'studied';
+    return 'new';
+  }
+
+  /* Grammar:  Topics, Materials, Exercises */
+  function grammarMetrics(g){
+    return {
+      topics:    g.topics.length,
+      materials: g.materials.length,
+      exercises: g.exercises.length
+    };
+  }
+
+  /* Vocabulary: words to review (due), inbox */
+  function vocabMetrics(v){
+    const T = todayKey();
+    const due = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
+    const inbox = v.items.filter(i => i.inbox).length;
+    return { review: due, inbox };
+  }
+
+  /* Writing: Sessions, Library terms */
+  function writingMetrics(w){
+    return {
+      sessions: w.sessions.length,
+      library:  w.library.length
+    };
+  }
+
+  /* ============================================================
+     UNIFIED ACTIVITY MAP + STREAK (across all three modules)
+     ============================================================ */
+  function buildActivityMap(data){
+    const map = {};
+    const add = (key) => { if(!key) return; map[key] = (map[key]||0) + 1; };
+
+    data.grammar.attempts.forEach(a => add(toDayKey(a.ts)));
+    (data.grammar.roadmap.phases||[]).forEach(p => {
+      if(!p.startDate) return;
+      (p.completedDays||[]).forEach(dn => add(toDayKey(p.startDate + (dn-1) * 86400000)));
+    });
+    data.vocab.items.forEach(it => {
+      [it.dateAdded, it.studiedAt, it.practicedAt, it.activeAt, it.masteredAt].forEach(d => add(toDayKey(d)));
+    });
+    data.writepath.sessions.forEach(s => {
+      (s.sentences||[]).forEach(x => add(toDayKey(x.at)));
+    });
+    return map;
+  }
+  function computeStreak(activity){
+    let n = 0;
+    const d = new Date(); d.setHours(0,0,0,0);
+    if(!activity[dateKey(d)]) d.setDate(d.getDate()-1);
+    let guard = 0;
+    while(activity[dateKey(d)] && guard++ < 500){
+      n++;
+      d.setDate(d.getDate()-1);
+    }
+    return n;
+  }
+  function activeDaysLast(activity, days){
+    let n = 0;
+    const d = new Date(); d.setHours(0,0,0,0);
+    for(let i=0;i<days;i++){
+      if(activity[dateKey(d)]) n++;
+      d.setDate(d.getDate()-1);
+    }
+    return n;
+  }
+
+  /* ============================================================
+     UNIFIED RECENT ACTIVITY FEED
+     ============================================================ */
+  function buildFeed(data){
+    const items = [];
+
+    data.grammar.attempts.forEach(a => {
+      const ex = data.grammar.exercises.find(e => e.id === a.exerciseId);
+      if(!ex) return;
+      const t = data.grammar.topics.find(x => x.id === ex.topic_id);
+      items.push({
+        ts: a.ts, cls:'g', icon:'📘',
+        title: (ex.question||'').split('\n')[0].slice(0, 90),
+        sub: (t ? t.title + ' · ' : '') + (a.correct ? 'Correct' : 'Incorrect')
+      });
+    });
+
+    data.vocab.items.forEach(it => {
+      const events = [];
+      const push = (d, label) => { const ts = toTsFromDay(d); if(ts) events.push({ts, label}); };
+      push(it.dateAdded, 'Added');
+      push(it.studiedAt, 'Studied');
+      push(it.practicedAt, 'Practiced');
+      push(it.activeAt, 'Reached active');
+      push(it.masteredAt, 'Mastered');
+      if(!events.length) return;
+      const latest = events.reduce((a,b) => a.ts > b.ts ? a : b);
+      items.push({
+        ts: latest.ts, cls:'v', icon:'📚',
+        title: it.term,
+        sub: latest.label + (it.meaning ? ' · ' + it.meaning.slice(0, 50) : '')
+      });
+    });
+
+    data.writepath.sessions.forEach(s => {
+      (s.sentences||[]).forEach(x => {
+        items.push({
+          ts: x.at, cls:'w', icon:'✍️',
+          title: x.text.slice(0, 100),
+          sub: s.title || s.topic || 'Writing session'
+        });
+      });
+    });
+
+    return items.filter(x => x.ts).sort((a,b) => b.ts - a.ts).slice(0, 20);
+  }
+
+  /* ============================================================
+     HEATMAP RENDERER
+     ============================================================ */
+  function hmLevel(n){
+    if(!n) return 0;
+    if(n <= 2) return 1;
+    if(n <= 5) return 2;
+    if(n <= 9) return 3;
+    return 4;
+  }
+  function heatmapHTML(activity, weeks){
+    weeks = weeks || 15;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = new Date(today);
+    start.setDate(start.getDate() - start.getDay() - (weeks - 1) * 7);
+
+    const monthLabels = [];
+    const monthsSeen = new Set();
+    {
+      const cur = new Date(start);
+      for(let w = 0; w < weeks; w++){
+        const m = cur.getMonth();
+        const k = cur.getFullYear() + '-' + m;
+        if(!monthsSeen.has(k)){
+          monthsSeen.add(k);
+          monthLabels.push({ w, label: cur.toLocaleString(undefined, { month:'short' }) });
+        }
+        cur.setDate(cur.getDate() + 7);
+      }
+    }
+
+    let cellsHTML = '';
+    const cursor = new Date(start);
+    for(let w = 0; w < weeks; w++){
+      let weekHTML = '';
+      for(let d = 0; d < 7; d++){
+        const k = dateKey(cursor);
+        const isFuture = cursor.getTime() > today.getTime();
+        const count = activity[k] || 0;
+        const lvl = isFuture ? 0 : hmLevel(count);
+        const isToday = k === dateKey(today);
+        const cls = 'hmcell' + (isFuture ? ' out' : ' l'+lvl) + (isToday ? ' today' : '');
+        const title = isFuture ? '' : cursor.toDateString() + ' — ' + count + ' activit' + (count === 1 ? 'y' : 'ies');
+        weekHTML += `<span class="${cls}" title="${esc(title)}"></span>`;
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      cellsHTML += `<div class="hm-week">${weekHTML}</div>`;
+    }
+
+    const monthsHTML = monthLabels
+      .map(m => `<span style="grid-column:${m.w+1}">${esc(m.label)}</span>`)
+      .join('');
+
+    return `
+      <div class="hmwrap">
+        <div class="hm-months">${monthsHTML}</div>
+        <div class="hm-body">
+          <div class="hm-daylabels"><span>Mon</span><span>Wed</span><span>Fri</span></div>
+          <div class="hm-weeks">${cellsHTML}</div>
+        </div>
+      </div>`;
+  }
+
+  /* ============================================================
+     OVERVIEW RENDERER
+     ============================================================ */
+  function renderOverview(){
+    const data = loadAll();
+
+    const g = grammarMetrics(data.grammar);
+    const v = vocabMetrics(data.vocab);
+    const w = writingMetrics(data.writepath);
+
+    const activity = buildActivityMap(data);
+    const streak = computeStreak(activity);
+    const active15 = activeDaysLast(activity, 15);
+    const allActiveDays = Object.keys(activity).length;
+
+    const hasAnyData = g.exercises || g.topics || g.materials
+                    || v.review || v.inbox
+                    || w.sessions || w.library
+                    || allActiveDays;
+
+    /* ----- module cards, leading with the exact metrics you asked for ----- */
+    const grammarCard = card({
+      cls:'g', icon:'📘', title:'Grammar Study', sub:'Topics & exercises',
+      metrics:[
+        { label:'Topics',    value: g.topics,    hi:true },
+        { label:'Materials', value: g.materials },
+        { label:'Exercises', value: g.exercises }
+      ],
+      cols: 3,
+      meta: g.exercises
+        ? g.exercises + ' exercise' + (g.exercises===1?'':'s') + ' · ' + g.materials + ' material' + (g.materials===1?'':'s')
+        : 'Not started',
+      route:'grammar'
+    });
+
+    const vocabCard = card({
+      cls:'v', icon:'📚', title:'30 Words a Day', sub:'Vocabulary & SRS',
+      metrics:[
+        { label:'Words to review', value: v.review, hi: v.review > 0, warn: v.review > 0 },
+        { label:'Inbox',           value: v.inbox,  hi: v.inbox  > 0 }
+      ],
+      cols: 2,
+      meta: (v.review + v.inbox) > 0
+        ? v.review + ' due · ' + v.inbox + ' to triage'
+        : 'Nothing waiting',
+      route:'vocabulary'
+    });
+
+    const writingCard = card({
+      cls:'w', icon:'✍️', title:'WritePath', sub:'Guided writing',
+      metrics:[
+        { label:'Sessions',      value: w.sessions, hi:true },
+        { label:'Library terms', value: w.library }
+      ],
+      cols: 2,
+      meta: w.sessions
+        ? w.sessions + ' session' + (w.sessions===1?'':'s') + ' · ' + w.library + ' library term' + (w.library===1?'':'s')
+        : 'Not started',
+      route:'writepath'
+    });
+
+    /* ----- unified recent feed ----- */
+    const feedItems = buildFeed(data);
+    const feedHTML = feedItems.length
+      ? feedItems.map(f => `
+        <div class="feedit ${f.cls}">
+          <div class="ficon">${f.icon}</div>
+          <div class="fmain">
+            <div class="ftitle">${esc(f.title || '(empty)')}</div>
+            <div class="fsub">${esc(f.sub || '')}</div>
+          </div>
+          <div class="fmeta">${esc(fmtRel(f.ts))}</div>
+        </div>`).join('')
+      : `<div class="empty small">No activity yet — open a module to get started.</div>`;
+
+    /* ----- top stat strip ----- */
+    const totalStudy = data.grammar.studySeconds;
+    const totalSessions = w.sessions;
+
+    const html = `
+      <div class="hero">
+        <div>
+          <h1>Your language study at a glance</h1>
+          <p>Live numbers pulled straight from each module. Open any card to study — the hub updates itself as you go.</p>
+        </div>
+        <div class="streak" title="Consecutive days with activity in any module">
+          <span class="flame">🔥</span>
+          <div>
+            <div class="num">${streak}</div>
+            <div class="lbl">day streak</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Modules</h2>
+        <span class="tiny muted">Click “Open” to jump into an app.</span>
+      </div>
+      <div class="modules">
+        ${grammarCard}
+        ${vocabCard}
+        ${writingCard}
+      </div>
+
+      <div class="stats" style="margin-top:18px">
+        <div class="stat">
+          <div class="v">${g.topics + g.materials + g.exercises}</div>
+          <div class="k">Grammar entries</div>
+        </div>
+        <div class="stat">
+          <div class="v">${v.review + v.inbox}</div>
+          <div class="k">Vocab on deck</div>
+        </div>
+        <div class="stat">
+          <div class="v">${w.sessions + w.library}</div>
+          <div class="k">Writing items</div>
+        </div>
+        <div class="stat">
+          <div class="v">${allActiveDays}</div>
+          <div class="k">Active days total</div>
+        </div>
+        <div class="stat">
+          <div class="v">${fmtTime(totalStudy)}</div>
+          <div class="k">Grammar study time</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Combined activity</h2>
+        <span class="tiny muted">${active15} of last 15 days active</span>
+      </div>
+      <div class="heatcard">
+        <div class="htop">
+          <h3>Last 15 weeks</h3>
+          <div class="legend">
+            <span class="tiny">Less</span>
+            <span class="hmcell l0"></span>
+            <span class="hmcell l1"></span>
+            <span class="hmcell l2"></span>
+            <span class="hmcell l3"></span>
+            <span class="hmcell l4"></span>
+            <span class="tiny">More</span>
+          </div>
+        </div>
+        ${heatmapHTML(activity, 15)}
+        <div class="tiny muted" style="margin-top:10px">
+          Each square is one day. Deeper colours mean more activity across all three modules.
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Recent activity</h2>
+        <span class="tiny muted">Latest 20 events across all modules</span>
+      </div>
+      <div class="feed">${feedHTML}</div>
+
+      ${!hasAnyData ? `
+        <div class="empty" style="margin-top:18px">
+          <div style="font-size:30px;margin-bottom:6px">🚀</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:4px">No data yet</div>
+          <div class="tiny">Open a module above to start studying. Your progress will appear here automatically.</div>
+        </div>` : ''}
+    `;
+
+    $('#overviewContent').innerHTML = html;
+
+    $$('.mod .mgo .open').forEach(btn => {
+      btn.addEventListener('click', () => go(btn.dataset.route));
+    });
+  }
+
+  function card({ cls, icon, title, sub, metrics, cols, meta, route }){
+    const metricsHTML = metrics.map(m => {
+      const zero = (m.value === 0 && !m.warn) ? ' zero' : '';
+      const hi   = m.hi && m.value > 0 ? ' hi' : (m.hi ? ' hi' : '');
+      const warn = m.warn ? ' warn' : '';
+      return `
+        <div class="mmetric${hi}${warn}${zero}">
+          <b>${esc(String(m.value))}</b>
+          <span>${esc(m.label)}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="mod ${cls}">
+        <div class="mhead">
+          <div class="micon">${icon}</div>
+          <div>
+            <div class="mtitle">${esc(title)}</div>
+            <div class="msub">${esc(sub)}</div>
+          </div>
+        </div>
+        <div class="mmetrics cols-${cols||3}">${metricsHTML}</div>
+        <div class="mgo">
+          <span class="meta" title="${esc(meta)}">${esc(meta)}</span>
+          <button class="open" data-route="${route}">Open →</button>
+        </div>
+      </div>`;
+  }
+
+  /* ============================================================
+     THEME
+     ============================================================ */
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    const btn = $('#themeBtn');
+    if(btn){
+      btn.textContent = t === 'dark' ? '☀️' : '🌙';
+      btn.title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    }
+    try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+  }
+  function initialTheme(){
+    try{
+      const saved = localStorage.getItem(THEME_KEY);
+      if(saved === 'dark' || saved === 'light') return saved;
+    }catch(e){}
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+
+  /* ============================================================
+     ROUTER + IFRAME
+     ============================================================ */
+  let currentRoute = 'overview';
+  let iframeLoadedFor = null;
+
+  function go(route){
+    if(location.hash === '#' + route){ routeTo(route); return; }
+    location.hash = '#' + route;
+  }
+  function routeFromHash(){
+    const h = (location.hash || '').replace(/^#/, '');
+    return (h === 'grammar' || h === 'vocabulary' || h === 'writepath') ? h : 'overview';
+  }
+  function routeTo(route){
+    const prev = currentRoute;
+    currentRoute = route;
+
+    $$('#nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route));
+
+    if(route === 'overview'){
+      $('#moduleView').hidden = true;
+      $('#overview').hidden = false;
+      renderOverview();
+      if(prev !== 'overview') window.scrollTo(0,0);
+      return;
+    }
+
+    $('#overview').hidden = true;
+    $('#moduleView').hidden = false;
+
+    const mod = MODULES[route];
+    $('#modTitle').textContent = mod.icon + '  ' + mod.name;
+
+    const frame = $('#frame');
+    if(iframeLoadedFor !== route){
+      frame.setAttribute('src', mod.file);
+      iframeLoadedFor = route;
+      frame.dataset.route = route;
+    } else {
+      decorateFrame();
+    }
+  }
+  function decorateFrame(){
+    const frame = $('#frame');
+    const route = frame.dataset.route;
+    let doc;
+    try{ doc = frame.contentDocument; }catch(e){ return; }
+    if(!doc) return;
+    doc.querySelectorAll('a[href]').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      if(/^(?:\.\.\/)?(?:Dashboard|index)\.html$/i.test(href)){
+        a.setAttribute('href', 'index.html#' + (route || 'overview'));
+        a.setAttribute('target', '_top');
+      }
+    });
+  }
+
+  /* ============================================================
+     EVENTS
+     ============================================================ */
+  window.addEventListener('hashchange', () => routeTo(routeFromHash()));
+
+  document.addEventListener('click', e => {
+    if(e.target.closest('#nav a')) return;
+    if(e.target.closest('#backBtn')){ go('overview'); return; }
+  });
+
+  $('#themeBtn').addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+
+  $('#frame').addEventListener('load', () => decorateFrame());
+
+  /* Refresh numbers when the hub tab regains focus (e.g. coming back
+     from a module in another tab/window). */
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && currentRoute === 'overview'){
+      renderOverview();
+    }
+  });
+
+  /* Also refresh whenever the user re-enters the overview route
+     — this is where the numbers live. */
+  window.addEventListener('focus', () => {
+    if(currentRoute === 'overview') renderOverview();
+  });
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  applyTheme(initialTheme());
+  routeTo(routeFromHash());
+})();
+</script>
+</body>
+</html>
