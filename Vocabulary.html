@@ -515,19 +515,26 @@ function parseCSV(text){
 }
 
 function csvToItems(rows){
-  if(!rows.length) return { items:[], skipped:0, headerUsed:false, uncategorized:0 };
+  if(!rows.length) return { items:[], skipped:0, headerUsed:false, uncategorized:0, hasResource:false, hasPron:false };
   const header = rows[0].map(h=>String(h||'').trim().toLowerCase());
   const aliases = {
     term:['term','word','expression','phrase','item','vocabulary','entry'],
     meaning:['meaning','definition','translation','explanation','sense','gloss'],
     example:['example sentence','example','sentence','sample sentence','sample','usage','context'],
-    category:['category','type','kind','class','group','cat']
+    category:['category','type','kind','class','group','cat'],
+    resource:['resource','resource title','resource name','book','book title'],
+    pronunciation:['pronunciation','ipa','phonetic','phonetics'],
+    source:['source','origin']
   };
   const find = k => header.findIndex(h => aliases[k].includes(h));
   let ti=find('term'), mi=find('meaning'), ei=find('example'), ci=find('category');
-  const headerUsed = ti!==-1 || mi!==-1 || ei!==-1 || ci!==-1;
-  if(!headerUsed){ti=0;mi=1;ei=2;ci=3;}
+  let ri=find('resource'), pi=find('pronunciation'), si=find('source');
+  const headerUsed = ti!==-1 || mi!==-1 || ei!==-1 || ci!==-1 || ri!==-1 || pi!==-1 || si!==-1;
+  // Default positions when no header: Term, Meaning, Example, Category, Resource, Pronunciation
+  if(!headerUsed){ ti=0; mi=1; ei=2; ci=3; ri=4; pi=5; }
   if(ti===-1)ti=0; if(mi===-1)mi=1; if(ei===-1)ei=2;
+  const hasResource = ri>=0;
+  const hasPron = pi>=0;
   const body = headerUsed ? rows.slice(1) : rows;
   const items=[]; let skipped=0, uncategorized=0;
   for(const r of body){
@@ -541,10 +548,13 @@ function csvToItems(rows){
       meaning: mi>=0 ? String(r[mi]||'').trim() : '',
       example: ei>=0 ? String(r[ei]||'').trim() : '',
       category,
-      rawCategory: rawCat
+      rawCategory: rawCat,
+      resource: ri>=0 ? String(r[ri]||'').trim() : '',
+      pronunciation: pi>=0 ? String(r[pi]||'').trim() : '',
+      source: si>=0 ? String(r[si]||'').trim() : ''
     });
   }
-  return { items, skipped, headerUsed, uncategorized };
+  return { items, skipped, headerUsed, uncategorized, hasResource, hasPron };
 }
 
 function csvEscape(v){
@@ -647,6 +657,30 @@ function resourceOptions(selected){
   if(!list.length) return `<option value="">— none —</option>`;
   return `<option value="">—</option>` +
     list.map(r=>`<option value="${r.id}" ${r.id===selected?'selected':''}>${esc(r.title)}</option>`).join('');
+}
+
+/* Find an existing resource by title (case-insensitive), or create a new one. */
+function findOrCreateResource(title, categoryHint){
+  const t = String(title||'').trim();
+  if(!t) return null;
+  const list = resourcesList();
+  const key = t.toLowerCase();
+  const existing = list.find(r => (r.title||'').toLowerCase() === key);
+  if(existing) return existing;
+  const cats = categoryHint && CATS.includes(categoryHint) ? [categoryHint] : [];
+  const r = {
+    id: uid(),
+    title: t,
+    type: 'book',
+    author: '',
+    notes: 'Created from CSV import',
+    categories: cats,
+    dateAdded: iso(),
+    currentChapterId: null,
+    chapters: []
+  };
+  list.push(r);
+  return r;
 }
 
 /* ============================================================
@@ -960,7 +994,9 @@ function openCSVUpload(){
           items: parsed.items,
           skipped: parsed.skipped,
           headerUsed: parsed.headerUsed,
-          uncategorized: parsed.uncategorized
+          uncategorized: parsed.uncategorized,
+          hasResource: parsed.hasResource,
+          hasPron: parsed.hasPron
         };
         nav('inbox');
       }catch(err){ console.error(err); toast('Could not parse CSV'); }
@@ -969,23 +1005,49 @@ function openCSVUpload(){
   });
   inp.click();
 }
+
 function commitCSVImport(){
   const d = ui.csvDraft;
   if(!d || !d.items.length){ toast('Nothing to import'); return; }
   const T = iso();
-  let added=0, unc=0;
+  let added=0, unc=0, resCreated=0, resMatched=0;
+  const resByName = new Map();
+  resourcesList().forEach(r=>resByName.set((r.title||'').toLowerCase(), r));
+
   for(const it of d.items){
-    S.items.push(mk(it.term, it.category||'', it.meaning, it.example, '', {
-      inbox:true, dateAdded:T, nextReview:T
+    let resourceId = '';
+    let source = it.source || '';
+    if(it.resource){
+      const key = it.resource.toLowerCase();
+      let res = resByName.get(key);
+      if(!res){
+        res = findOrCreateResource(it.resource, it.category);
+        // res should always exist after findOrCreateResource, but guard anyway
+        if(res){
+          resByName.set(key, res);
+          resCreated++;
+        }
+      } else {
+        resMatched++;
+      }
+      if(res) resourceId = res.id;
+      if(!source) source = it.resource;
+    }
+    S.items.push(mk(it.term, it.category||'', it.meaning, it.example, source, {
+      inbox:true, dateAdded:T, nextReview:T,
+      resourceId,
+      pronunciation: it.pronunciation || ''
     }));
     if(!it.category) unc++;
     added++;
   }
   save();
   ui.csvDraft = null;
-  toast(unc
-    ? `Added ${added} item${added>1?'s':''} · ${unc} without category`
-    : `Added ${added} item${added>1?'s':''} to inbox`);
+  const parts = [`Added ${added} item${added===1?'':'s'} to Inbox`];
+  if(unc) parts.push(`${unc} without category`);
+  if(resCreated) parts.push(`${resCreated} new resource${resCreated===1?'':'s'}`);
+  if(resMatched) parts.push(`${resMatched} matched to existing`);
+  toast(parts.join(' · '));
   nav('inbox');
 }
 
@@ -1483,10 +1545,12 @@ function viewInbox(){
       <tr>
         <td style="font-weight:600">${esc(it.term)}</td>
         <td>${esc(it.meaning || '—')}</td>
-        <td class="muted">${esc(it.example || '—')}</td>
+        <td class="muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(it.example || '—')}</td>
         <td>${it.category
               ? `<span class="pill ${it.category}">${esc(CAT_SHORT[it.category])}</span>`
               : (it.rawCategory ? `<span class="pill">${esc(it.rawCategory)}</span>` : '<span class="muted">—</span>')}</td>
+        <td>${it.resource ? esc(it.resource) : '<span class="muted">—</span>'}</td>
+        <td>${it.pronunciation ? esc(it.pronunciation) : '<span class="muted">—</span>'}</td>
       </tr>`).join('');
     csvPanel = `
     <div class="card" style="border-color:#c7d2fe;background:#f8faff;margin-bottom:10px">
@@ -1495,17 +1559,27 @@ function viewInbox(){
           <h2 style="margin:0">Ready to import</h2>
           <div class="tiny muted" style="margin-top:2px">
             ${esc(d.fileName)} · ${d.items.length} item${d.items.length===1?'':'s'}
-            ${d.headerUsed ? ' · header detected' : ' · assumed Term, Meaning, Example, Category'}
+            ${d.headerUsed ? ' · header detected' : ' · assumed Term, Meaning, Example, Category, Resource, Pronunciation'}
             ${d.skipped ? ` · ${d.skipped} empty skipped` : ''}
             ${d.uncategorized ? ` · ${d.uncategorized} without category` : ''}
+            ${d.hasResource ? ' · resource column found' : ''}
+            ${d.hasPron ? ' · pronunciation column found' : ''}
           </div>
         </div>
         <span class="pill">${d.items.length}</span>
       </div>
       <div class="csv-pv" style="margin-top:10px">
-        <table><thead><tr><th>Term</th><th>Meaning</th><th>Example</th><th>Category</th></tr></thead>
-        <tbody>${preview}</tbody></table>
+        <table>
+          <thead><tr>
+            <th>Term</th><th>Meaning</th><th>Example</th>
+            <th>Category</th><th>Resource</th><th>Pronunciation</th>
+          </tr></thead>
+          <tbody>${preview}</tbody>
+        </table>
         ${d.items.length>6?`<div class="tiny muted" style="padding:4px 6px">… and ${d.items.length-6} more</div>`:''}
+      </div>
+      <div class="tiny muted" style="margin-top:8px">
+        Resource values are matched to existing Resources by title; new ones are created automatically.
       </div>
       <div class="wrap" style="margin-top:10px">
         <button class="btn pri" data-act="csvConfirm">Import ${d.items.length}</button>
@@ -1612,7 +1686,10 @@ function viewAdd(){
     <div class="side">
       <div class="card">
         <h2>Bulk upload</h2>
-        <div class="tiny muted">Term, Meaning, Example Sentence, Category</div>
+        <div class="tiny muted">
+          Supported columns (any order, header optional):<br>
+          <b>Term</b>, <b>Meaning</b>, <b>Example</b>, <b>Category</b>, <b>Resource</b>, <b>Pronunciation</b>
+        </div>
         <button class="btn pri wide" style="margin-top:10px" data-act="csvUpload">⭱ Upload CSV</button>
       </div>
       <div class="card">
@@ -2724,7 +2801,7 @@ function settingsPanel(){
     </div>
     <div class="tiny muted" style="margin-top:6px">
       <b>JSON</b> restores everything — items, resources, challenges and review history.<br>
-      <b>CSV</b> imports words only (Term, Meaning, Example, Category) into your Inbox.<br>
+      <b>CSV</b> imports words with optional Resource and Pronunciation columns. Resource values are matched to existing Resources by title; new ones are created automatically.<br>
       <b>Kindle</b> reads a <code>vocab.db</code> file, lets you pick which words to bring in,
       and adds them all as <b>Vocabulary</b> items in the Inbox, tagged to their book.
     </div>
