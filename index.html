@@ -317,13 +317,12 @@
   .btn.soft:hover{border-color:var(--accent);color:var(--accent)}
   .btn.soft.on{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
   .btn.soft.on:hover{border-color:var(--green)}
-  .btn.soft:disabled{opacity:.55;cursor:default;border-color:var(--line);color:var(--muted)}
 
   /* modal (shared by phase picker + day planner) */
   .modal{position:fixed;inset:0;z-index:100;background:rgba(10,12,20,.5);display:flex;align-items:center;justify-content:center;padding:18px}
   .modal .panel{
     background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;
-    max-width:600px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;
+    max-width:560px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;
     box-shadow:0 24px 60px rgba(0,0,0,.35);
   }
   .modal .phead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
@@ -431,7 +430,7 @@
     </div>
     <div class="tabs" id="pickerTabs"></div>
     <div class="searchwrap">
-      <input id="pickerSearch" type="search" placeholder="Search this source…" autocomplete="off">
+      <input id="pickerSearch" type="search" placeholder="Search this module…" autocomplete="off">
     </div>
     <div class="plist" id="pickerList"></div>
     <div class="pfoot">
@@ -512,61 +511,14 @@
   const PHASE_DAYS  = 20;
   const PHASE_PRESETS = ['Foundations','Momentum','Expansion','Mastery'];
 
-  /* ------------------------------------------------------------------
-     SOURCES — every kind of item a phase or a day can pull in.
-
-     Grammar now exposes three kinds, all backed by the same module:
-       • topics     → grammar topics
-       • exercises  → individual exercises
-       • review     → topics that have wrong answers to revisit
-     ------------------------------------------------------------------ */
-  const SOURCES = {
-    topics:     { module:'grammar',    name:'Topics',     icon:'📘', cls:'g', label:'Grammar · Topic'     },
-    exercises:  { module:'grammar',    name:'Exercises',  icon:'📝', cls:'g', label:'Grammar · Exercise'  },
-    review:     { module:'grammar',    name:'Review',     icon:'🔁', cls:'g', label:'Grammar · Review'    },
-    vocabulary: { module:'vocabulary', name:'Vocabulary', icon:'📚', cls:'v', label:'Vocabulary resource' },
-    writepath:  { module:'writepath',  name:'WritePath',  icon:'✍️', cls:'w', label:'Writing session'     },
-    pace:       { module:'pace',       name:'Pace',       icon:'📖', cls:'p', label:'Pace reading text'   }
+  /* Which module feeds which kind of resource into a phase / day. */
+  const RES_MODULES = {
+    grammar:    { name:'Grammar',    icon:'📘', cls:'g', kind:'Topics'    },
+    vocabulary: { name:'Vocabulary', icon:'📚', cls:'v', kind:'Resources' },
+    writepath:  { name:'WritePath',  icon:'✍️', cls:'w', kind:'Sessions'  },
+    pace:       { name:'Pace',       icon:'📖', cls:'p', kind:'Library'   }
   };
-  const SOURCE_ORDER = ['topics','exercises','review','vocabulary','writepath','pace'];
-  const PHASE_RES_TAB = 'phase-res';
-
-  /* ------------------------------------------------------------------
-     DEEP-LINK CONTRACT for the embedded modules
-     ------------------------------------------------------------------
-     When a task/resource is opened, the hub navigates to the module and
-     loads the iframe with:
-
-         GrammarStudy.html#hub-open=<kind>:<refId>
-
-     Once the iframe has loaded, the hub also posts to its window:
-
-         { type:'hub:open-item', module, kind, refId, label }
-
-     A module that wants to jump straight to an item can either parse its
-     own location.hash or listen for that message:
-
-         window.addEventListener('message', e => {
-           if(e.data && e.data.type === 'hub:open-item'){ … }
-         });
-
-     Even without that support the button still lands the user inside the
-     right module, which is the primary goal.
-     ------------------------------------------------------------------ */
-
-  function kindInfo(kind, module){
-    if(SOURCES[kind]) return SOURCES[kind];
-    /* fallback for legacy stored items that only carry `module` */
-    if(module === 'grammar') return SOURCES.topics;
-    if(SOURCES[module])      return SOURCES[module];
-    return { module: module || '', name: module || 'Item', icon:'•', cls:'', label: module || 'Item' };
-  }
-  function kindOf(item){
-    if(item && SOURCES[item.kind]) return item.kind;
-    if(item && item.module === 'grammar') return 'topics';
-    if(item && SOURCES[item.module]) return item.module;
-    return 'topics';
-  }
+  const RES_ORDER = ['grammar','vocabulary','writepath','pace'];
 
   /* ============================================================
      TINY HELPERS
@@ -757,33 +709,15 @@
   }
 
   function normalizeTask(t){
-    const kind = kindOf(t);
-    const info = kindInfo(kind);
     return {
       id:      String(t.id || uid('task-')),
-      kind:    kind,
-      module:  info.module,
+      module:  String(t.module),
       refId:   String(t.refId != null ? t.refId : ''),
       label:   String(t.label || 'Untitled'),
       meta:    String(t.meta || ''),
       done:    !!t.done,
       doneAt:  (t.doneAt && /^\d{4}-\d{2}-\d{2}$/.test(String(t.doneAt))) ? String(t.doneAt) : null,
       addedAt: Number(t.addedAt) || Date.now()
-    };
-  }
-
-  function normalizeResource(r){
-    const kind = kindOf(r);
-    const info = kindInfo(kind);
-    return {
-      id:      String(r.id || uid('res-')),
-      kind:    kind,
-      module:  info.module,
-      refId:   String(r.refId != null ? r.refId : ''),
-      label:   String(r.label || 'Untitled'),
-      meta:    String(r.meta || ''),
-      done:    !!r.done,
-      addedAt: Number(r.addedAt) || Date.now()
     };
   }
 
@@ -803,7 +737,15 @@
       const on = (src.completedOn && typeof src.completedOn === 'object') ? src.completedOn : {};
 
       const resources = Array.isArray(src.resources)
-        ? src.resources.filter(r => r && (r.module || r.kind)).map(normalizeResource)
+        ? src.resources.filter(r => r && r.module).map(r => ({
+            id:      String(r.id || uid('res-')),
+            module:  String(r.module),
+            refId:   String(r.refId != null ? r.refId : ''),
+            label:   String(r.label || 'Untitled'),
+            meta:    String(r.meta || ''),
+            done:    !!r.done,
+            addedAt: Number(r.addedAt) || Date.now()
+          }))
         : [];
 
       /* per-day task lists */
@@ -814,7 +756,7 @@
           if(!(dn >= 1 && dn <= days)) return;
           const arr = src.dayTasks[k];
           if(!Array.isArray(arr)) return;
-          const list = arr.filter(t => t && (t.module || t.kind)).map(normalizeTask);
+          const list = arr.filter(t => t && t.module).map(normalizeTask);
           if(list.length) dayTasks[String(dn)] = list;
         });
       }
@@ -874,7 +816,7 @@
   }
 
   /* ============================================================
-     ROADMAP — collect pickable sources from every module
+     ROADMAP — collect pickable resources from every module
      ============================================================ */
   function collectSources(data){
     data = data || {};
@@ -883,58 +825,19 @@
     const w = data.writepath || {};
     const p = data.pace      || {};
 
-    const out = { topics: [], exercises: [], review: [], vocabulary: [], writepath: [], pace: [] };
+    const out = { grammar: [], vocabulary: [], writepath: [], pace: [] };
 
-    /* ---------- Grammar · Topics ---------- */
+    /* Grammar → Topics */
     (g.topics || []).forEach((t, i) => {
-      const bits = [t.level, t.category, t.description ? String(t.description).slice(0,40) : ''].filter(Boolean);
-      out.topics.push({
+      const metaBits = [t.level, t.category, t.description ? String(t.description).slice(0,40) : ''].filter(Boolean);
+      out.grammar.push({
         refId: String(t.id != null ? t.id : 'topic-' + i),
         label: t.title || t.name || ('Topic ' + (i+1)),
-        meta:  bits.join(' · ') || 'Grammar topic'
+        meta:  metaBits.join(' · ') || 'Grammar topic'
       });
     });
 
-    /* ---------- Grammar · Exercises ---------- */
-    (g.exercises || []).forEach((ex, i) => {
-      const topic = (g.topics || []).find(x => String(x.id) === String(ex.topic_id));
-      const q = String(ex.question || '').split('\n')[0].trim().slice(0, 80) || ('Exercise ' + (i+1));
-      const kind = (ex.type || ex.kind || 'Exercise');
-      out.exercises.push({
-        refId: String(ex.id != null ? ex.id : 'ex-' + i),
-        label: q,
-        meta:  (topic ? topic.title + ' · ' : '') + kind
-      });
-    });
-
-    /* ---------- Grammar · Review ----------
-       Derived: topics that have at least one exercise with a wrong answer. */
-    const wrongByExercise = {};
-    (g.attempts || []).forEach(a => {
-      if(a && a.correct === false){
-        const k = String(a.exerciseId);
-        wrongByExercise[k] = (wrongByExercise[k] || 0) + 1;
-      }
-    });
-    const wrongByTopic = {};
-    (g.exercises || []).forEach(ex => {
-      if(wrongByExercise[String(ex.id)]){
-        const k = String(ex.topic_id);
-        wrongByTopic[k] = (wrongByTopic[k] || 0) + 1;
-      }
-    });
-    Object.keys(wrongByTopic).forEach(tid => {
-      const topic = (g.topics || []).find(x => String(x.id) === tid);
-      const title = topic ? (topic.title || topic.name || 'Topic') : 'Topic';
-      const n = wrongByTopic[tid];
-      out.review.push({
-        refId: String(tid),
-        label: 'Review · ' + title,
-        meta:  n + ' exercise' + (n === 1 ? '' : 's') + ' to revisit'
-      });
-    });
-
-    /* ---------- Vocabulary · Resources ---------- */
+    /* Vocabulary → Resources */
     (v.resources || []).forEach((r, i) => {
       out.vocabulary.push({
         refId: String(r.id != null ? r.id : (r.url || 'vres-' + i)),
@@ -943,7 +846,7 @@
       });
     });
 
-    /* ---------- WritePath · Sessions ---------- */
+    /* WritePath → Sessions */
     (w.sessions || []).forEach((s, i) => {
       const n = (s.sentences || []).length;
       out.writepath.push({
@@ -953,7 +856,7 @@
       });
     });
 
-    /* ---------- Pace · Library ---------- */
+    /* Pace → Library */
     (p.library || []).forEach((b, i) => {
       const wc  = Number(b.wordCount) || 0;
       const pos = Number(b.lastIndex) || 0;
@@ -967,9 +870,9 @@
     return out;
   }
 
-  function findSource(kind, refId){
+  function findSource(module, refId){
     const sources = collectSources(hubData);
-    return (sources[kind] || []).find(s => s.refId === refId) || null;
+    return (sources[module] || []).find(s => s.refId === refId) || null;
   }
 
   /* ============================================================
@@ -1544,23 +1447,21 @@
       }).join('');
 
       const resHTML = phase.resources.length ? phase.resources.map(r => {
-        const info = kindInfo(r.kind, r.module);
+        const mod = RES_MODULES[r.module] || { icon:'•', cls:'', name: r.module || 'Item' };
         return `
           <div class="resrow${r.done?' done':''}">
-            <span class="ricon ${esc(info.cls)}" title="${esc(info.label)}">${info.icon}</span>
+            <span class="ricon ${esc(mod.cls)}" title="${esc(mod.name)}">${mod.icon}</span>
             <span class="rmain">
               <span class="rtitle" title="${esc(r.label)}">${esc(r.label)}</span>
-              <span class="rsub">${esc(info.label)}${r.meta ? ' · ' + esc(r.meta) : ''}</span>
+              <span class="rsub">${esc(mod.name)}${r.meta ? ' · ' + esc(r.meta) : ''}</span>
             </span>
-            <button type="button" class="rbtn" data-act="open-res" data-res="${esc(r.id)}"
-                    title="Open in ${esc(info.name)}">↗</button>
             <button type="button" class="rbtn${r.done?' on':''}" data-act="toggle" data-res="${esc(r.id)}"
                     title="${r.done ? 'Mark as not done' : 'Mark as done'}">${r.done ? '✓' : '○'}</button>
             <button type="button" class="rbtn" data-act="remove" data-res="${esc(r.id)}"
                     title="Remove from this phase">✕</button>
           </div>`;
       }).join('') : `<div class="tiny muted" style="padding:4px 2px">
-          No phase-wide resources yet — add topics, exercises, review items, resources, sessions or reading texts.
+          No phase-wide resources yet — add topics, resources, sessions or reading texts.
         </div>`;
 
       return `
@@ -1603,9 +1504,7 @@
         <div style="min-width:0">
           <h1>Study roadmap</h1>
           <p>Four phases of twenty days each. <strong>Click any day</strong> to open its planner and attach
-             grammar topics, exercises, review items, vocabulary resources, writing sessions or Pace texts
-             as that day's tasks. Every task has an <strong>↗</strong> button that jumps straight into the
-             matching module.</p>
+             grammar topics, vocabulary resources, writing sessions or Pace reading texts as that day's tasks.</p>
           <div style="margin-top:12px;max-width:420px">
             <div class="rm-progress"><i style="width:${overall}%"></i></div>
             <div class="tiny muted" style="margin-top:6px">${m.doneDays} of ${m.totalDays} days complete · ${overall}%</div>
@@ -1673,21 +1572,19 @@
     const phase = rm.phases.find(p => p.id === phaseEl.dataset.phase);
     if(!phase) return;
 
-    if(act === 'day'){ openDayModal(phase.id, Number(btn.dataset.day)); return; }
-    if(act === 'add'){ openPicker(phase.id); return; }
-
-    if(act === 'open-res'){
-      const r = phase.resources.find(x => x.id === btn.dataset.res);
-      if(r) openItem(r.kind || 'topics', r.refId, r.label);
+    if(act === 'day'){
+      openDayModal(phase.id, Number(btn.dataset.day));
       return;
     }
-
     if(act === 'toggle'){
       const r = phase.resources.find(x => x.id === btn.dataset.res);
       if(!r) return;
       r.done = !r.done;
     }else if(act === 'remove'){
       phase.resources = phase.resources.filter(x => x.id !== btn.dataset.res);
+    }else if(act === 'add'){
+      openPicker(phase.id);
+      return;
     }else{
       return;
     }
@@ -1723,7 +1620,7 @@
      RESOURCE PICKER (phase-wide resources)
      ============================================================ */
   let pickerPhaseId = null;
-  let pickerModule  = 'topics';
+  let pickerModule  = 'grammar';
 
   function openPicker(phaseId){
     const rm = readRoadmap();
@@ -1732,12 +1629,12 @@
 
     pickerPhaseId = phaseId;
 
-    /* open on the first source that still has something to add */
+    /* open on the first module that still has something to add */
     const sources = collectSources(hubData);
-    let pick = SOURCE_ORDER.find(k =>
+    let pick = RES_ORDER.find(k =>
       (sources[k] || []).some(it =>
-        !phase.resources.some(r => (r.kind || 'topics') === k && r.refId === it.refId)));
-    pickerModule = pick || SOURCE_ORDER[0];
+        !phase.resources.some(r => r.module === k && r.refId === it.refId)));
+    pickerModule = pick || 'grammar';
 
     $('#pickerSearch').value = '';
     renderPicker();
@@ -1759,11 +1656,11 @@
 
     $('#pickerSub').textContent = 'Phase ' + (idx + 1) + ' · ' + phase.title;
 
-    $('#pickerTabs').innerHTML = SOURCE_ORDER.map(k => {
-      const info = SOURCES[k];
+    $('#pickerTabs').innerHTML = RES_ORDER.map(k => {
+      const mod = RES_MODULES[k];
       const count = (sources[k] || []).length;
       return `<button type="button" class="tab${k === pickerModule ? ' active' : ''}" data-mod="${k}">
-        ${info.icon} ${esc(info.name)} <span class="cnt">${count}</span>
+        ${mod.icon} ${esc(mod.name)} <span class="cnt">${count}</span>
       </button>`;
     }).join('');
 
@@ -1774,13 +1671,13 @@
       : all;
 
     const addedRefs = new Set(
-      phase.resources.filter(r => (r.kind || 'topics') === pickerModule).map(r => r.refId)
+      phase.resources.filter(r => r.module === pickerModule).map(r => r.refId)
     );
 
     $('#pickerList').innerHTML = filtered.length
       ? filtered.map(it => {
           const isAdded = addedRefs.has(it.refId);
-          return `<button type="button" class="pitem" data-kind="${esc(pickerModule)}" data-ref="${esc(it.refId)}" ${isAdded ? 'disabled' : ''}>
+          return `<button type="button" class="pitem" data-ref="${esc(it.refId)}" ${isAdded ? 'disabled' : ''}>
             <span class="pimain">
               <span class="pititle">${esc(it.label)}</span>
               <span class="pisub">${esc(it.meta || '')}</span>
@@ -1791,21 +1688,19 @@
       : `<div class="empty small" style="border:0;padding:22px 10px">Nothing to add here yet.</div>`;
   }
 
-  function addPickedResource(kind, refId){
+  function addPickedResource(refId){
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === pickerPhaseId);
     if(!phase) return;
 
-    if(phase.resources.some(r => (r.kind || 'topics') === kind && r.refId === refId)) return;
+    if(phase.resources.some(r => r.module === pickerModule && r.refId === refId)) return;
 
-    const src = findSource(kind, refId);
+    const src = findSource(pickerModule, refId);
     if(!src) return;
 
-    const info = kindInfo(kind);
     phase.resources.push({
       id:      uid('res-'),
-      kind:    kind,
-      module:  info.module,
+      module:  pickerModule,
       refId:   refId,
       label:   src.label,
       meta:    src.meta,
@@ -1819,25 +1714,11 @@
   }
 
   /* ============================================================
-     DEEP-LINK — open an item inside its module
-     ============================================================ */
-  function openItem(kind, refId, label){
-    const info = kindInfo(kind);
-    const route = info.module;
-    if(!route || !MODULES[route]) return;
-
-    closeDayModal();
-    closePicker();
-
-    go(route, { module: route, kind: kind, refId: refId, label: label || '' });
-  }
-
-  /* ============================================================
      DAY PLANNER  —  click a day → add today's tasks
      ============================================================ */
   let dayPhaseId = null;
   let dayNum     = null;
-  let dayModule  = 'topics';
+  let dayModule  = 'grammar';
 
   function openDayModal(phaseId, n){
     const rm = readRoadmap();
@@ -1848,21 +1729,13 @@
     dayPhaseId = phaseId;
     dayNum     = n;
 
-    const tasks = getDayTasks(phase, n);
+    /* open on the first module that still has something to add */
     const sources = collectSources(hubData);
-
-    /* default tab: phase resources first, then the first source with unadded items */
-    let pick = null;
-    if(phase.resources.length && phase.resources.some(r =>
-        !tasks.some(t => t.kind === (r.kind || 'topics') && t.refId === r.refId))){
-      pick = PHASE_RES_TAB;
-    }
-    if(!pick){
-      pick = SOURCE_ORDER.find(k =>
-        (sources[k] || []).some(it =>
-          !tasks.some(t => t.kind === k && t.refId === it.refId)));
-    }
-    dayModule = pick || PHASE_RES_TAB;
+    const tasks = getDayTasks(phase, n);
+    let pick = RES_ORDER.find(k =>
+      (sources[k] || []).some(it =>
+        !tasks.some(t => t.module === k && t.refId === it.refId)));
+    dayModule = pick || 'grammar';
 
     $('#daySearch').value = '';
     renderDayModal();
@@ -1902,20 +1775,18 @@
 
     $('#dayTaskList').innerHTML = tasks.length
       ? tasks.map(t => {
-          const info = kindInfo(t.kind, t.module);
+          const mod = RES_MODULES[t.module] || { icon:'•', cls:'', name: t.module || 'Item' };
           return `
             <div class="taskrow${t.done ? ' done' : ''}">
               <button type="button" class="rbtn${t.done ? ' on' : ''}" data-act="toggle-task"
                       data-task="${esc(t.id)}" title="${t.done ? 'Mark as not done' : 'Mark as done'}">
                 ${t.done ? '✓' : '○'}
               </button>
-              <span class="ricon ${esc(info.cls)}" title="${esc(info.label)}">${info.icon}</span>
+              <span class="ricon ${esc(mod.cls)}" title="${esc(mod.name)}">${mod.icon}</span>
               <span class="rmain">
                 <span class="rtitle" title="${esc(t.label)}">${esc(t.label)}</span>
-                <span class="rsub">${esc(info.label)}${t.meta ? ' · ' + esc(t.meta) : ''}${t.doneAt ? ' · done ' + esc(fmtDay(t.doneAt)) : ''}</span>
+                <span class="rsub">${esc(mod.name)}${t.meta ? ' · ' + esc(t.meta) : ''}${t.doneAt ? ' · done ' + esc(fmtDay(t.doneAt)) : ''}</span>
               </span>
-              <button type="button" class="rbtn" data-act="open-task" data-task="${esc(t.id)}"
-                      title="Open in ${esc(info.name)}">↗</button>
               <button type="button" class="rbtn" data-act="remove-task" data-task="${esc(t.id)}"
                       title="Remove from this day">✕</button>
             </div>`;
@@ -1924,62 +1795,38 @@
            No tasks for this day yet — pick something from the list below.
          </div>`;
 
-    /* ---------- tabs ---------- */
+    /* ---------- source tabs ---------- */
     const sources = collectSources(hubData);
-    const tabs = [];
-    if(phase.resources.length) tabs.push(PHASE_RES_TAB);
-    SOURCE_ORDER.forEach(k => tabs.push(k));
-    if(tabs.indexOf(dayModule) < 0) dayModule = tabs[0] || PHASE_RES_TAB;
-
-    $('#dayTabs').innerHTML = tabs.map(k => {
-      if(k === PHASE_RES_TAB){
-        return `<button type="button" class="tab${dayModule === k ? ' active' : ''}" data-mod="${k}">
-          📌 Phase resources <span class="cnt">${phase.resources.length}</span>
-        </button>`;
-      }
-      const info = SOURCES[k];
+    $('#dayTabs').innerHTML = RES_ORDER.map(k => {
+      const mod = RES_MODULES[k];
       const count = (sources[k] || []).length;
-      return `<button type="button" class="tab${dayModule === k ? ' active' : ''}" data-mod="${k}">
-        ${info.icon} ${esc(info.name)} <span class="cnt">${count}</span>
+      return `<button type="button" class="tab${k === dayModule ? ' active' : ''}" data-mod="${k}">
+        ${mod.icon} ${esc(mod.name)} <span class="cnt">${count}</span>
       </button>`;
     }).join('');
 
     /* ---------- pickable items ---------- */
-    let items;
-    if(dayModule === PHASE_RES_TAB){
-      items = phase.resources.map(r => ({
-        kind: r.kind || 'topics',
-        refId: r.refId,
-        label: r.label,
-        meta: r.meta
-      }));
-    }else{
-      items = (sources[dayModule] || []).map(it => ({
-        kind: dayModule,
-        refId: it.refId,
-        label: it.label,
-        meta: it.meta
-      }));
-    }
-
     const q = ($('#daySearch').value || '').trim().toLowerCase();
+    const all = sources[dayModule] || [];
     const filtered = q
-      ? items.filter(it => (it.label + ' ' + (it.meta || '')).toLowerCase().includes(q))
-      : items;
+      ? all.filter(it => (it.label + ' ' + (it.meta || '')).toLowerCase().includes(q))
+      : all;
+
+    const addedRefs = new Set(tasks.filter(t => t.module === dayModule).map(t => t.refId));
 
     $('#dayList').innerHTML = filtered.length
       ? filtered.map(it => {
-          const added = tasks.some(t => t.kind === it.kind && t.refId === it.refId);
-          return `<button type="button" class="pitem" data-kind="${esc(it.kind)}" data-ref="${esc(it.refId)}" ${added ? 'disabled' : ''}>
+          const isAdded = addedRefs.has(it.refId);
+          return `<button type="button" class="pitem" data-ref="${esc(it.refId)}" ${isAdded ? 'disabled' : ''}>
             <span class="pimain">
               <span class="pititle">${esc(it.label)}</span>
               <span class="pisub">${esc(it.meta || '')}</span>
             </span>
-            <span class="piadd">${added ? 'Added ✓' : '+ Add task'}</span>
+            <span class="piadd">${isAdded ? 'Added ✓' : '+ Add task'}</span>
           </button>`;
         }).join('')
       : `<div class="empty small" style="border:0;padding:22px 10px">
-           Nothing available here yet.
+           Nothing available in ${esc(RES_MODULES[dayModule].name)} yet.
          </div>`;
 
     /* ---------- footer toggle ---------- */
@@ -1992,28 +1839,20 @@
       : (isDone ? 'Un-tick this day' : 'Tick this day as complete');
   }
 
-  function addDayTask(kind, refId){
+  function addDayTask(module, refId){
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === dayPhaseId);
     if(!phase || dayNum == null) return;
 
     const tasks = getDayTasks(phase, dayNum);
-    if(tasks.some(t => t.kind === kind && t.refId === refId)) return;
+    if(tasks.some(t => t.module === module && t.refId === refId)) return;
 
-    /* Prefer the live source; fall back to the phase resource of the same kind+refId
-       (useful for review entries that are derived, not stored). */
-    let src = findSource(kind, refId);
-    if(!src){
-      const r = phase.resources.find(x => (x.kind || 'topics') === kind && x.refId === refId);
-      if(r) src = { label: r.label, meta: r.meta };
-    }
+    const src = findSource(module, refId);
     if(!src) return;
 
-    const info = kindInfo(kind);
     tasks.push({
       id:      uid('task-'),
-      kind:    kind,
-      module:  info.module,
+      module:  module,
       refId:   refId,
       label:   src.label,
       meta:    src.meta,
@@ -2058,17 +1897,6 @@
     paintRoadmap(rm);
   }
 
-  function openDayTask(taskId){
-    const rm = readRoadmap();
-    const phase = rm.phases.find(p => p.id === dayPhaseId);
-    if(!phase || dayNum == null) return;
-
-    const t = getDayTasks(phase, dayNum).find(x => x.id === taskId);
-    if(!t) return;
-
-    openItem(t.kind || 'topics', t.refId, t.label);
-  }
-
   function toggleDayComplete(){
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === dayPhaseId);
@@ -2108,10 +1936,8 @@
 
   let currentRoute = 'overview';
   let iframeLoadedFor = null;
-  let pendingOpen = null;   // consumed by routeTo()
 
-  function go(route, payload){
-    pendingOpen = payload || null;
+  function go(route){
     if(location.hash === '#' + route){ routeTo(route); return; }
     location.hash = '#' + route;
   }
@@ -2148,20 +1974,11 @@
     $('#modTitle').textContent = mod.icon + '  ' + mod.name;
 
     const frame = $('#frame');
-    const payload = (pendingOpen && pendingOpen.module === route) ? pendingOpen : null;
-    pendingOpen = null;   // consumed
-
-    if(payload){
-      frame.dataset.openPayload = JSON.stringify(payload);
-      frame.setAttribute('src', mod.file + '#hub-open=' + encodeURIComponent(payload.kind + ':' + payload.refId));
-      iframeLoadedFor = route;
-      frame.dataset.route = route;
-    }else if(iframeLoadedFor !== route){
-      frame.dataset.openPayload = '';
+    if(iframeLoadedFor !== route){
       frame.setAttribute('src', mod.file);
       iframeLoadedFor = route;
       frame.dataset.route = route;
-    }else{
+    } else {
       decorateFrame();
     }
   }
@@ -2211,7 +2028,7 @@
   $('#pickerList').addEventListener('click', e => {
     const item = e.target.closest('.pitem');
     if(!item || item.disabled) return;
-    addPickedResource(item.dataset.kind, item.dataset.ref);
+    addPickedResource(item.dataset.ref);
   });
   $('#pickerSearch').addEventListener('input', renderPicker);
   $('#pickerClose').addEventListener('click', closePicker);
@@ -2230,16 +2047,14 @@
   $('#dayList').addEventListener('click', e => {
     const item = e.target.closest('.pitem');
     if(!item || item.disabled) return;
-    addDayTask(item.dataset.kind, item.dataset.ref);
+    addDayTask(dayModule, item.dataset.ref);
   });
 
   $('#dayTaskList').addEventListener('click', e => {
     const btn = e.target.closest('[data-act]');
     if(!btn) return;
-    const act = btn.dataset.act;
-    if(act === 'toggle-task')      toggleDayTask(btn.dataset.task);
-    else if(act === 'remove-task') removeDayTask(btn.dataset.task);
-    else if(act === 'open-task')   openDayTask(btn.dataset.task);
+    if(btn.dataset.act === 'toggle-task') toggleDayTask(btn.dataset.task);
+    else if(btn.dataset.act === 'remove-task') removeDayTask(btn.dataset.task);
   });
 
   $('#daySearch').addEventListener('input', renderDayModal);
@@ -2259,30 +2074,7 @@
     applyTheme(next);
   });
 
-  /* On every iframe load: re-decorate links, then post the deep-link request
-     (if the load was triggered by an "open item" action). */
-  $('#frame').addEventListener('load', () => {
-    decorateFrame();
-
-    const frame = $('#frame');
-    const raw = frame.dataset.openPayload;
-    if(!raw) return;
-
-    try{
-      const payload = JSON.parse(raw);
-      if(payload && payload.module === frame.dataset.route){
-        frame.contentWindow.postMessage({
-          type:   'hub:open-item',
-          module: payload.module,
-          kind:   payload.kind,
-          refId:  payload.refId,
-          label:  payload.label
-        }, '*');
-      }
-    }catch(err){ /* ignore */ }
-
-    frame.dataset.openPayload = '';
-  });
+  $('#frame').addEventListener('load', () => decorateFrame());
 
   /* Refresh numbers when the hub tab regains focus (e.g. coming back
      from a module in another tab/window). */
