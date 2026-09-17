@@ -128,6 +128,7 @@
   .pill.practicing{background:#fef3c7;color:#b45309}
   .pill.active{background:#d1fae5;color:#047857}
   .pill.mastered{background:#ede9fe;color:#6d28d9}
+  .pill.inbox{background:#fef3c7;color:#b45309}
   .item{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid #f2f3f6;cursor:pointer}
   .item:last-child{border-bottom:0}
   .item:hover{background:#fafbfc}
@@ -229,6 +230,38 @@
   .kindle-words .item{padding-left:22px}
   .kindle-words .item .t{font-size:12.5px}
 
+  /* Word pop-up */
+  .modal .panel .example-text{
+    font-size:13px;line-height:1.6;color:var(--ink);
+    word-break:break-word;overflow-wrap:break-word;white-space:normal;
+    background:#fafbfc;border-radius:8px;padding:8px 10px;
+    border:1px solid #f2f3f6;
+  }
+  .dict-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .dict-row .btn{padding:5px 10px;font-size:12px}
+  .dict-row .lbl{margin:0 4px 0 0}
+  .dict-custom{display:flex;gap:6px;align-items:center;margin-top:6px}
+  .dict-custom .inp{flex:1;font-size:12px;padding:6px 8px}
+
+  /* Expanded Example popup */
+  .example-expanded {
+    font-size: 19px;
+    line-height: 1.7;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    word-break: break-word;
+    color: var(--ink);
+  }
+  .example-expanded mark {
+    background: #fde68a;
+    color: #78350f;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+
   /* ============================================================
      DARK THEME COMPONENT OVERRIDES
      ============================================================ */
@@ -280,6 +313,7 @@
   [data-theme="dark"] .pill.practicing{background:#3a2716;color:#fcd34d}
   [data-theme="dark"] .pill.active{background:#0f2e22;color:#6ee7b7}
   [data-theme="dark"] .pill.mastered{background:#2c1f52;color:#c4b5fd}
+  [data-theme="dark"] .pill.inbox{background:#3a2716;color:#fb923c}
   [data-theme="dark"] .bar{background:#22262e}
   [data-theme="dark"] .num small{color:#4a5058}
   [data-theme="dark"] .modal .panel{background:#181b21}
@@ -304,6 +338,7 @@
   [data-theme="dark"] .chal-pick{background:#1e222a}
   [data-theme="dark"] .chal-pick .item:hover{background:#252a33}
   [data-theme="dark"] .chal-pick .item.sel{background:var(--accent-soft)}
+  [data-theme="dark"] .example-expanded mark{background:#78350f;color:#fde68a}
 </style>
 </head>
 <body>
@@ -347,6 +382,26 @@ const RES_TYPE_ICON  = {book:'📕',podcast:'🎧',course:'🎓',article:'📰',
 /* Kindle imports are always classified as vocabulary. */
 const KINDLE_CATEGORY = 'vocab';
 
+/* --- Dictionaries --- */
+const DEFAULT_DICT = {
+  id: 'reverso',
+  name: 'Reverso Context',
+  url: 'https://context.reverso.net/translation/english-portuguese/{word}'
+};
+const DICT_PRESETS = [
+  DEFAULT_DICT,
+  { id:'cambridge', name:'Cambridge Dictionary',
+    url:'https://dictionary.cambridge.org/dictionary/english/{word}' },
+  { id:'oxford', name:'Oxford Learner\'s Dictionaries',
+    url:'https://www.oxfordlearnersdictionaries.com/definition/english/{word}' },
+  { id:'merriam', name:'Merriam-Webster',
+    url:'https://www.merriam-webster.com/dictionary/{word}' },
+  { id:'collins', name:'Collins Dictionary',
+    url:'https://www.collinsdictionary.com/dictionary/english/{word}' },
+  { id:'longman', name:'Longman Dictionary',
+    url:'https://www.ldoceonline.com/dictionary/{word}' }
+];
+
 /* ============================================================
    HELPERS
    ============================================================ */
@@ -386,6 +441,36 @@ function mapCategory(raw){
   if(['chunk','chunks'].includes(s)) return 'chunk';
   if(['vocabulary','vocab','word','words'].includes(s)) return 'vocab';
   return '';
+}
+
+/* --- Dictionary helper --- */
+function activeDict(){
+  const d = S.settings && S.settings.dict;
+  if(!d || !d.url) return DEFAULT_DICT;
+  return d;
+}
+function dictUrl(term){
+  const d = activeDict();
+  const lang = (navigator.language || 'en').toLowerCase().slice(0,2);
+  const target = (lang === 'pt') ? 'portuguese' : 'portuguese';
+  return d.url
+    .replace(/\{word\}/g, encodeURIComponent(term))
+    .replace(/\{lang\}/g, target)
+    .replace(/\{lang2\}/g, lang);
+}
+function openDict(term){
+  if(!term) return;
+  const url = dictUrl(term);
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/* --- Highlighting helper --- */
+function highlightTerm(text, term){
+  const safeText = esc(text || '');
+  if(!term) return safeText;
+  const escapedTerm = esc(term);
+  const regex = new RegExp(`(${escRe(escapedTerm)})`, 'gi');
+  return safeText.replace(regex, '<mark>$1</mark>');
 }
 
 /* ============================================================
@@ -473,7 +558,12 @@ function csvEscape(v){
 let S=null, view='today', ui={}, modalId=null, modalView=null;
 
 function defaultSettings(){
-  return { target:30, dist:{collocation:10,phrasal:5,chunk:5,vocab:10}, theme:'system' };
+  return {
+    target:30,
+    dist:{collocation:10,phrasal:5,chunk:5,vocab:10},
+    theme:'system',
+    dict:{...DEFAULT_DICT}
+  };
 }
 function mk(term,category,meaning,example,source,extra){
   return Object.assign({
@@ -496,6 +586,9 @@ function load(){
         if(!Array.isArray(p.challenges)) p.challenges = [];
         if(!p.settings || typeof p.settings!=='object') p.settings = defaultSettings();
         if(!p.settings.theme) p.settings.theme = 'system';
+        if(!p.settings.dict || typeof p.settings.dict!=='object'){
+          p.settings.dict = { ...DEFAULT_DICT };
+        }
         p.resources.forEach(r=>{
           if(!Array.isArray(r.chapters)) r.chapters = [];
           if(!Array.isArray(r.categories)) r.categories = [];
@@ -515,7 +608,8 @@ function freshUi(){
     lib:{cat:'all',status:'all',q:'',res:'all'},
     addCat:'', selectMode:false, selected:new Set(),
     editRes:null, openRes:null, resCats:null, resFilter:'all',
-    chal:freshChal(), csvDraft:null, kindleDraft:null
+    chal:freshChal(), csvDraft:null, kindleDraft:null,
+    expandedExample:null
   };
 }
 
@@ -635,7 +729,8 @@ function streak(){
 function clearSelection(){ ui.selectMode=false; ui.selected=new Set(); }
 function filteredLibrary(){
   ui.lib = ui.lib || {cat:'all',status:'all',q:'',res:'all'};
-  let list = S.items.filter(i=>!i.inbox);
+  // Include inbox items if a specific resource is selected
+  let list = S.items.filter(i => !i.inbox || (ui.lib.res && ui.lib.res !== 'all' && i.resourceId === ui.lib.res));
   if(ui.lib.cat!=='all')    list = list.filter(i=>i.category===ui.lib.cat);
   if(ui.lib.status!=='all') list = list.filter(i=>statusOf(i)===ui.lib.status);
   if(ui.lib.res && ui.lib.res!=='all') list = list.filter(i=>i.resourceId===ui.lib.res);
@@ -817,7 +912,9 @@ function importData(){
               theme: (p.settings.theme==='dark'||p.settings.theme==='light'||p.settings.theme==='system')
                      ? p.settings.theme : 'system',
               dist:Object.assign({collocation:10,phrasal:5,chunk:5,vocab:10},
-                    (p.settings.dist && typeof p.settings.dist==='object') ? p.settings.dist : {})
+                    (p.settings.dist && typeof p.settings.dist==='object') ? p.settings.dist : {}),
+              dict: (p.settings.dict && typeof p.settings.dict==='object' && p.settings.dict.url)
+                    ? p.settings.dict : { ...DEFAULT_DICT }
             }
           : defaultSettings();
         const days = (p.days && typeof p.days==='object') ? p.days : {};
@@ -1338,12 +1435,14 @@ function rowItem(it){
       <span class="cbx ${on?'on':''}">${on?'✓':''}</span>
       <span class="pill ${it.category}">${esc(CAT_SHORT[it.category]||'—')}</span>
       <span class="t">${esc(it.term)}<small>${esc(it.meaning||'—')}</small></span>
+      ${it.inbox ? '<span class="pill inbox">Inbox</span>' : ''}
       <span class="pill ${st}">${STATUS_LABEL[st]}</span>
     </div>`;
   }
   return `<div class="item" data-open="${it.id}">
     <span class="pill ${it.category}">${esc(CAT_SHORT[it.category]||'—')}</span>
     <span class="t">${esc(it.term)}<small>${esc(it.meaning||'—')}</small></span>
+    ${it.inbox ? '<span class="pill inbox">Inbox</span>' : ''}
     <span class="pill ${st}">${STATUS_LABEL[st]}</span>
   </div>`;
 }
@@ -1357,6 +1456,7 @@ function selBar(visible){
       <div class="wrap">
         <button class="btn sm" data-act="selectAll">All</button>
         <button class="btn sm" data-act="deselectAll" ${n?'':'disabled'}>None</button>
+        ${view === 'inbox' ? `<button class="btn sm" data-act="moveSelectedToLibrary" ${n?'':'disabled'}>Move to Library</button>` : ''}
         <button class="btn sm danger" data-act="deleteSelected" ${n?'':'disabled'}>Delete (${n})</button>
         <button class="btn sm ghost" data-act="exitSelect">Cancel</button>
       </div>
@@ -1425,6 +1525,7 @@ function viewInbox(){
       <div class="wrap">
         ${ui.selectMode ? '' : (list.length ? `<button class="btn sm" data-act="enterSelect">Select</button>` : '')}
         <button class="btn sm" data-act="csvUpload">⭱ CSV</button>
+        <button class="btn sm" data-act="moveInboxToLibrary" ${list.length?'':'disabled'}>Move all to Library</button>
         <button class="btn pri" data-act="smartBuild" ${list.length?'':'disabled'}>⚡ Build today</button>
       </div>
     </div>
@@ -1566,7 +1667,7 @@ function doAdd(openIt){
    ============================================================ */
 function viewLibrary(){
   const list = filteredLibrary();
-  const total = S.items.filter(i=>!i.inbox).length;
+  const total = list.length;
   const inboxN = inboxItems().length;
   const rows = list.length ? list.map(rowItem).join('')
     : `<div class="empty">No items match.${
@@ -2507,11 +2608,16 @@ function viewStats(){
 /* ============================================================
    MODAL
    ============================================================ */
-function openItem(id){ modalId=id; modalView=null; renderModal(); }
-function openSettings(){ modalId=null; modalView='settings'; renderModal(); }
-function closeModal(){ modalId=null; modalView=null; renderModal(); }
+function openItem(id){ modalId=id; modalView=null; ui.expandedExample=null; renderModal(); }
+function openSettings(){ modalId=null; modalView='settings'; ui.expandedExample=null; renderModal(); }
+function closeModal(){ modalId=null; modalView=null; ui.expandedExample=null; renderModal(); }
 
 function renderModal(){
+  if(ui.expandedExample){
+    modal.classList.add('on');
+    modal.innerHTML = expandedExamplePanel();
+    return;
+  }
   if(modalView === 'settings'){
     modal.classList.add('on');
     modal.innerHTML = settingsPanel();
@@ -2524,11 +2630,33 @@ function renderModal(){
   modal.innerHTML = itemPanel(it);
 }
 
+function expandedExamplePanel(){
+  const d = ui.expandedExample;
+  const title = d.field === 'personal' ? 'Personal Example' : 'Example';
+  return `
+  <div class="bg" data-act="closeExpandedExample"></div>
+  <div class="panel" style="max-width:700px">
+    <div class="between" style="margin-bottom:16px">
+      <h2 style="margin:0;text-transform:none;letter-spacing:0;font-size:16px;color:var(--ink)">
+        ${title}
+      </h2>
+      <button class="btn ghost sm" data-act="closeExpandedExample">✕</button>
+    </div>
+    <div class="example-expanded">
+      ${highlightTerm(d.text || '(empty)', d.term)}
+    </div>
+    <div class="wrap" style="margin-top:16px;justify-content:flex-end">
+      <button class="btn pri" data-act="closeExpandedExample">Close</button>
+    </div>
+  </div>`;
+}
+
 function settingsPanel(){
   const s = S.settings;
   const total = CATS.reduce((n,c)=>n + (Number(s.dist[c])||0), 0);
   const challenges = challengesList().length;
   const theme = s.theme || 'system';
+  const dict = s.dict || DEFAULT_DICT;
 
   return `
   <div class="bg" data-act="closeModal"></div>
@@ -2560,6 +2688,23 @@ function settingsPanel(){
     <div class="between" style="margin-top:2px">
       <div class="tiny muted">Total per day: <b id="distTotal">${total}</b></div>
       <button class="btn pri sm" data-act="saveDist">Save target</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="lbl">Dictionary</div>
+    <div class="wrap">
+      ${DICT_PRESETS.map(d=>`
+        <button class="chip ${dict.id===d.id?'on':''}" data-act="setDict" data-dict-id="${d.id}">${esc(d.name)}</button>
+      `).join('')}
+    </div>
+    <div class="dict-custom">
+      <input class="inp" id="dictUrl" placeholder="Custom URL template ({word})" value="${esc(dict.url)}">
+      <button class="btn sm" data-act="saveDict">Save</button>
+    </div>
+    <div class="tiny muted" style="margin-top:6px">
+      Use <b>{word}</b> where the lookup term should go. <b>{lang}</b> is replaced with your target
+      language (from your browser), <b>{lang2}</b> with the browser’s base language.
     </div>
 
     <div class="sep"></div>
@@ -2609,6 +2754,7 @@ function itemPanel(it){
 
   const chs = challengesList();
   const inCh = new Set(chs.filter(c=>(c.itemIds||[]).includes(it.id)).map(c=>c.id));
+  const dict = activeDict();
 
   return `
   <div class="bg" data-act="closeModal"></div>
@@ -2617,7 +2763,7 @@ function itemPanel(it){
       <div class="row" style="gap:6px">
         <span class="pill ${it.category}">${esc(CAT_LABEL[it.category]||'Uncategorized')}</span>
         <span class="pill ${st}">${STATUS_LABEL[st]}</span>
-        ${it.inbox?'<span class="pill">Inbox</span>':''}
+        ${it.inbox?'<span class="pill inbox">Inbox</span>':''}
       </div>
       <button class="btn ghost sm" data-act="closeModal">✕</button>
     </div>
@@ -2631,12 +2777,29 @@ function itemPanel(it){
 
     <div class="sep"></div>
 
-    <div class="field"><label class="lbl">Meaning</label>
-      <input class="inp" data-field="meaning" value="${esc(it.meaning)}"></div>
-    <div class="field"><label class="lbl">Example</label>
-      <input class="inp" data-field="example" value="${esc(it.example)}"></div>
-    <div class="field"><label class="lbl">Personal example</label>
-      <input class="inp" data-field="personal" value="${esc(it.personal)}"></div>
+    <div class="field">
+      <label class="lbl">Meaning</label>
+      <input class="inp" data-field="meaning" value="${esc(it.meaning)}">
+    </div>
+
+    <div class="field">
+      <div class="between">
+        <label class="lbl">Example</label>
+        <button class="btn sm ghost" data-act="expandExample" data-field="example">🔍 Expand</button>
+      </div>
+      <div class="example-text" data-field="example" contenteditable="true"
+           data-placeholder="From the source…">${highlightTerm(it.example, it.term)}</div>
+    </div>
+
+    <div class="field">
+      <div class="between">
+        <label class="lbl">Personal example</label>
+        <button class="btn sm ghost" data-act="expandExample" data-field="personal">🔍 Expand</button>
+      </div>
+      <div class="example-text" data-field="personal" contenteditable="true"
+           data-placeholder="Your own sentence…">${highlightTerm(it.personal, it.term)}</div>
+    </div>
+
     <div class="grid g-2">
       <div class="field"><label class="lbl">Source</label>
         <input class="inp" data-field="source" value="${esc(it.source)}"></div>
@@ -2658,8 +2821,16 @@ function itemPanel(it){
     <div class="field"><label class="lbl">Notes</label>
       <textarea class="inp" rows="2" data-field="notes">${esc(it.notes)}</textarea></div>
 
+    <div class="sep"></div>
+
+    <div class="dict-row">
+      <span class="lbl" style="margin:0 4px 0 0">Dictionary</span>
+      <button class="btn" data-act="openDict" data-term="${esc(it.term)}">🔍 ${esc(dict.name)}</button>
+      <button class="btn ghost sm" data-act="openDictSettings">Change…</button>
+    </div>
+
     ${chs.length?`
-    <div class="field">
+    <div class="field" style="margin-top:10px">
       <label class="lbl">Challenges</label>
       <div class="wrap">
         ${chs.map(c=>`<button class="chip ${inCh.has(c.id)?'on':''}" data-itemchal="${c.id}">${esc(c.title)}</button>`).join('')}
@@ -2680,6 +2851,7 @@ function itemPanel(it){
 
     <div class="wrap" style="margin-top:12px">
       ${it.inbox?`<button class="btn pri" data-act="processInbox">Process → today</button>`:''}
+      ${it.inbox?`<button class="btn" data-act="processInboxLibrary">Move to Library</button>`:''}
       ${!it.studiedAt?`<button class="btn" data-act="markStudied">Mark studied</button>`:''}
       <button class="btn" data-act="openPrac">Practice</button>
       <button class="btn danger" data-act="deleteItem">Delete</button>
@@ -2819,6 +2991,53 @@ function handleAct(el){
     case 'saveAdd':      doAdd(false); break;
     case 'saveAddOpen':  doAdd(true);  break;
 
+    case 'expandExample': {
+      const it = S.items.find(i=>i.id===modalId);
+      if(it){
+        ui.expandedExample = { text: it[el.dataset.field], term: it.term, field: el.dataset.field };
+        renderModal();
+      }
+      break;
+    }
+    case 'closeExpandedExample': {
+      ui.expandedExample = null;
+      renderModal();
+      break;
+    }
+
+    case 'openDict': {
+      openDict(el.dataset.term);
+      break;
+    }
+    case 'openDictSettings': {
+      modalView = 'settings';
+      renderModal();
+      break;
+    }
+    case 'setDict': {
+      const id = el.dataset.dictId;
+      const preset = DICT_PRESETS.find(d=>d.id===id);
+      if(preset){
+        S.settings.dict = { ...preset };
+        save(); renderModal();
+        toast('Dictionary: ' + preset.name);
+      }
+      break;
+    }
+    case 'saveDict': {
+      const inp = $('#dictUrl');
+      const url = inp ? inp.value.trim() : '';
+      if(!url){ toast('Enter a URL'); return; }
+      S.settings.dict = {
+        id: 'custom',
+        name: 'Custom',
+        url
+      };
+      save(); renderModal();
+      toast('Custom dictionary saved');
+      break;
+    }
+
     case 'quickAdd': {
       const inp = $('#quickTerm');
       const v = inp ? inp.value.trim() : '';
@@ -2833,6 +3052,36 @@ function handleAct(el){
     }
 
     case 'smartBuild': buildFromInbox(); break;
+
+    case 'moveInboxToLibrary': {
+      const list = inboxItems();
+      if(!list.length) break;
+      list.forEach(it => {
+        it.inbox = false;
+        if(!it.dateAdded) it.dateAdded = T;
+        it.nextReview = T;
+      });
+      save(); render();
+      toast(`Moved ${list.length} item${list.length===1?'':'s'} to Library`);
+      break;
+    }
+
+    case 'moveSelectedToLibrary': {
+      if(!ui.selected.size) break;
+      let n = 0;
+      ui.selected.forEach(id => {
+        const it = S.items.find(i=>i.id===id);
+        if(it && it.inbox){
+          it.inbox = false;
+          if(!it.dateAdded) it.dateAdded = T;
+          it.nextReview = T;
+          n++;
+        }
+      });
+      clearSelection(); save(); render();
+      toast(`Moved ${n} item${n===1?'':'s'} to Library`);
+      break;
+    }
 
     case 'editDist': {
       const day = ensureDay(T);
@@ -2895,6 +3144,18 @@ function handleAct(el){
         it.nextReview = T;
         save(); closeModal(); render();
         toast('Added to today');
+      }
+      break;
+    }
+
+    case 'processInboxLibrary': {
+      const it = S.items.find(i=>i.id===modalId);
+      if(it){
+        it.inbox = false;
+        if(!it.dateAdded) it.dateAdded = T;
+        it.nextReview = T;
+        save(); closeModal(); render();
+        toast('Moved to Library');
       }
       break;
     }
@@ -3399,6 +3660,15 @@ document.addEventListener('input', e=>{
     return;
   }
 
+  if(e.target.isContentEditable && e.target.dataset.field && modalId){
+    const it = S.items.find(i=>i.id===modalId);
+    if(it){
+      it[e.target.dataset.field] = e.target.textContent.trim();
+      save();
+    }
+    return;
+  }
+
   if(e.target.tagName === 'SELECT') return;
   const f = e.target.dataset.field;
   if(f && modalId){
@@ -3444,6 +3714,7 @@ document.addEventListener('change', e=>{
 
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape'){
+    if(ui.expandedExample){ ui.expandedExample = null; renderModal(); return; }
     if(ui.selectMode){ clearSelection(); render(); return; }
     if(ui.editRes){ ui.editRes = null; ui.resCats = null; render(); return; }
     if(ui.chal && (ui.chal.creating || ui.chal.editingId)){ ui.chal = freshChal(); render(); return; }
