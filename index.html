@@ -389,9 +389,10 @@
   .day-cat-rows{display:flex;flex-direction:column;gap:6px}
   .dt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   #dayModuleHead{
-    flex:0 0 auto;padding:10px 16px 0;
+    flex:0 0 auto;padding:10px 16px;
     display:flex;justify-content:space-between;align-items:baseline;gap:8px;
   }
+  #dayPickerBody{flex:1;min-height:0;display:flex;flex-direction:column}
   .taskrow{
     display:flex;align-items:center;gap:8px;background:var(--panel);
     border:1px solid var(--line);border-radius:9px;padding:6px 8px;
@@ -486,17 +487,19 @@
       <div class="dsect-head">
         <span class="rsect-title" id="dayAddLabel">Today's tasks</span>
         <span class="tiny muted" id="dayAddHint"></span>
-        <button type="button" class="btn-toggle" id="daySectionToggle" aria-expanded="false">Show</button>
       </div>
-      <div id="daySection" hidden></div>
+      <div id="daySection"></div>
       <div id="dayModuleHead">
         <span class="rsect-title" id="dayPickLabel">Add from</span>
+        <button type="button" class="btn-toggle" id="dayPickerToggle" aria-expanded="false">Show</button>
       </div>
-      <div class="tabs" id="dayTabs"></div>
-      <div class="searchwrap">
-        <input id="daySearch" type="search" placeholder="Search…" autocomplete="off">
+      <div id="dayPickerBody" hidden>
+        <div class="tabs" id="dayTabs"></div>
+        <div class="searchwrap">
+          <input id="daySearch" type="search" placeholder="Search…" autocomplete="off">
+        </div>
+        <div class="plist" id="dayList"></div>
       </div>
-      <div class="plist" id="dayList"></div>
     </div>
 
     <div class="pfoot">
@@ -1797,7 +1800,7 @@
   let dayNum     = null;
   let dayMode    = 'tasks';      // 'tasks' | 'resources'
   let dayModule  = 'grammar';
-  let daySectionOpen = false;    // "Today's tasks" list is collapsed by default
+  let dayPickerOpen = false;     // "Add task from" picker is collapsed by default
 
   function openDayModal(phaseId, n){
     const rm = readRoadmap();
@@ -1808,7 +1811,7 @@
     dayPhaseId = phaseId;
     dayNum     = n;
     dayMode    = 'tasks';
-    daySectionOpen = false;
+    dayPickerOpen = false;
     $('#daySearch').value = '';
 
     /* make sure module data is loaded so the pickers can populate */
@@ -1905,13 +1908,8 @@
           ? resources.filter(r => r.done).length + ' of ' + resources.length + ' done'
           : 'none yet — these apply to the whole phase');
 
-    const toggleBtn = $('#daySectionToggle');
-    toggleBtn.textContent = daySectionOpen ? 'Hide' : 'Show';
-    toggleBtn.setAttribute('aria-expanded', String(daySectionOpen));
-    $('#daySection').hidden = !daySectionOpen;
-
     /* ---------- upper list (tasks or resources), grouped into columns by category ---------- */
-    if(daySectionOpen){
+    {
       const list = dayMode === 'tasks' ? tasks : resources;
       const kind = dayMode === 'tasks' ? 'task' : 'res';
 
@@ -1943,6 +1941,12 @@
         $('#daySection').innerHTML = `<div class="daysection-cols">${cols}</div>`;
       }
     }
+
+    /* ---------- "Add task from" picker — collapsed by default ---------- */
+    const pickerToggle = $('#dayPickerToggle');
+    pickerToggle.textContent = dayPickerOpen ? 'Hide' : 'Show';
+    pickerToggle.setAttribute('aria-expanded', String(dayPickerOpen));
+    $('#dayPickerBody').hidden = !dayPickerOpen;
 
     /* ---------- module tabs ---------- */
     const sources = collectSources(hubData);
@@ -2275,8 +2279,8 @@
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
   });
 
-  $('#daySectionToggle').addEventListener('click', () => {
-    daySectionOpen = !daySectionOpen;
+  $('#dayPickerToggle').addEventListener('click', () => {
+    dayPickerOpen = !dayPickerOpen;
     renderDayModal();
   });
 
