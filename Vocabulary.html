@@ -332,6 +332,25 @@
     margin-bottom:4px;
   }
 
+  /* Quick start templates panel */
+  .tpl-row{
+    padding:10px 0;
+    border-top:1px solid #eef0f3;
+  }
+  .tpl-row:first-child{border-top:0;padding-top:0}
+  .tpl-row:last-child{padding-bottom:0}
+  .tpl-head{
+    font-size:11px;font-weight:700;color:var(--soft);
+    text-transform:uppercase;letter-spacing:.05em;
+    margin-bottom:6px;display:flex;align-items:center;gap:6px;
+  }
+  .tpl-cat{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;flex-wrap:wrap;padding:5px 0;
+  }
+  .tpl-cat-label{display:flex;align-items:center;gap:6px;min-width:150px}
+  .tpl-dl{display:flex;flex-wrap:wrap;gap:4px}
+
   /* ============================================================
      DARK THEME COMPONENT OVERRIDES
      ============================================================ */
@@ -432,6 +451,9 @@
   [data-theme="dark"] .match-item.sel{background:var(--accent-soft);border-color:var(--accent);color:#c7d2fe;box-shadow:0 0 0 3px rgba(129,140,248,.18)}
   [data-theme="dark"] .match-item.ok{background:#0f2e22;border-color:var(--good);color:#6ee7b7}
   [data-theme="dark"] .match-item.wrong{background:#3b1a1a;border-color:#7f1d1d;color:#fca5a5}
+
+  /* Quick start templates — dark theme */
+  [data-theme="dark"] .tpl-row{border-top-color:#22262e}
 </style>
 </head>
 <body>
@@ -494,6 +516,14 @@ const DICT_PRESETS = [
     url:'https://www.collinsdictionary.com/dictionary/english/{word}' },
   { id:'longman', name:'Longman Dictionary',
     url:'https://www.ldoceonline.com/dictionary/{word}' }
+];
+
+/* --- Challenge templates --- */
+const TPL_DEADLINES = [
+  {d:1,  label:'1 day'},
+  {d:3,  label:'3 days'},
+  {d:7,  label:'1 week'},
+  {d:30, label:'1 month'}
 ];
 
 /* ============================================================
@@ -571,6 +601,15 @@ function highlightTerm(text, term){
 function safeFilePart(s, fallback='resource'){
   const cleaned = String(s||'').replace(/[^a-z0-9\-_]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,60);
   return cleaned || fallback;
+}
+
+/* --- Deadline label --- */
+function daysLabel(d){
+  if(d === 1)  return '1 day';
+  if(d === 3)  return '3 days';
+  if(d === 7)  return '1 week';
+  if(d === 30) return '1 month';
+  return d + ' days';
 }
 
 /* ============================================================
@@ -711,7 +750,7 @@ function load(){
 }
 function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
 
-function freshChal(){ return {creating:false, editingId:null, openId:null, draft:null, pickCat:'all', pickQ:''}; }
+function freshChal(){ return {creating:false, editingId:null, openId:null, draft:null, pickCat:'all', pickQ:'', tplRes:''}; }
 function freshUi(){
   return {
     lib:{cat:'all',status:'all',q:'',res:'all'},
@@ -944,6 +983,99 @@ function buildFromInbox(){
   save();
   toast(added ? `Added ${added} item${added>1?'s':''} to today` : 'No matching items in inbox');
   render();
+}
+
+/* ============================================================
+   CHALLENGE TEMPLATES
+   ============================================================ */
+function applyResourceTemplate(resId, days){
+  const r = resourceById(resId);
+  if(!r){ toast('Resource not found'); return; }
+  const items = S.items.filter(i => !i.inbox && i.resourceId === r.id);
+  if(!items.length){ toast('No words in this resource yet'); return; }
+  const d = ui.chal && ui.chal.draft;
+  if(!d){ toast('Open the mission form first'); return; }
+  d.itemIds = new Set(items.map(i => i.id));
+  d.due     = addDays(iso(), days);
+  d.title   = `Finish “${r.title}” in ${daysLabel(days)}`;
+  d.desc    = `Study every word from “${r.title}” — ${items.length} total.`;
+  render();
+  toast(`${items.length} word${items.length===1?'':'s'} · due ${fmtDate(d.due)}`);
+}
+
+function applyCategoryTemplate(cat, days){
+  const items = S.items.filter(i => !i.inbox && i.category === cat);
+  if(!items.length){ toast('No words in this category yet'); return; }
+  const d = ui.chal && ui.chal.draft;
+  if(!d){ toast('Open the mission form first'); return; }
+  d.itemIds = new Set(items.map(i => i.id));
+  d.due     = addDays(iso(), days);
+  d.title   = `${CAT_LABEL[cat]} · ${daysLabel(days)}`;
+  d.desc    = `Study every ${CAT_LABEL[cat].toLowerCase()} in your library — ${items.length} total.`;
+  render();
+  toast(`${items.length} word${items.length===1?'':'s'} · due ${fmtDate(d.due)}`);
+}
+
+function templatesPanel(){
+  const c = ui.chal || {};
+  const resources = resourcesList().filter(r => linkedCount(r.id) > 0);
+  const catCounts = {};
+  CATS.forEach(cat => { catCounts[cat] = S.items.filter(i => !i.inbox && i.category === cat).length; });
+
+  const dlChips = (extra) => TPL_DEADLINES.map(x =>
+    `<button class="chip" ${extra} data-days="${x.d}">${x.label}</button>`
+  ).join('');
+
+  return `
+  <div class="card" style="border-color:#c7d2fe;background:#f8faff;margin-bottom:12px">
+    <div class="between" style="margin-bottom:10px">
+      <h2 style="margin:0">⚡ Quick start</h2>
+      <span class="tiny muted">Pick a scope &amp; a deadline — the rest fills in.</span>
+    </div>
+
+    ${resources.length ? `
+    <div class="tpl-row">
+      <div class="tpl-head">📕 Finish a resource</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <select class="inp" id="tplRes" style="flex:1;min-width:200px;max-width:340px">
+          <option value="">— choose a resource —</option>
+          ${resources.map(r => {
+            const n = linkedCount(r.id);
+            return `<option value="${r.id}" ${c.tplRes===r.id?'selected':''}>${esc(r.title)} · ${n} word${n===1?'':'s'}</option>`;
+          }).join('')}
+        </select>
+        <div class="tpl-dl">
+          ${TPL_DEADLINES.map(x => `<button class="chip" data-act="tplRes" data-days="${x.d}">${x.label}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+    ` : `
+    <div class="tpl-row">
+      <div class="tpl-head">📕 Finish a resource</div>
+      <div class="tiny muted">Add a Resource with words first — then the “Finish” templates appear here.</div>
+    </div>
+    `}
+
+    <div class="tpl-row">
+      <div class="tpl-head">🏷 Master a category</div>
+      ${CATS.map(cat => {
+        const n = catCounts[cat];
+        return `<div class="tpl-cat">
+          <div class="tpl-cat-label">
+            <span class="pill ${cat}">${CAT_LABEL[cat]}</span>
+            <span class="tiny muted">${n} word${n===1?'':'s'}</span>
+          </div>
+          <div class="tpl-dl">
+            ${TPL_DEADLINES.map(x => `<button class="chip" data-act="tplCat" data-cat="${cat}" data-days="${x.d}" ${n?'':'disabled'}>${x.label}</button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="tiny muted" style="margin-top:10px">
+      Tip: templates fill the form below — you can still rename the mission, change the deadline, or remove words before saving.
+    </div>
+  </div>`;
 }
 
 /* ============================================================
@@ -2042,6 +2174,8 @@ function viewChallengeForm(){
       <h2 style="margin:0">${editing?'Edit challenge':'New challenge'}</h2>
       <button class="btn ghost sm" data-act="chalCancel">Cancel</button>
     </div>
+
+    ${!editing ? templatesPanel() : ''}
 
     <div class="grid g-2">
       <div class="field">
@@ -3386,6 +3520,19 @@ function handleAct(el){
       break;
     }
 
+    /* ---------- Quick start templates ---------- */
+    case 'tplRes': {
+      const sel = $('#tplRes');
+      const resId = sel ? sel.value : '';
+      if(!resId){ toast('Choose a resource first'); break; }
+      applyResourceTemplate(resId, Number(el.dataset.days)||7);
+      break;
+    }
+    case 'tplCat': {
+      applyCategoryTemplate(el.dataset.cat, Number(el.dataset.days)||7);
+      break;
+    }
+
     case 'quickAdd': {
       const inp = $('#quickTerm');
       const v = inp ? inp.value.trim() : '';
@@ -3549,7 +3696,7 @@ function handleAct(el){
       ui.chal = {
         creating:true, editingId:null, openId:null,
         draft:{title:'', desc:'', due:'', itemIds:new Set()},
-        pickCat:'all', pickQ:''
+        pickCat:'all', pickQ:'', tplRes:''
       };
       render();
       break;
@@ -3577,7 +3724,7 @@ function handleAct(el){
       ui.chal = {
         creating:false, editingId:ch.id, openId:ch.id,
         draft:{title:ch.title, desc:ch.desc||'', due:ch.due||'', itemIds:new Set(ch.itemIds||[])},
-        pickCat:'all', pickQ:''
+        pickCat:'all', pickQ:'', tplRes:''
       };
       render();
       break;
@@ -3992,6 +4139,11 @@ document.addEventListener('input', e=>{
     render();
     const el = $('#chalPickSearch');
     if(el){ el.focus(); el.setSelectionRange(pos,pos); }
+    return;
+  }
+  if(e.target.id === 'tplRes'){
+    if(!ui.chal) ui.chal = freshChal();
+    ui.chal.tplRes = e.target.value;
     return;
   }
   if(e.target.dataset && e.target.dataset.chalfield){
