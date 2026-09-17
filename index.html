@@ -354,14 +354,39 @@
   .pfoot{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
 
   /* ---------- day planner modal ---------- */
-  #dayModal .panel{max-height:88vh}
+  #dayModal .panel{max-height:88vh;max-width:900px}
   #dayModal .pfoot{justify-content:space-between}
   .daybody{flex:1;min-height:0;display:flex;flex-direction:column}
-  #daySection{
-    flex:0 0 auto;max-height:220px;overflow-y:auto;
-    padding:11px 16px;background:var(--faint);border-bottom:1px solid var(--line);
-    display:flex;flex-direction:column;gap:7px;
+  .dsect-head{
+    flex:0 0 auto;padding:12px 16px 0;
+    display:flex;justify-content:flex-start;align-items:baseline;gap:8px;
   }
+  .dsect-head .tiny{flex:1}
+  .btn-toggle{
+    background:transparent;border:1px solid var(--line);border-radius:7px;padding:4px 10px;
+    font-size:11.5px;font-weight:700;color:var(--accent);flex-shrink:0;transition:all .12s;
+  }
+  .btn-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
+  #daySection{
+    flex:0 0 auto;max-height:320px;overflow-y:auto;
+    padding:11px 16px;background:var(--faint);border-bottom:1px solid var(--line);
+  }
+  .daysection-cols{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:start;
+  }
+  .day-cat-col{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .day-cat-head{
+    display:flex;justify-content:space-between;align-items:center;gap:6px;
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--soft);
+    padding:0 2px;
+  }
+  .day-cat-head .cnt{
+    font-size:10px;background:var(--bar);border-radius:999px;padding:1px 6px;color:var(--muted);font-weight:700;
+    text-transform:none;letter-spacing:0;
+  }
+  .day-cat-head.g{color:var(--violet)} .day-cat-head.v{color:var(--green)}
+  .day-cat-head.w{color:var(--amber)}  .day-cat-head.p{color:var(--teal)}
+  .day-cat-rows{display:flex;flex-direction:column;gap:6px}
   .dt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   #dayModuleHead{
     flex:0 0 auto;padding:10px 16px 0;
@@ -458,10 +483,14 @@
     <div class="tabs" id="dayModeTabs"></div>
 
     <div class="daybody">
-      <div id="daySection"></div>
-      <div id="dayModuleHead">
-        <span class="rsect-title" id="dayAddLabel">Add from</span>
+      <div class="dsect-head">
+        <span class="rsect-title" id="dayAddLabel">Today's tasks</span>
         <span class="tiny muted" id="dayAddHint"></span>
+        <button type="button" class="btn-toggle" id="daySectionToggle" aria-expanded="false">Show</button>
+      </div>
+      <div id="daySection" hidden></div>
+      <div id="dayModuleHead">
+        <span class="rsect-title" id="dayPickLabel">Add from</span>
       </div>
       <div class="tabs" id="dayTabs"></div>
       <div class="searchwrap">
@@ -1768,6 +1797,7 @@
   let dayNum     = null;
   let dayMode    = 'tasks';      // 'tasks' | 'resources'
   let dayModule  = 'grammar';
+  let daySectionOpen = false;    // "Today's tasks" list is collapsed by default
 
   function openDayModal(phaseId, n){
     const rm = readRoadmap();
@@ -1778,6 +1808,7 @@
     dayPhaseId = phaseId;
     dayNum     = n;
     dayMode    = 'tasks';
+    daySectionOpen = false;
     $('#daySearch').value = '';
 
     /* make sure module data is loaded so the pickers can populate */
@@ -1874,23 +1905,48 @@
           ? resources.filter(r => r.done).length + ' of ' + resources.length + ' done'
           : 'none yet — these apply to the whole phase');
 
-    /* ---------- upper list (tasks or resources) ---------- */
-    if(dayMode === 'tasks'){
-      $('#daySection').innerHTML = tasks.length
-        ? tasks.map(t => dayRowHTML(t, 'task')).join('')
-        : `<div class="tiny muted" style="padding:6px 2px">
-             No tasks for this day yet — pick something from the list below.
-           </div>`;
-    }else{
-      $('#daySection').innerHTML = resources.length
-        ? resources.map(r => dayRowHTML(r, 'res')).join('')
-        : `<div class="tiny muted" style="padding:6px 2px">
-             No phase resources yet — add some below. They apply to the whole phase.
-           </div>`;
+    const toggleBtn = $('#daySectionToggle');
+    toggleBtn.textContent = daySectionOpen ? 'Hide' : 'Show';
+    toggleBtn.setAttribute('aria-expanded', String(daySectionOpen));
+    $('#daySection').hidden = !daySectionOpen;
+
+    /* ---------- upper list (tasks or resources), grouped into columns by category ---------- */
+    if(daySectionOpen){
+      const list = dayMode === 'tasks' ? tasks : resources;
+      const kind = dayMode === 'tasks' ? 'task' : 'res';
+
+      if(!list.length){
+        $('#daySection').innerHTML = dayMode === 'tasks'
+          ? `<div class="tiny muted" style="padding:6px 2px">
+               No tasks for this day yet — pick something from the list below.
+             </div>`
+          : `<div class="tiny muted" style="padding:6px 2px">
+               No phase resources yet — add some below. They apply to the whole phase.
+             </div>`;
+      }else{
+        const byModule = {};
+        list.forEach(item => {
+          const k = item.module || 'grammar';
+          (byModule[k] = byModule[k] || []).push(item);
+        });
+        const cols = RES_ORDER.filter(k => byModule[k] && byModule[k].length).map(k => {
+          const mod = RES_MODULES[k];
+          return `
+            <div class="day-cat-col">
+              <div class="day-cat-head ${esc(mod.cls)}">
+                <span>${mod.icon} ${esc(mod.name)}</span>
+                <span class="cnt">${byModule[k].length}</span>
+              </div>
+              <div class="day-cat-rows">${byModule[k].map(item => dayRowHTML(item, kind)).join('')}</div>
+            </div>`;
+        }).join('');
+        $('#daySection').innerHTML = `<div class="daysection-cols">${cols}</div>`;
+      }
     }
 
     /* ---------- module tabs ---------- */
     const sources = collectSources(hubData);
+    $('#dayPickLabel').textContent = dayMode === 'tasks' ? 'Add task from' : 'Add resource from';
     $('#dayTabs').innerHTML = RES_ORDER.map(k => {
       const mod = RES_MODULES[k];
       const count = (sources[k] || []).length;
@@ -2217,6 +2273,11 @@
     else if(act === 'remove-task') removeDayTask(btn.dataset.id);
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
+  });
+
+  $('#daySectionToggle').addEventListener('click', () => {
+    daySectionOpen = !daySectionOpen;
+    renderDayModal();
   });
 
   $('#daySearch').addEventListener('input', renderDayModal);
