@@ -76,7 +76,7 @@
   /* ---------- main / pages ---------- */
   main{flex:1;min-height:0;position:relative;background:var(--bg);overflow:hidden}
   .page{position:absolute;inset:0}
-  #overview{overflow-y:auto;padding:20px 22px 60px}
+  #overview,#roadmap{overflow-y:auto;padding:20px 22px 60px}
   #frame{width:100%;height:100%;border:0;background:var(--bg)}
   [hidden]{display:none !important}
 
@@ -223,13 +223,159 @@
   .modbanner .back{background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--text)}
   .modbanner .back:hover{border-color:var(--accent);color:var(--accent)}
 
+  /* ============================================================
+     ROADMAP
+     ============================================================ */
+  .rm-progress{height:8px;border-radius:999px;background:var(--bar);overflow:hidden}
+  .rm-progress > i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .25s}
+
+  .phases{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media (max-width:900px){ .phases{grid-template-columns:1fr} }
+
+  .phase{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:15px 16px;display:flex;flex-direction:column;gap:12px;transition:.15s;
+  }
+  .phase:hover{border-color:var(--line-strong)}
+  .phase.active{border-color:var(--accent-line);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .phead{display:flex;align-items:flex-start;gap:10px}
+  .pnum{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--soft);margin-bottom:3px}
+  .ptitle{
+    width:100%;background:transparent;border:1px solid transparent;border-radius:7px;
+    padding:3px 6px;margin-left:-6px;font:inherit;font-weight:700;font-size:15px;
+    color:var(--text);letter-spacing:-.01em;
+  }
+  .ptitle:hover{border-color:var(--line)}
+  .ptitle:focus{outline:none;border-color:var(--accent);background:var(--faint)}
+  .ppct{
+    font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);
+    border:1px solid var(--accent-line);border-radius:999px;padding:3px 9px;flex-shrink:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .ppct.full{color:var(--green);background:var(--green-soft);border-color:var(--green-line)}
+
+  .daygrid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+  .day{
+    position:relative;aspect-ratio:1/1;min-width:0;border-radius:6px;border:1px solid var(--line);
+    background:var(--faint);color:var(--soft);font-size:10px;font-weight:700;
+    display:grid;place-items:center;padding:0;transition:.1s;font-variant-numeric:tabular-nums;
+  }
+  .day:hover{border-color:var(--accent);color:var(--accent)}
+  .day.has-tasks:not(.done){background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .day.done{background:var(--accent);border-color:var(--accent);color:#fff}
+  .day.done:hover{background:var(--accent-hover)}
+  .ddot{
+    position:absolute;left:50%;bottom:3px;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;background:var(--accent);pointer-events:none;
+  }
+  .day.done .ddot{background:rgba(255,255,255,.9)}
+
+  .pdatelabel{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600}
+  .pdate{background:var(--faint);border:1px solid var(--line);border-radius:7px;padding:3px 6px;font:inherit;font-size:11px;color:var(--text)}
+  .pdate:focus{outline:none;border-color:var(--accent)}
+
+  .ressect{display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--line);padding-top:11px}
+  .rsect-title{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--soft)}
+  .btn-add{
+    background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);
+    border-radius:7px;padding:4px 10px;font-size:11.5px;font-weight:700;
+  }
+  .btn-add:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .reslist{display:flex;flex-direction:column;gap:6px}
+  .resrow{display:flex;align-items:center;gap:8px;background:var(--faint);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+  .resrow.done{opacity:.62}
+  .resrow.done .rtitle{text-decoration:line-through}
+  .ricon{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:11px;flex-shrink:0;background:var(--accent-soft);color:var(--accent)}
+  .ricon.g{background:var(--violet-soft);color:var(--violet)}
+  .ricon.v{background:var(--green-soft);color:var(--green)}
+  .ricon.w{background:var(--amber-soft);color:var(--amber)}
+  .ricon.p{background:var(--teal-soft);color:var(--teal)}
+  .rmain{min-width:0;flex:1;display:flex;flex-direction:column}
+  .rtitle{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rsub{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rbtn{
+    width:22px;height:22px;flex-shrink:0;display:grid;place-items:center;padding:0;
+    border-radius:6px;border:1px solid var(--line);background:var(--panel);
+    color:var(--muted);font-size:11px;line-height:1;
+  }
+  .rbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .rbtn.on{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
+
+  .rsseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  @media (max-width:600px){ .rsseg{grid-template-columns:repeat(2,1fr)} }
+  .rsseg-item{position:relative;height:28px;border-radius:8px;background:var(--bar);overflow:hidden;display:flex;align-items:center;padding:0 9px}
+  .rsseg-item i{position:absolute;top:0;bottom:0;left:0;background:var(--accent);opacity:.3}
+  .rsseg-item span{position:relative;font-size:11px;font-weight:700;white-space:nowrap}
+
+  .btn{background:var(--accent);color:#fff;border:0;padding:7px 13px;border-radius:8px;font-weight:600;font-size:12.5px;transition:.12s}
+  .btn:hover{opacity:.9}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--red);color:var(--red);opacity:1}
+  .btn.soft{background:var(--faint);color:var(--text);border:1px solid var(--line);padding:7px 13px;border-radius:8px;font-weight:600;font-size:12.5px}
+  .btn.soft:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.soft.on{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
+  .btn.soft.on:hover{border-color:var(--green)}
+
+  /* modal (shared by phase picker + day planner) */
+  .modal{position:fixed;inset:0;z-index:100;background:rgba(10,12,20,.5);display:flex;align-items:center;justify-content:center;padding:18px}
+  .modal .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;
+    max-width:560px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);
+  }
+  .modal .phead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .modal .phead h3{margin:0 0 2px}
+  .tabs{display:flex;gap:4px;padding:10px 16px 0;flex-wrap:wrap}
+  .tab{
+    background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;
+    font-size:12px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:5px;
+  }
+  .tab:hover{border-color:var(--accent);color:var(--accent)}
+  .tab.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+  .tab .cnt{font-size:10px;background:var(--bar);border-radius:999px;padding:1px 6px;color:var(--muted);font-weight:700}
+  .tab.active .cnt{background:var(--panel)}
+  .searchwrap{padding:10px 16px 6px}
+  .searchwrap input{width:100%;background:var(--faint);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font:inherit;font-size:13px;color:var(--text)}
+  .searchwrap input:focus{outline:none;border-color:var(--accent)}
+  .plist{flex:1;min-height:0;overflow-y:auto;padding:6px 12px 12px;display:flex;flex-direction:column;gap:5px}
+  .pitem{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--faint);
+    border:1px solid var(--line);border-radius:9px;padding:9px 11px;font:inherit;color:inherit;
+  }
+  .pitem:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  .pitem:disabled{cursor:default;opacity:.55}
+  .pitem .pimain{min-width:0;flex:1;display:flex;flex-direction:column}
+  .pitem .pititle{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pitem .pisub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pitem .piadd{font-size:11.5px;font-weight:700;color:var(--accent);white-space:nowrap;flex-shrink:0}
+  .pitem:disabled .piadd{color:var(--green)}
+  .pfoot{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+
+  /* ---------- day planner modal ---------- */
+  #dayModal .panel{max-height:88vh}
+  #dayModal .pfoot{justify-content:space-between}
+  .daytasks{
+    flex:0 0 auto;max-height:215px;overflow-y:auto;
+    padding:11px 16px;background:var(--faint);border-bottom:1px solid var(--line);
+    display:flex;flex-direction:column;gap:7px;
+  }
+  .dt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .taskrow{
+    display:flex;align-items:center;gap:8px;background:var(--panel);
+    border:1px solid var(--line);border-radius:9px;padding:6px 8px;
+  }
+  .taskrow.done{opacity:.62}
+  .taskrow.done .rtitle{text-decoration:line-through}
+
   @media (max-width:560px){
     header{padding:7px 10px;gap:8px}
     .brand .label{display:none}
     nav a{padding:6px 9px;font-size:12.5px;gap:4px}
     nav a .label{display:none}
     nav a .icon{font-size:15px}
-    #overview{padding:16px 14px 40px}
+    #overview,#roadmap{padding:16px 14px 40px}
     .hero{padding:18px}
   }
 </style>
@@ -242,6 +388,7 @@
   </div>
   <nav id="nav" aria-label="Modules">
     <a href="#overview"   data-route="overview"   title="Overview"><span class="icon">🏠</span><span class="label">Overview</span></a>
+    <a href="#roadmap"    data-route="roadmap"    title="Study Roadmap"><span class="icon">🗺️</span><span class="label">Roadmap</span></a>
     <a href="#grammar"    data-route="grammar"    title="Grammar Study"><span class="icon">📘</span><span class="label">Grammar</span></a>
     <a href="#vocabulary" data-route="vocabulary" title="30 Words a Day"><span class="icon">📚</span><span class="label">Vocabulary</span></a>
     <a href="#writepath"  data-route="writepath"  title="WritePath"><span class="icon">✍️</span><span class="label">WritePath</span></a>
@@ -253,6 +400,10 @@
 <main>
   <section id="overview" class="page">
     <div class="wrap" id="overviewContent"></div>
+  </section>
+
+  <section id="roadmap" class="page" hidden>
+    <div class="wrap" id="roadmapContent"></div>
   </section>
 
   <section id="moduleView" class="page" hidden>
@@ -267,6 +418,59 @@
   </section>
 </main>
 
+<!-- ============ phase resource picker ============ -->
+<div class="modal" id="picker" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+    <div class="phead">
+      <div>
+        <h3 id="pickerTitle">Add resource</h3>
+        <div class="tiny muted" id="pickerSub"></div>
+      </div>
+      <button class="iconbtn" id="pickerClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="tabs" id="pickerTabs"></div>
+    <div class="searchwrap">
+      <input id="pickerSearch" type="search" placeholder="Search this module…" autocomplete="off">
+    </div>
+    <div class="plist" id="pickerList"></div>
+    <div class="pfoot">
+      <button class="btn" id="pickerDone" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ day planner ============ -->
+<div class="modal" id="dayModal" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+    <div class="phead">
+      <div style="min-width:0">
+        <h3 id="dayTitle">Day 1</h3>
+        <div class="tiny muted" id="daySub"></div>
+      </div>
+      <button class="iconbtn" id="dayClose" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <div class="daytasks">
+      <div class="dt-head">
+        <span class="rsect-title">Today's tasks</span>
+        <span class="tiny muted" id="dayTaskCount"></span>
+      </div>
+      <div class="reslist" id="dayTaskList"></div>
+    </div>
+
+    <div class="tabs" id="dayTabs"></div>
+    <div class="searchwrap">
+      <input id="daySearch" type="search" placeholder="Search…" autocomplete="off">
+    </div>
+    <div class="plist" id="dayList"></div>
+
+    <div class="pfoot">
+      <button class="btn soft" id="dayToggleComplete" type="button">Mark day complete</button>
+      <button class="btn" id="dayDone" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
 <noscript><p style="padding:20px">Please enable JavaScript to use the Language Study Hub.</p></noscript>
 
 <script>
@@ -280,6 +484,7 @@
     grammar:  'grammar-study-app-v6',
     vocab:    'words30.v2',
     writepath:'writepath.v1',
+    roadmap:  'hub-roadmap.v1',
     /* Pace keeps its settings & phrase data in localStorage… */
     pacePhrases:  'pace-highlight-phrases',
     paceSpeech:   'pace-connected-speech',
@@ -301,6 +506,20 @@
   const PACE_DB_V  = 1;
   const PACE_STORE = 'texts';
 
+  /* Roadmap shape */
+  const PHASE_COUNT = 4;
+  const PHASE_DAYS  = 20;
+  const PHASE_PRESETS = ['Foundations','Momentum','Expansion','Mastery'];
+
+  /* Which module feeds which kind of resource into a phase / day. */
+  const RES_MODULES = {
+    grammar:    { name:'Grammar',    icon:'📘', cls:'g', kind:'Topics'    },
+    vocabulary: { name:'Vocabulary', icon:'📚', cls:'v', kind:'Resources' },
+    writepath:  { name:'WritePath',  icon:'✍️', cls:'w', kind:'Sessions'  },
+    pace:       { name:'Pace',       icon:'📖', cls:'p', kind:'Library'   }
+  };
+  const RES_ORDER = ['grammar','vocabulary','writepath','pace'];
+
   /* ============================================================
      TINY HELPERS
      ============================================================ */
@@ -310,6 +529,7 @@
   const wordsIn = t => (String(t||'').trim().match(/[A-Za-z0-9'’\-]+/g) || []).length;
   const safeParse = (raw, fb) => { try{ if(!raw) return fb; const v = JSON.parse(raw); return v||fb; }catch(e){ return fb; } };
   const pct = (n, d) => d ? Math.round((n/d)*100) : 0;
+  const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
   function dateKey(d){
     const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
@@ -333,6 +553,14 @@
     const d = new Date(v);
     return isNaN(d) ? null : d.getTime();
   }
+  /* add N days to a YYYY-MM-DD key, DST-safe */
+  function addDays(dayKeyStr, n){
+    const ts = toTsFromDay(dayKeyStr);
+    if(ts == null) return null;
+    const d = new Date(ts);
+    d.setDate(d.getDate() + n);
+    return dateKey(d);
+  }
   function fmtRel(ts){
     if(!ts) return '';
     const diff = Date.now() - ts;
@@ -352,8 +580,10 @@
     if(m) return m+'m';
     return sec+'s';
   }
-  function fmtLong(d){
-    return d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+  function fmtDay(dayKeyStr){
+    const ts = toTsFromDay(dayKeyStr);
+    if(ts == null) return dayKeyStr || '';
+    return new Date(ts).toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'});
   }
   function num(n){
     const v = Number(n)||0;
@@ -446,52 +676,223 @@
   }
 
   /* Everything is loaded together; Pace's part is async. */
+  let hubData = null;
   function loadAll(){
-    return readPace().then(pace => ({
-      grammar:   readGrammar(),
-      vocab:     readVocab(),
-      writepath: readWritePath(),
-      pace:      pace
-    }));
+    return readPace().then(pace => {
+      hubData = {
+        grammar:   readGrammar(),
+        vocab:     readVocab(),
+        writepath: readWritePath(),
+        pace:      pace
+      };
+      return hubData;
+    });
+  }
+
+  /* ============================================================
+     ROADMAP — storage
+     ============================================================ */
+  function defaultRoadmap(){
+    return {
+      version: 1,
+      phases: Array.from({ length: PHASE_COUNT }, (_, i) => ({
+        id: 'phase-' + (i+1),
+        title: PHASE_PRESETS[i] || ('Phase ' + (i+1)),
+        days: PHASE_DAYS,
+        startDate: null,
+        completedDays: [],
+        completedOn: {},
+        resources: [],
+        dayTasks: {}
+      }))
+    };
+  }
+
+  function normalizeTask(t){
+    return {
+      id:      String(t.id || uid('task-')),
+      module:  String(t.module),
+      refId:   String(t.refId != null ? t.refId : ''),
+      label:   String(t.label || 'Untitled'),
+      meta:    String(t.meta || ''),
+      done:    !!t.done,
+      doneAt:  (t.doneAt && /^\d{4}-\d{2}-\d{2}$/.test(String(t.doneAt))) ? String(t.doneAt) : null,
+      addedAt: Number(t.addedAt) || Date.now()
+    };
+  }
+
+  function normalizeRoadmap(raw){
+    const base = defaultRoadmap();
+    if(!raw || !Array.isArray(raw.phases)) return base;
+
+    const out = { version: 1, phases: [] };
+    for(let i = 0; i < PHASE_COUNT; i++){
+      const src  = raw.phases[i] || {};
+      const days = Number(src.days) > 0 ? Math.round(Number(src.days)) : PHASE_DAYS;
+
+      const done = Array.isArray(src.completedDays)
+        ? Array.from(new Set(src.completedDays.map(Number).filter(n => n >= 1 && n <= days))).sort((a,b)=>a-b)
+        : [];
+
+      const on = (src.completedOn && typeof src.completedOn === 'object') ? src.completedOn : {};
+
+      const resources = Array.isArray(src.resources)
+        ? src.resources.filter(r => r && r.module).map(r => ({
+            id:      String(r.id || uid('res-')),
+            module:  String(r.module),
+            refId:   String(r.refId != null ? r.refId : ''),
+            label:   String(r.label || 'Untitled'),
+            meta:    String(r.meta || ''),
+            done:    !!r.done,
+            addedAt: Number(r.addedAt) || Date.now()
+          }))
+        : [];
+
+      /* per-day task lists */
+      const dayTasks = {};
+      if(src.dayTasks && typeof src.dayTasks === 'object'){
+        Object.keys(src.dayTasks).forEach(k => {
+          const dn = Number(k);
+          if(!(dn >= 1 && dn <= days)) return;
+          const arr = src.dayTasks[k];
+          if(!Array.isArray(arr)) return;
+          const list = arr.filter(t => t && t.module).map(normalizeTask);
+          if(list.length) dayTasks[String(dn)] = list;
+        });
+      }
+
+      out.phases.push({
+        id:            String(src.id || base.phases[i].id),
+        title:         (typeof src.title === 'string' && src.title.trim()) ? src.title.trim() : base.phases[i].title,
+        days:          days,
+        startDate:     (typeof src.startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(src.startDate)) ? src.startDate : null,
+        completedDays: done,
+        completedOn:   on,
+        resources:     resources,
+        dayTasks:      dayTasks
+      });
+    }
+    return out;
+  }
+
+  function readRoadmap(){
+    return normalizeRoadmap(safeParse(localStorage.getItem(KEYS.roadmap), null));
+  }
+  function saveRoadmap(rm){
+    try{ localStorage.setItem(KEYS.roadmap, JSON.stringify(rm)); }catch(e){}
+  }
+
+  /* ---------- day helpers ---------- */
+  function getDayTasks(phase, n){
+    if(!phase.dayTasks) phase.dayTasks = {};
+    const k = String(n);
+    if(!Array.isArray(phase.dayTasks[k])) phase.dayTasks[k] = [];
+    return phase.dayTasks[k];
+  }
+  /* A day counts as done when it is explicitly ticked, or when it has
+     at least one task and every task on it is finished. */
+  function isDayDone(phase, n){
+    if(phase.completedDays.indexOf(n) >= 0) return true;
+    const tasks = (phase.dayTasks && phase.dayTasks[String(n)]) || [];
+    return tasks.length > 0 && tasks.every(t => t.done);
+  }
+  function phaseDoneCount(phase){
+    let c = 0;
+    for(let n = 1; n <= phase.days; n++) if(isDayDone(phase, n)) c++;
+    return c;
+  }
+
+  function togglePhaseDay(phase, day){
+    const i = phase.completedDays.indexOf(day);
+    if(i >= 0){
+      phase.completedDays.splice(i, 1);
+      if(phase.completedOn) delete phase.completedOn[String(day)];
+    }else{
+      phase.completedDays.push(day);
+      phase.completedDays.sort((a,b)=>a-b);
+      if(!phase.completedOn) phase.completedOn = {};
+      phase.completedOn[String(day)] = todayKey();
+    }
+  }
+
+  /* ============================================================
+     ROADMAP — collect pickable resources from every module
+     ============================================================ */
+  function collectSources(data){
+    data = data || {};
+    const g = data.grammar   || {};
+    const v = data.vocab     || {};
+    const w = data.writepath || {};
+    const p = data.pace      || {};
+
+    const out = { grammar: [], vocabulary: [], writepath: [], pace: [] };
+
+    /* Grammar → Topics */
+    (g.topics || []).forEach((t, i) => {
+      const metaBits = [t.level, t.category, t.description ? String(t.description).slice(0,40) : ''].filter(Boolean);
+      out.grammar.push({
+        refId: String(t.id != null ? t.id : 'topic-' + i),
+        label: t.title || t.name || ('Topic ' + (i+1)),
+        meta:  metaBits.join(' · ') || 'Grammar topic'
+      });
+    });
+
+    /* Vocabulary → Resources */
+    (v.resources || []).forEach((r, i) => {
+      out.vocabulary.push({
+        refId: String(r.id != null ? r.id : (r.url || 'vres-' + i)),
+        label: r.title || r.name || r.label || r.term || r.url || ('Resource ' + (i+1)),
+        meta:  [r.type, r.url].filter(Boolean).join(' · ') || 'Vocabulary resource'
+      });
+    });
+
+    /* WritePath → Sessions */
+    (w.sessions || []).forEach((s, i) => {
+      const n = (s.sentences || []).length;
+      out.writepath.push({
+        refId: String(s.id != null ? s.id : 'session-' + i),
+        label: s.title || s.topic || ('Session ' + (i+1)),
+        meta:  n ? (n + ' sentence' + (n === 1 ? '' : 's')) : 'Writing session'
+      });
+    });
+
+    /* Pace → Library */
+    (p.library || []).forEach((b, i) => {
+      const wc  = Number(b.wordCount) || 0;
+      const pos = Number(b.lastIndex) || 0;
+      out.pace.push({
+        refId: String(b.id != null ? b.id : 'text-' + i),
+        label: b.title || 'Untitled',
+        meta:  (wc ? num(wc) + ' words' : 'Reading text') + (pos > 0 ? ' · in progress' : '')
+      });
+    });
+
+    return out;
+  }
+
+  function findSource(module, refId){
+    const sources = collectSources(hubData);
+    return (sources[module] || []).find(s => s.refId === refId) || null;
   }
 
   /* ============================================================
      THE METRICS
      ============================================================ */
-  function vocabStatus(it){
-    if(it.masteredAt || it.stage >= 6) return 'mastered';
-    if(it.stage >= 3 || it.activeAt)  return 'active';
-    if(it.practicedAt)                return 'practicing';
-    if(it.studiedAt)                  return 'studied';
-    return 'new';
-  }
-
-  /* Grammar:  Topics, Materials, Exercises */
   function grammarMetrics(g){
-    return {
-      topics:    g.topics.length,
-      materials: g.materials.length,
-      exercises: g.exercises.length
-    };
+    return { topics: g.topics.length, materials: g.materials.length, exercises: g.exercises.length };
   }
 
-  /* Vocabulary: words to review (due), inbox */
   function vocabMetrics(v){
     const T = todayKey();
-    const due = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
+    const due   = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
     const inbox = v.items.filter(i => i.inbox).length;
     return { review: due, inbox };
   }
 
-  /* Writing: Sessions, Library terms */
   function writingMetrics(w){
-    return {
-      sessions: w.sessions.length,
-      library:  w.library.length
-    };
+    return { sessions: w.sessions.length, library: w.library.length };
   }
 
-  /* Pace: Library texts, in-progress texts, saved phrases, speech links */
   function paceMetrics(p){
     const lib = p.library || [];
     const words = lib.reduce((sum, it) => sum + (Number(it.wordCount) || 0), 0);
@@ -504,6 +905,28 @@
     };
   }
 
+  function roadmapMetrics(rm){
+    const totalDays = rm.phases.reduce((s,p)=>s+p.days, 0);
+    let doneDays = 0;
+    rm.phases.forEach(p => { doneDays += phaseDoneCount(p); });
+
+    const allRes  = rm.phases.reduce((s,p)=>s+p.resources.length, 0);
+    const doneRes = rm.phases.reduce((s,p)=>s+p.resources.filter(r=>r.done).length, 0);
+
+    let allTasks = 0, doneTasks = 0;
+    rm.phases.forEach(p => {
+      Object.keys(p.dayTasks || {}).forEach(k => {
+        (p.dayTasks[k] || []).forEach(t => { allTasks++; if(t.done) doneTasks++; });
+      });
+    });
+
+    const phasesDone = rm.phases.filter(p => phaseDoneCount(p) >= p.days).length;
+    let activeIdx = rm.phases.findIndex(p => phaseDoneCount(p) < p.days);
+    if(activeIdx < 0) activeIdx = rm.phases.length - 1;
+
+    return { totalDays, doneDays, allRes, doneRes, allTasks, doneTasks, phasesDone, activeIdx };
+  }
+
   /* ============================================================
      UNIFIED ACTIVITY MAP + STREAK (across all modules)
      ============================================================ */
@@ -512,19 +935,38 @@
     const add = (key) => { if(!key) return; map[key] = (map[key]||0) + 1; };
 
     data.grammar.attempts.forEach(a => add(toDayKey(a.ts)));
+
     (data.grammar.roadmap.phases||[]).forEach(p => {
       if(!p.startDate) return;
       (p.completedDays||[]).forEach(dn => add(toDayKey(p.startDate + (dn-1) * 86400000)));
     });
+
     data.vocab.items.forEach(it => {
       [it.dateAdded, it.studiedAt, it.practicedAt, it.activeAt, it.masteredAt].forEach(d => add(toDayKey(d)));
     });
+
     data.writepath.sessions.forEach(s => {
       (s.sentences||[]).forEach(x => add(toDayKey(x.at)));
     });
+
     (data.pace.library||[]).forEach(it => {
       add(toDayKey(it.updatedAt || it.savedAt));
     });
+
+    /* Hub roadmap — manually ticked days + finished day tasks */
+    readRoadmap().phases.forEach(p => {
+      p.completedDays.forEach(dn => {
+        const stamped = p.completedOn && p.completedOn[String(dn)];
+        if(stamped) add(toDayKey(stamped));
+        else if(p.startDate) add(addDays(p.startDate, dn - 1));
+      });
+      Object.keys(p.dayTasks || {}).forEach(k => {
+        (p.dayTasks[k] || []).forEach(t => {
+          if(t.done && t.doneAt) add(toDayKey(t.doneAt));
+        });
+      });
+    });
+
     return map;
   }
   function computeStreak(activity){
@@ -691,6 +1133,9 @@
     const w = writingMetrics(data.writepath);
     const p = paceMetrics(data.pace);
 
+    const rm  = readRoadmap();
+    const rmm = roadmapMetrics(rm);
+
     const activity = buildActivityMap(data);
     const streak = computeStreak(activity);
     const active15 = activeDaysLast(activity, 15);
@@ -700,6 +1145,7 @@
                     || v.review || v.inbox
                     || w.sessions || w.library
                     || p.library || p.phrases || p.speech
+                    || rmm.doneDays || rmm.allRes || rmm.allTasks
                     || allActiveDays;
 
     /* ----- module cards ----- */
@@ -756,6 +1202,32 @@
         : 'No saved texts yet',
       route:'pace'
     });
+
+    /* ----- roadmap strip ----- */
+    const roadmapStripHTML = `
+      <div class="section-head">
+        <h2>Roadmap</h2>
+        <span class="tiny muted">${rm.phases.length} phases · ${PHASE_DAYS} days each</span>
+      </div>
+      <div class="heatcard">
+        <div class="htop">
+          <h3>${rmm.doneDays} of ${rmm.totalDays} days complete</h3>
+          <span class="tiny muted">${rmm.doneTasks}/${rmm.allTasks} tasks done · ${rmm.phasesDone}/${rm.phases.length} phases finished</span>
+        </div>
+        <div class="rsseg">
+          ${rm.phases.map((ph, i) => {
+            const d  = phaseDoneCount(ph);
+            const pc = pct(d, ph.days);
+            return `<div class="rsseg-item" title="Phase ${i+1} · ${esc(ph.title)} — ${d}/${ph.days} days">
+              <i style="width:${pc}%"></i>
+              <span>Phase ${i+1}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="row" style="margin-top:12px;justify-content:flex-end">
+          <button class="btn" type="button" data-route="roadmap">Open roadmap →</button>
+        </div>
+      </div>`;
 
     /* ----- shared Pace library ----- */
     const paceLibSorted = (data.pace.library || []).slice().sort(function(a,b){
@@ -827,6 +1299,8 @@
         ${paceCard}
       </div>
 
+      ${roadmapStripHTML}
+
       <div class="stats" style="margin-top:18px">
         <div class="stat">
           <div class="v">${g.topics + g.materials + g.exercises}</div>
@@ -843,6 +1317,10 @@
         <div class="stat">
           <div class="v">${p.library}</div>
           <div class="k">Pace texts</div>
+        </div>
+        <div class="stat">
+          <div class="v">${rmm.doneDays}<small> / ${rmm.totalDays}</small></div>
+          <div class="k">Roadmap days</div>
         </div>
         <div class="stat">
           <div class="v">${allActiveDays}</div>
@@ -894,13 +1372,6 @@
     `;
 
     $('#overviewContent').innerHTML = html;
-
-    $$('.mod .mgo .open').forEach(btn => {
-      btn.addEventListener('click', () => go(btn.dataset.route));
-    });
-    $$('.librow').forEach(btn => {
-      btn.addEventListener('click', () => go(btn.dataset.route));
-    });
   }
 
   function card({ cls, icon, title, sub, metrics, cols, meta, route }){
@@ -933,6 +1404,512 @@
   }
 
   /* ============================================================
+     ROADMAP — page renderer
+     ============================================================ */
+  let roadmapToken = 0;
+
+  function renderRoadmap(){
+    const token = ++roadmapToken;
+    loadAll().then(function(){
+      if(token !== roadmapToken) return;
+      paintRoadmap(readRoadmap());
+    });
+  }
+
+  function paintRoadmap(rm){
+    rm = rm || readRoadmap();
+
+    const m = roadmapMetrics(rm);
+    const overall = pct(m.doneDays, m.totalDays);
+
+    /* cumulative day ranges: Phase 1 → Days 1–20, Phase 2 → 21–40, … */
+    let acc = 1;
+    const ranges = rm.phases.map(p => { const s = acc; acc += p.days; return [s, acc - 1]; });
+
+    const phaseHTML = rm.phases.map((phase, idx) => {
+      const done = phaseDoneCount(phase);
+      const pc   = pct(done, phase.days);
+
+      const daysHTML = Array.from({ length: phase.days }, (_, i) => {
+        const n = i + 1;
+        const tasks = (phase.dayTasks && phase.dayTasks[String(n)]) || [];
+        const isDone = isDayDone(phase, n);
+        const realDate = phase.startDate ? addDays(phase.startDate, i) : null;
+        const taskCount = tasks.length;
+        const doneCount = tasks.filter(t => t.done).length;
+
+        const label = 'Day ' + n
+          + (realDate ? ' · ' + fmtDay(realDate) : '')
+          + (taskCount ? ' — ' + doneCount + '/' + taskCount + ' tasks done' : ' — click to plan tasks');
+
+        return `<button type="button" class="day${isDone?' done':''}${taskCount?' has-tasks':''}"
+                  data-act="day" data-day="${n}" title="${esc(label)}">${n}${taskCount?'<i class="ddot"></i>':''}</button>`;
+      }).join('');
+
+      const resHTML = phase.resources.length ? phase.resources.map(r => {
+        const mod = RES_MODULES[r.module] || { icon:'•', cls:'', name: r.module || 'Item' };
+        return `
+          <div class="resrow${r.done?' done':''}">
+            <span class="ricon ${esc(mod.cls)}" title="${esc(mod.name)}">${mod.icon}</span>
+            <span class="rmain">
+              <span class="rtitle" title="${esc(r.label)}">${esc(r.label)}</span>
+              <span class="rsub">${esc(mod.name)}${r.meta ? ' · ' + esc(r.meta) : ''}</span>
+            </span>
+            <button type="button" class="rbtn${r.done?' on':''}" data-act="toggle" data-res="${esc(r.id)}"
+                    title="${r.done ? 'Mark as not done' : 'Mark as done'}">${r.done ? '✓' : '○'}</button>
+            <button type="button" class="rbtn" data-act="remove" data-res="${esc(r.id)}"
+                    title="Remove from this phase">✕</button>
+          </div>`;
+      }).join('') : `<div class="tiny muted" style="padding:4px 2px">
+          No phase-wide resources yet — add topics, resources, sessions or reading texts.
+        </div>`;
+
+      return `
+        <div class="phase${idx === m.activeIdx ? ' active' : ''}" data-phase="${esc(phase.id)}">
+          <div class="phead">
+            <div style="min-width:0;flex:1">
+              <div class="pnum">Phase ${idx+1} · Days ${ranges[idx][0]}–${ranges[idx][1]}</div>
+              <input class="ptitle" data-act="title" type="text" maxlength="60" spellcheck="false"
+                     value="${esc(phase.title)}" aria-label="Phase ${idx+1} title">
+            </div>
+            <span class="ppct${pc >= 100 ? ' full' : ''}">${pc}%</span>
+          </div>
+
+          <div class="rm-progress"><i style="width:${pc}%"></i></div>
+
+          <div class="daygrid">${daysHTML}</div>
+
+          <div class="row between">
+            <label class="pdatelabel">Start
+              <input type="date" class="pdate" data-act="start" value="${esc(phase.startDate || '')}"
+                     aria-label="Phase ${idx+1} start date">
+            </label>
+            <span class="tiny muted">
+              ${done}/${phase.days} days · ${phase.resources.length} resource${phase.resources.length === 1 ? '' : 's'}
+            </span>
+          </div>
+
+          <div class="ressect">
+            <div class="row between">
+              <span class="rsect-title">Phase resources</span>
+              <button type="button" class="btn-add" data-act="add">+ Add resource</button>
+            </div>
+            <div class="reslist">${resHTML}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    $('#roadmapContent').innerHTML = `
+      <div class="hero">
+        <div style="min-width:0">
+          <h1>Study roadmap</h1>
+          <p>Four phases of twenty days each. <strong>Click any day</strong> to open its planner and attach
+             grammar topics, vocabulary resources, writing sessions or Pace reading texts as that day's tasks.</p>
+          <div style="margin-top:12px;max-width:420px">
+            <div class="rm-progress"><i style="width:${overall}%"></i></div>
+            <div class="tiny muted" style="margin-top:6px">${m.doneDays} of ${m.totalDays} days complete · ${overall}%</div>
+          </div>
+        </div>
+        <div class="streak" title="Overall roadmap progress">
+          <span class="flame">🗺️</span>
+          <div>
+            <div class="num">${overall}%</div>
+            <div class="lbl">roadmap done</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="v">${m.doneDays}<small> / ${m.totalDays}</small></div>
+          <div class="k">Days complete</div>
+        </div>
+        <div class="stat">
+          <div class="v">${m.phasesDone}<small> / ${rm.phases.length}</small></div>
+          <div class="k">Phases complete</div>
+        </div>
+        <div class="stat">
+          <div class="v">${m.doneTasks}<small> / ${m.allTasks}</small></div>
+          <div class="k">Tasks done</div>
+        </div>
+        <div class="stat">
+          <div class="v">Phase ${m.activeIdx + 1}</div>
+          <div class="k">Current phase</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Phases</h2>
+        <span class="tiny muted">Click a day to plan its tasks</span>
+      </div>
+      <div class="phases">${phaseHTML}</div>
+
+      <div class="row between" style="margin-top:22px">
+        <span class="tiny muted">Roadmap data is stored locally in this browser.</span>
+        <button type="button" class="btn ghost" data-act="reset">Reset roadmap</button>
+      </div>
+    `;
+  }
+
+  function resetRoadmap(){
+    if(!confirm('Reset the roadmap?\n\nAll phases, day tasks and attached resources will be cleared.')) return;
+    saveRoadmap(defaultRoadmap());
+    paintRoadmap(readRoadmap());
+  }
+
+  /* ---- roadmap interactions ---- */
+  function onRoadmapClick(e){
+    const btn = e.target.closest('[data-act]');
+    if(!btn) return;
+    const act = btn.dataset.act;
+
+    if(act === 'reset'){ resetRoadmap(); return; }
+
+    const phaseEl = btn.closest('[data-phase]');
+    if(!phaseEl) return;
+
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === phaseEl.dataset.phase);
+    if(!phase) return;
+
+    if(act === 'day'){
+      openDayModal(phase.id, Number(btn.dataset.day));
+      return;
+    }
+    if(act === 'toggle'){
+      const r = phase.resources.find(x => x.id === btn.dataset.res);
+      if(!r) return;
+      r.done = !r.done;
+    }else if(act === 'remove'){
+      phase.resources = phase.resources.filter(x => x.id !== btn.dataset.res);
+    }else if(act === 'add'){
+      openPicker(phase.id);
+      return;
+    }else{
+      return;
+    }
+
+    saveRoadmap(rm);
+    paintRoadmap(rm);
+  }
+
+  /* Text / date inputs save on change. We deliberately avoid repainting here
+     so the click that follows a blur still lands on its original target. */
+  function onRoadmapChange(e){
+    const el = e.target.closest('[data-act]');
+    if(!el) return;
+    const act = el.dataset.act;
+    if(act !== 'title' && act !== 'start') return;
+
+    const phaseEl = el.closest('[data-phase]');
+    if(!phaseEl) return;
+
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === phaseEl.dataset.phase);
+    if(!phase) return;
+
+    if(act === 'title'){
+      phase.title = (el.value || '').trim() || 'Untitled phase';
+    }else{
+      phase.startDate = el.value || null;
+    }
+    saveRoadmap(rm);
+  }
+
+  /* ============================================================
+     RESOURCE PICKER (phase-wide resources)
+     ============================================================ */
+  let pickerPhaseId = null;
+  let pickerModule  = 'grammar';
+
+  function openPicker(phaseId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === phaseId);
+    if(!phase) return;
+
+    pickerPhaseId = phaseId;
+
+    /* open on the first module that still has something to add */
+    const sources = collectSources(hubData);
+    let pick = RES_ORDER.find(k =>
+      (sources[k] || []).some(it =>
+        !phase.resources.some(r => r.module === k && r.refId === it.refId)));
+    pickerModule = pick || 'grammar';
+
+    $('#pickerSearch').value = '';
+    renderPicker();
+    $('#picker').hidden = false;
+  }
+
+  function closePicker(){
+    $('#picker').hidden = true;
+    pickerPhaseId = null;
+  }
+
+  function renderPicker(){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === pickerPhaseId);
+    if(!phase){ closePicker(); return; }
+
+    const idx = rm.phases.indexOf(phase);
+    const sources = collectSources(hubData);
+
+    $('#pickerSub').textContent = 'Phase ' + (idx + 1) + ' · ' + phase.title;
+
+    $('#pickerTabs').innerHTML = RES_ORDER.map(k => {
+      const mod = RES_MODULES[k];
+      const count = (sources[k] || []).length;
+      return `<button type="button" class="tab${k === pickerModule ? ' active' : ''}" data-mod="${k}">
+        ${mod.icon} ${esc(mod.name)} <span class="cnt">${count}</span>
+      </button>`;
+    }).join('');
+
+    const q = ($('#pickerSearch').value || '').trim().toLowerCase();
+    const all = sources[pickerModule] || [];
+    const filtered = q
+      ? all.filter(it => (it.label + ' ' + (it.meta || '')).toLowerCase().includes(q))
+      : all;
+
+    const addedRefs = new Set(
+      phase.resources.filter(r => r.module === pickerModule).map(r => r.refId)
+    );
+
+    $('#pickerList').innerHTML = filtered.length
+      ? filtered.map(it => {
+          const isAdded = addedRefs.has(it.refId);
+          return `<button type="button" class="pitem" data-ref="${esc(it.refId)}" ${isAdded ? 'disabled' : ''}>
+            <span class="pimain">
+              <span class="pititle">${esc(it.label)}</span>
+              <span class="pisub">${esc(it.meta || '')}</span>
+            </span>
+            <span class="piadd">${isAdded ? 'Added ✓' : '+ Add'}</span>
+          </button>`;
+        }).join('')
+      : `<div class="empty small" style="border:0;padding:22px 10px">Nothing to add here yet.</div>`;
+  }
+
+  function addPickedResource(refId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === pickerPhaseId);
+    if(!phase) return;
+
+    if(phase.resources.some(r => r.module === pickerModule && r.refId === refId)) return;
+
+    const src = findSource(pickerModule, refId);
+    if(!src) return;
+
+    phase.resources.push({
+      id:      uid('res-'),
+      module:  pickerModule,
+      refId:   refId,
+      label:   src.label,
+      meta:    src.meta,
+      done:    false,
+      addedAt: Date.now()
+    });
+
+    saveRoadmap(rm);
+    renderPicker();     // refresh "Added" states
+    paintRoadmap(rm);   // refresh the phase card behind the modal
+  }
+
+  /* ============================================================
+     DAY PLANNER  —  click a day → add today's tasks
+     ============================================================ */
+  let dayPhaseId = null;
+  let dayNum     = null;
+  let dayModule  = 'grammar';
+
+  function openDayModal(phaseId, n){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === phaseId);
+    if(!phase) return;
+    if(!(n >= 1 && n <= phase.days)) return;
+
+    dayPhaseId = phaseId;
+    dayNum     = n;
+
+    /* open on the first module that still has something to add */
+    const sources = collectSources(hubData);
+    const tasks = getDayTasks(phase, n);
+    let pick = RES_ORDER.find(k =>
+      (sources[k] || []).some(it =>
+        !tasks.some(t => t.module === k && t.refId === it.refId)));
+    dayModule = pick || 'grammar';
+
+    $('#daySearch').value = '';
+    renderDayModal();
+    $('#dayModal').hidden = false;
+  }
+
+  function closeDayModal(){
+    $('#dayModal').hidden = true;
+    dayPhaseId = null;
+    dayNum = null;
+  }
+
+  function renderDayModal(){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === dayPhaseId);
+    if(!phase){ closeDayModal(); return; }
+
+    const n   = dayNum;
+    const idx = rm.phases.indexOf(phase);
+    const tasks = getDayTasks(phase, n);
+
+    const doneCount  = tasks.filter(t => t.done).length;
+    const allDone    = tasks.length > 0 && doneCount === tasks.length;
+    const manualDone = phase.completedDays.indexOf(n) >= 0;
+    const isDone     = manualDone || allDone;
+
+    const realDate = phase.startDate ? addDays(phase.startDate, n - 1) : null;
+
+    $('#dayTitle').textContent = 'Day ' + n + ' · Phase ' + (idx + 1);
+    $('#daySub').textContent = phase.title
+      + (realDate ? ' · ' + fmtDay(realDate) : ' · set a phase start date to see the calendar day');
+
+    /* ---------- today's task list ---------- */
+    $('#dayTaskCount').textContent = tasks.length
+      ? doneCount + ' of ' + tasks.length + ' done' + (allDone ? ' · day complete' : '')
+      : 'nothing planned yet';
+
+    $('#dayTaskList').innerHTML = tasks.length
+      ? tasks.map(t => {
+          const mod = RES_MODULES[t.module] || { icon:'•', cls:'', name: t.module || 'Item' };
+          return `
+            <div class="taskrow${t.done ? ' done' : ''}">
+              <button type="button" class="rbtn${t.done ? ' on' : ''}" data-act="toggle-task"
+                      data-task="${esc(t.id)}" title="${t.done ? 'Mark as not done' : 'Mark as done'}">
+                ${t.done ? '✓' : '○'}
+              </button>
+              <span class="ricon ${esc(mod.cls)}" title="${esc(mod.name)}">${mod.icon}</span>
+              <span class="rmain">
+                <span class="rtitle" title="${esc(t.label)}">${esc(t.label)}</span>
+                <span class="rsub">${esc(mod.name)}${t.meta ? ' · ' + esc(t.meta) : ''}${t.doneAt ? ' · done ' + esc(fmtDay(t.doneAt)) : ''}</span>
+              </span>
+              <button type="button" class="rbtn" data-act="remove-task" data-task="${esc(t.id)}"
+                      title="Remove from this day">✕</button>
+            </div>`;
+        }).join('')
+      : `<div class="tiny muted" style="padding:2px 2px 4px">
+           No tasks for this day yet — pick something from the list below.
+         </div>`;
+
+    /* ---------- source tabs ---------- */
+    const sources = collectSources(hubData);
+    $('#dayTabs').innerHTML = RES_ORDER.map(k => {
+      const mod = RES_MODULES[k];
+      const count = (sources[k] || []).length;
+      return `<button type="button" class="tab${k === dayModule ? ' active' : ''}" data-mod="${k}">
+        ${mod.icon} ${esc(mod.name)} <span class="cnt">${count}</span>
+      </button>`;
+    }).join('');
+
+    /* ---------- pickable items ---------- */
+    const q = ($('#daySearch').value || '').trim().toLowerCase();
+    const all = sources[dayModule] || [];
+    const filtered = q
+      ? all.filter(it => (it.label + ' ' + (it.meta || '')).toLowerCase().includes(q))
+      : all;
+
+    const addedRefs = new Set(tasks.filter(t => t.module === dayModule).map(t => t.refId));
+
+    $('#dayList').innerHTML = filtered.length
+      ? filtered.map(it => {
+          const isAdded = addedRefs.has(it.refId);
+          return `<button type="button" class="pitem" data-ref="${esc(it.refId)}" ${isAdded ? 'disabled' : ''}>
+            <span class="pimain">
+              <span class="pititle">${esc(it.label)}</span>
+              <span class="pisub">${esc(it.meta || '')}</span>
+            </span>
+            <span class="piadd">${isAdded ? 'Added ✓' : '+ Add task'}</span>
+          </button>`;
+        }).join('')
+      : `<div class="empty small" style="border:0;padding:22px 10px">
+           Nothing available in ${esc(RES_MODULES[dayModule].name)} yet.
+         </div>`;
+
+    /* ---------- footer toggle ---------- */
+    const btn = $('#dayToggleComplete');
+    btn.textContent = isDone ? 'Day complete ✓' : 'Mark day complete';
+    btn.classList.toggle('on', isDone);
+    btn.disabled = allDone && !manualDone;   // auto-complete can't be un-ticked here
+    btn.title = (allDone && !manualDone)
+      ? 'All tasks are done — the day is automatically complete'
+      : (isDone ? 'Un-tick this day' : 'Tick this day as complete');
+  }
+
+  function addDayTask(module, refId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === dayPhaseId);
+    if(!phase || dayNum == null) return;
+
+    const tasks = getDayTasks(phase, dayNum);
+    if(tasks.some(t => t.module === module && t.refId === refId)) return;
+
+    const src = findSource(module, refId);
+    if(!src) return;
+
+    tasks.push({
+      id:      uid('task-'),
+      module:  module,
+      refId:   refId,
+      label:   src.label,
+      meta:    src.meta,
+      done:    false,
+      doneAt:  null,
+      addedAt: Date.now()
+    });
+
+    saveRoadmap(rm);
+    renderDayModal();
+    paintRoadmap(rm);
+  }
+
+  function toggleDayTask(taskId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === dayPhaseId);
+    if(!phase || dayNum == null) return;
+
+    const t = getDayTasks(phase, dayNum).find(x => x.id === taskId);
+    if(!t) return;
+
+    t.done = !t.done;
+    t.doneAt = t.done ? todayKey() : null;
+
+    saveRoadmap(rm);
+    renderDayModal();
+    paintRoadmap(rm);
+  }
+
+  function removeDayTask(taskId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === dayPhaseId);
+    if(!phase || dayNum == null) return;
+
+    const k = String(dayNum);
+    if(!phase.dayTasks || !phase.dayTasks[k]) return;
+    phase.dayTasks[k] = phase.dayTasks[k].filter(t => t.id !== taskId);
+    if(!phase.dayTasks[k].length) delete phase.dayTasks[k];
+
+    saveRoadmap(rm);
+    renderDayModal();
+    paintRoadmap(rm);
+  }
+
+  function toggleDayComplete(){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === dayPhaseId);
+    if(!phase || dayNum == null) return;
+
+    togglePhaseDay(phase, dayNum);
+
+    saveRoadmap(rm);
+    renderDayModal();
+    paintRoadmap(rm);
+  }
+
+  /* ============================================================
      THEME
      ============================================================ */
   function applyTheme(t){
@@ -955,6 +1932,8 @@
   /* ============================================================
      ROUTER + IFRAME
      ============================================================ */
+  const ROUTES = ['overview','roadmap','grammar','vocabulary','writepath','pace'];
+
   let currentRoute = 'overview';
   let iframeLoadedFor = null;
 
@@ -964,7 +1943,7 @@
   }
   function routeFromHash(){
     const h = (location.hash || '').replace(/^#/, '');
-    return (h === 'grammar' || h === 'vocabulary' || h === 'writepath' || h === 'pace') ? h : 'overview';
+    return ROUTES.indexOf(h) >= 0 ? h : 'overview';
   }
   function routeTo(route){
     const prev = currentRoute;
@@ -972,16 +1951,24 @@
 
     $$('#nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route));
 
-    if(route === 'overview'){
-      $('#moduleView').hidden = true;
-      $('#overview').hidden = false;
+    const isOverview = route === 'overview';
+    const isRoadmap  = route === 'roadmap';
+
+    $('#overview').hidden   = !isOverview;
+    $('#roadmap').hidden    = !isRoadmap;
+    $('#moduleView').hidden = isOverview || isRoadmap;
+
+    if(isOverview){
       renderOverview();
-      if(prev !== 'overview') window.scrollTo(0,0);
+      if(prev !== 'overview') window.scrollTo(0, 0);
       return;
     }
 
-    $('#overview').hidden = true;
-    $('#moduleView').hidden = false;
+    if(isRoadmap){
+      renderRoadmap();
+      if(prev !== 'roadmap') $('#roadmap').scrollTop = 0;
+      return;
+    }
 
     const mod = MODULES[route];
     $('#modTitle').textContent = mod.icon + '  ' + mod.name;
@@ -1020,6 +2007,68 @@
     if(e.target.closest('#backBtn')){ go('overview'); return; }
   });
 
+  /* any element carrying data-route navigates (module cards, library rows, roadmap strip) */
+  $('#overviewContent').addEventListener('click', e => {
+    const el = e.target.closest('[data-route]');
+    if(el) go(el.dataset.route);
+  });
+
+  /* roadmap page */
+  $('#roadmapContent').addEventListener('click', onRoadmapClick);
+  $('#roadmapContent').addEventListener('change', onRoadmapChange);
+
+  /* ---------- phase resource picker ---------- */
+  $('#pickerTabs').addEventListener('click', e => {
+    const t = e.target.closest('.tab');
+    if(!t) return;
+    pickerModule = t.dataset.mod;
+    $('#pickerSearch').value = '';
+    renderPicker();
+  });
+  $('#pickerList').addEventListener('click', e => {
+    const item = e.target.closest('.pitem');
+    if(!item || item.disabled) return;
+    addPickedResource(item.dataset.ref);
+  });
+  $('#pickerSearch').addEventListener('input', renderPicker);
+  $('#pickerClose').addEventListener('click', closePicker);
+  $('#pickerDone').addEventListener('click', closePicker);
+  $('#picker').addEventListener('click', e => { if(e.target === $('#picker')) closePicker(); });
+
+  /* ---------- day planner ---------- */
+  $('#dayTabs').addEventListener('click', e => {
+    const t = e.target.closest('.tab');
+    if(!t) return;
+    dayModule = t.dataset.mod;
+    $('#daySearch').value = '';
+    renderDayModal();
+  });
+
+  $('#dayList').addEventListener('click', e => {
+    const item = e.target.closest('.pitem');
+    if(!item || item.disabled) return;
+    addDayTask(dayModule, item.dataset.ref);
+  });
+
+  $('#dayTaskList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if(!btn) return;
+    if(btn.dataset.act === 'toggle-task') toggleDayTask(btn.dataset.task);
+    else if(btn.dataset.act === 'remove-task') removeDayTask(btn.dataset.task);
+  });
+
+  $('#daySearch').addEventListener('input', renderDayModal);
+  $('#dayToggleComplete').addEventListener('click', toggleDayComplete);
+  $('#dayClose').addEventListener('click', closeDayModal);
+  $('#dayDone').addEventListener('click', closeDayModal);
+  $('#dayModal').addEventListener('click', e => { if(e.target === $('#dayModal')) closeDayModal(); });
+
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    if(!$('#dayModal').hidden){ closeDayModal(); return; }
+    if(!$('#picker').hidden) closePicker();
+  });
+
   $('#themeBtn').addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     applyTheme(next);
@@ -1030,20 +2079,20 @@
   /* Refresh numbers when the hub tab regains focus (e.g. coming back
      from a module in another tab/window). */
   document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'visible' && currentRoute === 'overview'){
-      renderOverview();
-    }
+    if(document.visibilityState !== 'visible') return;
+    if(currentRoute === 'overview') renderOverview();
+    else if(currentRoute === 'roadmap') renderRoadmap();
   });
 
-  /* Also refresh whenever the user re-enters the overview route. */
   window.addEventListener('focus', () => {
     if(currentRoute === 'overview') renderOverview();
+    else if(currentRoute === 'roadmap') renderRoadmap();
   });
 
-  /* If the Pace module is embedded and saves to its library, refresh
-     the hub when the user returns to the overview. */
+  /* If an embedded module saves something, refresh when we get back. */
   window.addEventListener('message', () => {
     if(currentRoute === 'overview') renderOverview();
+    else if(currentRoute === 'roadmap') renderRoadmap();
   });
 
   /* ============================================================
