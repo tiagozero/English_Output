@@ -507,7 +507,7 @@ function freshUi(){
     lib:{cat:'all',status:'all',q:'',res:'all'},
     addCat:'', selectMode:false, selected:new Set(),
     editRes:null, openRes:null, resCats:null, resFilter:'all',
-    chal:freshChal(), csvDraft:null
+    chal:freshChal(), csvDraft:null, kindleDraft:null
   };
 }
 
@@ -882,6 +882,197 @@ function commitCSVImport(){
     ? `Added ${added} item${added>1?'s':''} · ${unc} without category`
     : `Added ${added} item${added>1?'s':''} to inbox`);
   nav('inbox');
+}
+
+/* ============================================================
+   KINDLE VOCABULARY (.db) IMPORT
+   ------------------------------------------------------------
+   Kindle keeps a "Vocabulary Builder" SQLite database at
+   system/vocabulary/vocab.db on the device, with (roughly):
+     BOOK_INFO(id, title, authors, ...)
+     WORDS(id, word, stem, ...)
+     LOOKUPS(word_key -> WORDS.id, book_key -> BOOK_INFO.id, usage, ...)
+   We read it client-side with sql.js (loaded from a CDN on demand,
+   nothing is uploaded anywhere) and let the user pick which books'
+   words to bring in. Each chosen book becomes/reuses a Resource,
+   and its words land in the Inbox tagged to that resource so
+   meanings/examples can still be filled in or edited.
+   ============================================================ */
+let _sqlJsPromise = null;
+function loadSqlJs(){
+  if(_sqlJsPromise) return _sqlJsPromise;
+  _sqlJsPromise = new Promise((resolve, reject)=>{
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/';
+    const init = ()=> {
+      if(!window.initSqlJs){ reject(new Error('sql.js failed to load')); return; }
+      window.initSqlJs({ locateFile: f => base + f }).then(resolve, reject);
+    };
+    if(window.initSqlJs){ init(); return; }
+    const s = document.createElement('script');
+    s.src = base + 'sql-wasm.js';
+    s.onload = init;
+    s.onerror = ()=> reject(new Error('Could not load sql.js from CDN'));
+    document.head.appendChild(s);
+  });
+  return _sqlJsPromise;
+}
+
+function parseKindleDb(db){
+  let bookRows = [];
+  try{
+    const res = db.exec('SELECT id, title, authors FROM BOOK_INFO');
+    if(res[0]) bookRows = res[0].values;
+  }catch(e){ throw new Error('This doesn\'t look like a Kindle vocab.db (no BOOK_INFO table)'); }
+
+  let lookupRows = [];
+  try{
+    const res = db.exec(
+      'SELECT l.book_key, w.word, w.stem, l.usage FROM LOOKUPS l ' +
+      'JOIN WORDS w ON w.id = l.word_key WHERE l.book_key IS NOT NULL ' +
+      'ORDER BY l.timestamp ASC'
+    );
+    if(res[0]) lookupRows = res[0].values;
+  }catch(e){ /* schema mismatch — just yields no words */ }
+
+  const byBook = {};
+  lookupRows.forEach(([bookKey, word, stem, usage])=>{
+    if(!bookKey) return;
+    const term = String(stem || word || '').trim();
+    if(!term) return;
+    if(!byBook[bookKey]) byBook[bookKey] = { seen:new Set(), words:[] };
+    const g = byBook[bookKey];
+    const key = term.toLowerCase();
+    if(g.seen.has(key)) return;
+    g.seen.add(key);
+    g.words.push({ term, example: String(usage||'').trim() });
+  });
+
+  return bookRows
+    .map(([id, title, authors])=>{
+      const g = byBook[id];
+      return {
+        id: uid(),
+        title: String(title||'Untitled').trim(),
+        author: String(authors||'').trim(),
+        words: g ? g.words : [],
+        selected: false
+      };
+    })
+    .filter(b=>b.words.length)
+    .sort((a,b)=>a.title.localeCompare(b.title));
+}
+
+function openKindleImport(){
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.db,application/x-sqlite3,application/octet-stream'; inp.style.display='none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', ev=>{
+    const file = ev.target.files && ev.target.files[0];
+    document.body.removeChild(inp);
+    if(!file) return;
+    toast('Reading vocab.db…');
+    const rd = new FileReader();
+    rd.onload = async re=>{
+      try{
+        const SQL = await loadSqlJs();
+        const db = new SQL.Database(new Uint8Array(re.target.result));
+        let books;
+        try{ books = parseKindleDb(db); } finally { db.close(); }
+        if(!books.length){ toast('No looked-up words found in this file'); return; }
+        closeModal();
+        ui.kindleDraft = { fileName: file.name, books };
+        nav('resources');
+      }catch(err){
+        console.error(err);
+        toast(err && err.message ? err.message : 'Could not read this .db file');
+      }
+    };
+    rd.onerror = ()=> toast('Could not read file');
+    rd.readAsArrayBuffer(file);
+  });
+  inp.click();
+}
+
+function kindleImportPanel(){
+  const d = ui.kindleDraft;
+  if(!d) return '';
+  const sel = d.books.filter(b=>b.selected);
+  const selWords = sel.reduce((n,b)=>n+b.words.length,0);
+  const rows = d.books.map(b=>`
+    <div class="item" data-act="toggleKindleBook" data-bid="${b.id}">
+      <span class="cbx ${b.selected?'on':''}">${b.selected?'✓':''}</span>
+      <span class="t">${esc(b.title)}
+        <small>${b.author?esc(b.author)+' · ':''}${b.words.length} word${b.words.length===1?'':'s'} looked up</small>
+      </span>
+    </div>`).join('');
+
+  return `
+  <div class="card" style="border-color:#c7d2fe;background:#f8faff;margin-bottom:10px">
+    <div class="between">
+      <div>
+        <h2 style="margin:0">Import from Kindle</h2>
+        <div class="tiny muted" style="margin-top:2px">
+          ${esc(d.fileName)} · ${d.books.length} book${d.books.length===1?'':'s'} with looked-up words
+        </div>
+      </div>
+      <span class="pill">${sel.length} selected</span>
+    </div>
+    <div class="wrap" style="margin:9px 0">
+      <button class="btn sm ghost" data-act="kindleSelectAll">Select all</button>
+      <button class="btn sm ghost" data-act="kindleSelectNone">Select none</button>
+    </div>
+    <div class="csv-pv" style="max-height:260px">${rows}</div>
+    <div class="tiny muted" style="margin-top:8px">
+      Each selected book becomes (or reuses) a Resource. Its words are added to the Inbox, tagged to that book, so you can fill in meanings and examples.
+    </div>
+    <div class="wrap" style="margin-top:10px">
+      <button class="btn pri" data-act="kindleConfirm" ${sel.length?'':'disabled'}>
+        Import ${sel.length} book${sel.length===1?'':'s'}${selWords?` · ${selWords} word${selWords===1?'':'s'}`:''}
+      </button>
+      <button class="btn ghost" data-act="kindleCancel">Cancel</button>
+    </div>
+  </div>`;
+}
+
+function commitKindleImport(){
+  const d = ui.kindleDraft;
+  const chosen = d ? d.books.filter(b=>b.selected) : [];
+  if(!chosen.length){ toast('Select at least one book'); return; }
+  const T = iso();
+  let booksAdded=0, wordsAdded=0, wordsSkipped=0;
+
+  chosen.forEach(b=>{
+    let res = resourcesList().find(r=>r.type==='book' && r.title.toLowerCase()===b.title.toLowerCase());
+    if(!res){
+      res = {
+        id: uid(), title: b.title, type:'book', author: b.author,
+        notes:'Imported from Kindle Vocabulary Builder',
+        categories:['vocab'], dateAdded:T, currentChapterId:null, chapters:[]
+      };
+      resourcesList().push(res);
+      booksAdded++;
+    }
+    const existing = new Set(
+      S.items.filter(i=>i.resourceId===res.id).map(i=>i.term.trim().toLowerCase())
+    );
+    b.words.forEach(w=>{
+      const key = w.term.trim().toLowerCase();
+      if(existing.has(key)){ wordsSkipped++; return; }
+      existing.add(key);
+      S.items.push(mk(w.term, 'vocab', '', w.example, b.title, {
+        resourceId: res.id, inbox:true, dateAdded:T, nextReview:T
+      }));
+      wordsAdded++;
+    });
+  });
+
+  save();
+  ui.kindleDraft = null;
+  const parts = [`${wordsAdded} word${wordsAdded===1?'':'s'} added to Inbox`];
+  if(booksAdded) parts.push(`${booksAdded} new resource${booksAdded===1?'':'s'}`);
+  if(wordsSkipped) parts.push(`${wordsSkipped} duplicate${wordsSkipped===1?'':'s'} skipped`);
+  toast(parts.join(' · '));
+  render();
 }
 
 /* ============================================================
@@ -1550,6 +1741,7 @@ function viewResources(){
         </div>
       </div>
       <div class="wrap">
+        <button class="btn sm ghost" data-act="kindleUpload">⭱ Import Kindle (.db)</button>
         ${editing==='new'
           ? `<button class="btn sm ghost" data-act="cancelResource">Cancel</button>`
           : `<button class="btn sm pri" data-act="newResource">+ Add resource</button>`}
@@ -1561,17 +1753,18 @@ function viewResources(){
     </div>
   </div>`;
 
+  const kindlePanel = kindleImportPanel();
   const formNew = (editing==='new') ? resourceForm(null) : '';
   const cards = list.map(r => (editing===r.id) ? resourceForm(r) : resourceCard(r)).join('');
 
   let empty = '';
-  if(!list.length && editing!=='new'){
+  if(!list.length && editing!=='new' && !kindlePanel){
     empty = (all.length && catFilter!=='all')
       ? `<div class="card"><div class="empty">No resources tagged ${esc(CAT_LABEL[catFilter])}.</div></div>`
-      : `<div class="card"><div class="empty">No resources yet.<br>Add the book, podcast or course you're working through.</div></div>`;
+      : `<div class="card"><div class="empty">No resources yet.<br>Add the book, podcast or course you're working through, or import your Kindle Vocabulary Builder.</div></div>`;
   }
 
-  return header + formNew + `<div class="grid" style="gap:10px">${cards}</div>` + empty;
+  return header + kindlePanel + formNew + `<div class="grid" style="gap:10px">${cards}</div>` + empty;
 }
 
 function resourceForm(r){
@@ -2209,6 +2402,7 @@ function viewStats(){
         <button class="btn" data-act="importData">⭱ Import JSON</button>
         <button class="btn" data-act="exportCSV">⭳ Export CSV</button>
         <button class="btn" data-act="csvUpload">⭱ Import CSV</button>
+        <button class="btn" data-act="kindleUpload">⭱ Import Kindle (.db)</button>
         <button class="btn" data-act="openSettings">⚙ Settings</button>
         <button class="btn danger" data-act="resetData">Reset</button>
       </div>
@@ -2298,10 +2492,12 @@ function settingsPanel(){
     <div class="wrap">
       <button class="btn" data-act="importData">⭱ Import JSON</button>
       <button class="btn" data-act="csvUpload">⭱ Import CSV</button>
+      <button class="btn" data-act="kindleUpload">⭱ Import Kindle (.db)</button>
     </div>
     <div class="tiny muted" style="margin-top:6px">
       <b>JSON</b> restores everything — items, resources, challenges and review history.<br>
-      <b>CSV</b> imports words only (Term, Meaning, Example, Category) into your Inbox.
+      <b>CSV</b> imports words only (Term, Meaning, Example, Category) into your Inbox.<br>
+      <b>Kindle</b> reads a <code>vocab.db</code> file, lets you pick which books to bring in, and adds each as a Resource with its looked-up words in the Inbox.
     </div>
 
     <div class="sep"></div>
@@ -3006,6 +3202,17 @@ function handleAct(el){
     case 'csvUpload':  openCSVUpload(); break;
     case 'csvConfirm': commitCSVImport(); break;
     case 'csvCancel':  ui.csvDraft = null; render(); break;
+
+    case 'kindleUpload':  openKindleImport(); break;
+    case 'kindleConfirm': commitKindleImport(); break;
+    case 'kindleCancel':  ui.kindleDraft = null; render(); break;
+    case 'kindleSelectAll':  if(ui.kindleDraft){ ui.kindleDraft.books.forEach(b=>b.selected=true); render(); } break;
+    case 'kindleSelectNone': if(ui.kindleDraft){ ui.kindleDraft.books.forEach(b=>b.selected=false); render(); } break;
+    case 'toggleKindleBook': {
+      const b = ui.kindleDraft && ui.kindleDraft.books.find(x=>x.id===el.dataset.bid);
+      if(b){ b.selected = !b.selected; render(); }
+      break;
+    }
 
     case 'exportData': exportData(); break;
     case 'exportCSV':  exportCSV();  break;
