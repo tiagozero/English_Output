@@ -347,6 +347,9 @@ let impState = { text:"", format:"auto", createMissing:true, report:null, valid:
 let matImport = null;
 let modal = null;
 
+/* NEW: context for the manual exercise form (preset topic/material + where to return) */
+let exForm = { topicId:null, materialId:null, returnTo:null };
+
 /* Heatmap local state (not persisted in DB) */
 let hmYear = new Date().getFullYear();
 let hmSelectedDay = null;
@@ -427,6 +430,13 @@ function uniqueMaterialId(base){
   let id = slugify(base) || "material";
   if(!findMaterial(id)) return id;
   let i = 2; while(findMaterial(id+"-"+i)) i++;
+  return id+"-"+i;
+}
+/* NEW: unique exercise id */
+function uniqueExerciseId(base){
+  let id = slugify(base) || "exercise";
+  if(!findEx(id)) return id;
+  let i = 2; while(findEx(id+"-"+i)) i++;
   return id+"-"+i;
 }
 const findTopic = id => DB.topics.find(t=>t.id===id);
@@ -864,6 +874,8 @@ function render(){
     case "material":       html = viewMaterialDetail(view.id); break;
     case "import":         html = viewImport(); break;
     case "exercises":      html = viewExercises(); break;
+    /* NEW */
+    case "exercise-form":  html = viewExerciseForm(view.id); break;
     case "practice":       html = viewPractice(); break;
     case "review":         html = viewReview(); break;
     case "mistakes":       html = viewMistakes(); break;
@@ -878,11 +890,15 @@ function render(){
     if(view.name === "topic" || view.name === "topic-form") on = route === "topics";
     if(view.name === "material" || view.name === "material-form") on = route === "materials";
     if(view.name === "phase" || view.name === "phase-form") on = route === "roadmap";
+    /* NEW */
+    if(view.name === "exercise-form") on = route === "exercises";
     n.classList.toggle("active", on);
   });
   const sf = document.getElementById("sideFoot");
   if(sf) sf.textContent = `${DB.topics.length} topics · ${DB.exercises.length} ex · ${DB.materials.length} materials`;
   if(modal) paintModal();
+  /* NEW: keep the exercise form's type-dependent fields in sync */
+  if(view.name === "exercise-form") applyExTypeVisibility();
 }
 
 /* =========================================================
@@ -904,8 +920,11 @@ function welcomeScreen(){
     </div>
     <div class="card">
       <h3><span class="step-num">3</span>Import or add exercises</h3>
-      <div class="small muted" style="margin:8px 0 14px">Import exercises via JSON or CSV, linked to a topic and (optionally) to a material.</div>
-      <button class="btn" data-action="go" data-route="import">Import Data</button>
+      <div class="small muted" style="margin:8px 0 14px">Import exercises via JSON or CSV, or write them one by one by hand.</div>
+      <div class="btn-row">
+        <button class="btn primary" data-action="new-exercise">+ Add exercise</button>
+        <button class="btn" data-action="go" data-route="import">Import Data</button>
+      </div>
     </div>
     <div class="card">
       <h3>Plan it out on the Roadmap</h3>
@@ -1061,7 +1080,8 @@ function viewDashboard(){
   <div class="list">${recentHTML}</div>
   <h2>Quick start</h2>
   <div class="btn-row">
-    <button class="btn primary" data-action="go" data-route="exercises">Practice exercises</button>
+    <button class="btn primary" data-action="new-exercise">+ Add exercise</button>
+    <button class="btn" data-action="go" data-route="exercises">Practice exercises</button>
     <button class="btn" data-action="go" data-route="heatmap">View heatmap</button>
     <button class="btn" data-action="go" data-route="roadmap">Open roadmap</button>
     <button class="btn" data-action="go" data-route="review">Review weak topics</button>
@@ -1176,9 +1196,15 @@ function viewTopicDetail(id){
           ${es.total ? `<span class="small muted">${es.correct}/${es.total} correct</span>` : ""}
         </div>
       </div>
-      <div class="row">${statusBadge(st)}<button class="btn sm" data-action="practice" data-ids="${esc(e.id)}" data-title="Practice">Practice</button></div>
+      <div class="row">${statusBadge(st)}
+        <button class="btn sm" data-action="practice" data-ids="${esc(e.id)}" data-title="Practice">Practice</button>
+        <button class="btn sm" data-action="edit-exercise" data-id="${esc(e.id)}" data-return-route="topic" data-return-id="${esc(t.id)}">Edit</button>
+        <button class="btn sm danger" data-action="delete-exercise" data-id="${esc(e.id)}" title="Delete exercise">✕</button>
+      </div>
     </div>`;
-  }).join("") : `<div class="empty">No exercises for this topic yet. Import some in <strong>Import Data</strong>.</div>`;
+  }).join("") : `<div class="empty">No exercises for this topic yet.<br><br>
+      <button class="btn primary" data-action="new-exercise" data-topic="${esc(t.id)}" data-return-route="topic" data-return-id="${esc(t.id)}">+ Add the first exercise</button>
+    </div>`;
   const matHTML = mats.length ? mats.map(m=>{
     const st = materialStats(m.id);
     return `<div class="list-item clickable" data-action="material" data-id="${esc(m.id)}" style="padding:10px 14px">
@@ -1218,6 +1244,7 @@ function viewTopicDetail(id){
     </div>
     <div class="btn-row">
       <button class="btn sm" data-action="edit-topic" data-id="${esc(t.id)}">Edit</button>
+      <button class="btn sm" data-action="new-exercise" data-topic="${esc(t.id)}" data-return-route="topic" data-return-id="${esc(t.id)}">+ Add exercise</button>
       <button class="btn sm primary" data-action="practice-topic" data-id="${esc(t.id)}" ${s.exercises?"":"disabled"}>Practice this topic</button>
     </div>
   </div>
@@ -1227,7 +1254,13 @@ function viewTopicDetail(id){
     <div class="bar ${barCls}"><i style="width:${s.progress}%"></i></div>
   </div>
   <div class="grid-2">${explanationCard}${examplesCard}</div>
-  <h2>Exercises (${exs.length})</h2>
+  <div class="between wrap" style="margin:44px 0 18px">
+    <h2 style="margin:0">Exercises (${exs.length})</h2>
+    <div class="btn-row">
+      <button class="btn sm" data-action="new-exercise" data-topic="${esc(t.id)}" data-return-route="topic" data-return-id="${esc(t.id)}">+ Add exercise</button>
+      <button class="btn sm" data-action="go" data-route="import">↧ Import</button>
+    </div>
+  </div>
   <div class="list">${exHTML}</div>
   <h2>Related study materials</h2>
   <div class="list">${matHTML}</div>`;
@@ -1357,9 +1390,16 @@ function viewMaterialDetail(id){
           ${es.total ? `<span class="small muted">${es.correct}/${es.total} correct</span>` : ""}
         </div>
       </div>
-      <div class="row">${statusBadge(st)}<button class="btn sm" data-action="practice" data-ids="${esc(e.id)}">Practice</button></div>
+      <div class="row">${statusBadge(st)}
+        <button class="btn sm" data-action="practice" data-ids="${esc(e.id)}">Practice</button>
+        <button class="btn sm" data-action="edit-exercise" data-id="${esc(e.id)}" data-return-route="material" data-return-id="${esc(m.id)}">Edit</button>
+        <button class="btn sm danger" data-action="delete-exercise" data-id="${esc(e.id)}" title="Delete exercise">✕</button>
+      </div>
     </div>`;
-  }).join("") : `<div class="empty">No exercises linked to this material yet.<br><span class="small">Import exercises in <strong>Import Data</strong> and use <span class="mono">"material_id": "${esc(m.id)}"</span> to link them here.</span></div>`;
+  }).join("") : `<div class="empty">No exercises linked to this material yet.<br><br>
+      <button class="btn primary" data-action="new-exercise" data-material="${esc(m.id)}" data-return-route="material" data-return-id="${esc(m.id)}">+ Add an exercise</button>
+      <div class="small muted" style="margin-top:10px">Or import exercises in <strong>Import Data</strong> using <span class="mono">"material_id": "${esc(m.id)}"</span>.</div>
+    </div>`;
   const unit = esc(m.unitLabel||"Unit");
   const barCls = p >= 80 ? "green" : p >= 40 ? "" : "amber";
   const panelOpen = matImport && matImport.materialId === m.id;
@@ -1398,7 +1438,10 @@ function viewMaterialDetail(id){
     <div class="small muted" style="margin-bottom:10px">Tick the topics this material covers. Changes save instantly.</div>
     ${topicPickerHTML}
   </div>
-  <h2>Exercises from this material (${exs.length})</h2>
+  <div class="between wrap" style="margin:44px 0 18px">
+    <h2 style="margin:0">Exercises from this material (${exs.length})</h2>
+    <button class="btn sm" data-action="new-exercise" data-material="${esc(m.id)}" data-return-route="material" data-return-id="${esc(m.id)}">+ Add exercise</button>
+  </div>
   <div class="list">${exHTML}</div>`;
 }
 function materialImportPanelHTML(m){
@@ -2356,14 +2399,23 @@ let exFilters = {topic:"", level:"", type:"", q:""};
 function viewExercises(){
   let list = DB.exercises.slice();
   if(!DB.exercises.length){
-    return `<h1>Exercises</h1>
-    <div class="sub">All exercises in your library.</div>
+    return `<div class="between wrap" style="align-items:flex-start;margin-bottom:6px">
+      <div>
+        <h1>Exercises</h1>
+        <div class="sub" style="margin-bottom:0">All exercises in your library.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" data-action="go" data-route="import">↧ Import</button>
+        <button class="btn primary" data-action="new-exercise">+ Add exercise</button>
+      </div>
+    </div>
     <div class="empty">
       No exercises yet.<br><br>
-      <span class="small">Import exercises via JSON or CSV. Each one is linked to a grammar topic
-      and (optionally) to the material it came from.</span>
+      <span class="small">Write one by hand, or import a batch via JSON or CSV. Each exercise is linked
+      to a grammar topic and (optionally) to the material it came from.</span>
       <div class="btn-row" style="justify-content:center;margin-top:16px">
-        <button class="btn primary" data-action="go" data-route="import">Import exercises</button>
+        <button class="btn primary" data-action="new-exercise">+ Add exercise</button>
+        <button class="btn" data-action="go" data-route="import">Import exercises</button>
       </div>
     </div>`;
   }
@@ -2421,12 +2473,24 @@ function viewExercises(){
           ${s.total?`<span class="small muted">${s.correct}/${s.total}</span>`:""}
         </div>
       </div>
-      <div class="row">${statusBadge(st)}<button class="btn sm" data-action="practice" data-ids="${esc(e.id)}">Practice</button></div>
+      <div class="row">${statusBadge(st)}
+        <button class="btn sm" data-action="practice" data-ids="${esc(e.id)}">Practice</button>
+        <button class="btn sm" data-action="edit-exercise" data-id="${esc(e.id)}">Edit</button>
+        <button class="btn sm danger" data-action="delete-exercise" data-id="${esc(e.id)}" title="Delete exercise">✕</button>
+      </div>
     </div>`;
   }).join("") : `<div class="empty">No exercises match these filters.</div>`;
   const ids = list.map(e=>e.id).join(",");
-  return `<h1>Exercises</h1>
-  <div class="sub">${DB.exercises.length} exercises in your library.</div>
+  return `<div class="between wrap" style="align-items:flex-start;margin-bottom:6px">
+    <div>
+      <h1>Exercises</h1>
+      <div class="sub" style="margin-bottom:0">${DB.exercises.length} exercises in your library.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" data-action="go" data-route="import">↧ Import</button>
+      <button class="btn primary" data-action="new-exercise">+ Add exercise</button>
+    </div>
+  </div>
   ${unknownCard}
   ${mismatchCard}
   <div class="filter-bar">
@@ -2439,8 +2503,175 @@ function viewExercises(){
     <button class="btn primary" data-action="practice" data-ids="${esc(ids)}" data-title="All exercises"
       ${list.length?"":"disabled"}>Practice all ${list.length} filtered</button>
     <button class="btn" data-action="practice-random" data-ids="${esc(ids)}" ${list.length?"":"disabled"}>Random 10</button>
+    <button class="btn" data-action="new-exercise">+ Add exercise</button>
   </div>
   <div class="list">${items}</div>`;
+}
+
+/* =========================================================
+   10b. EXERCISE FORM (NEW)
+   ========================================================= */
+const EX_ANSWER_HINTS = {
+  multiple_choice:  "must match one of the options above, exactly",
+  fill_blank:       "use | to separate several accepted variants",
+  error_correction: "write the corrected sentence",
+  transformation:   "write the transformed sentence",
+  word_order:       "write the correctly ordered sentence",
+  completion:       "model completion — self-assessed",
+  production:       "model answer — self-assessed",
+  matching:         ""
+};
+
+function applyExTypeVisibility(){
+  const sel = document.getElementById("ex-type");
+  if(!sel) return;
+  const type = sel.value;
+  document.querySelectorAll("[data-ex-type]").forEach(el=>{
+    const t = el.dataset.exType;
+    const show = (t === "answer") ? (type !== "matching") : (t === type);
+    el.style.display = show ? "" : "none";
+  });
+  const hint = document.getElementById("ex-answer-hint");
+  if(hint) hint.textContent = EX_ANSWER_HINTS[type] || "";
+}
+
+function viewExerciseForm(id){
+  const editing = id && id !== "new";
+  const e = editing ? findEx(id) : null;
+  if(editing && !e) return `<div class="empty">Exercise not found.</div>`;
+
+  const presetTopic    = (!editing && exForm.topicId)    ? exForm.topicId    : "";
+  const presetMaterial = (!editing && exForm.materialId) ? exForm.materialId : "";
+  const presetTopicObj = presetTopic ? findTopic(presetTopic) : null;
+
+  const d = e ? {
+    id: e.id,
+    topic_id: e.topic_id || "",
+    material_id: e.material_id || "",
+    level: e.level || "A1",
+    type: e.type || "multiple_choice",
+    question: e.question || "",
+    options: (e.options || []).join("\n"),
+    words: (e.words || []).join("\n"),
+    pairs: (e.pairs || []).map(p => `${p[0]} = ${p[1]}`).join("\n"),
+    answer: Array.isArray(e.answer) ? e.answer.join(" | ") : (e.answer || ""),
+    explanation: e.explanation || ""
+  } : {
+    id: "",
+    topic_id: presetTopic,
+    material_id: presetMaterial,
+    level: presetTopicObj ? presetTopicObj.level : "A1",
+    type: "multiple_choice",
+    question: "",
+    options: "", words: "", pairs: "", answer: "", explanation: ""
+  };
+
+  const topicsSorted = [...DB.topics].sort((a,b)=>{
+    const ai = LEVELS.indexOf(a.level), bi = LEVELS.indexOf(b.level);
+    if(ai !== bi) return ai - bi;
+    return a.title.localeCompare(b.title);
+  });
+  const topicOpts = ['<option value="">— choose a topic —</option>']
+    .concat(topicsSorted.map(t=>`<option value="${esc(t.id)}" ${d.topic_id===t.id?"selected":""}>${esc(t.level)} · ${esc(t.title)}</option>`)).join("");
+  const matOpts = ['<option value="">— none —</option>']
+    .concat(DB.materials.map(m=>`<option value="${esc(m.id)}" ${d.material_id===m.id?"selected":""}>${esc(m.title)}</option>`)).join("");
+  const typeOpts  = EXERCISE_TYPES.map(t=>`<option value="${t}" ${d.type===t?"selected":""}>${typeLabel(t)}</option>`).join("");
+  const levelOpts = LEVELS.map(l=>`<option value="${l}" ${d.level===l?"selected":""}>${l}</option>`).join("");
+
+  const backBtn = exForm.returnTo
+    ? `<button class="btn" data-action="go-return">Cancel</button>`
+    : `<button class="btn" data-action="go" data-route="exercises">Cancel</button>`;
+
+  const noTopics = !DB.topics.length;
+
+  return `
+  <div class="btn-row" style="margin-bottom:14px"><button class="btn sm" data-action="go" data-route="exercises">← All exercises</button></div>
+  <h1>${editing ? "Edit exercise" : "Add exercise"}</h1>
+  <div class="sub">${editing ? "Update this exercise's content." : "Write a practice exercise by hand. It behaves exactly like an imported one."}</div>
+  <div class="card">
+    <form id="exercise-form" onsubmit="return false">
+      <div class="form-grid">
+
+        <div class="form-field full">
+          <label>Question *</label>
+          <textarea class="input" name="question" rows="3" placeholder="e.g. I _____ this movie three times.">${esc(d.question)}</textarea>
+        </div>
+
+        <div class="form-field">
+          <label>Type *</label>
+          <select name="type" id="ex-type">${typeOpts}</select>
+        </div>
+
+        <div class="form-field">
+          <label>Level *</label>
+          <select name="level">${levelOpts}</select>
+        </div>
+
+        <div class="form-field">
+          <label>Grammar topic *</label>
+          <select name="topic_id" id="ex-topic-select">${topicOpts}</select>
+          <label class="check-line" style="margin-top:8px">
+            <input type="checkbox" id="ex-new-topic-toggle" ${noTopics ? "checked" : ""}>
+            Create a new topic instead
+          </label>
+        </div>
+
+        <div class="form-field">
+          <label>Material (optional)</label>
+          <select name="material_id">${matOpts}</select>
+        </div>
+
+        <div class="form-field full" id="ex-new-topic-fields" style="display:${noTopics ? "" : "none"}">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>New topic ID</label>
+              <input class="input mono" name="new_topic_id" placeholder="auto from the title">
+            </div>
+            <div class="form-field">
+              <label>New topic title</label>
+              <input class="input" name="new_topic_title" placeholder="e.g. Present Perfect">
+            </div>
+            <div class="form-field">
+              <label>New topic level</label>
+              <select name="new_topic_level">${levelOpts}</select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field full" data-ex-type="multiple_choice">
+          <label>Options — one per line *</label>
+          <textarea class="input" name="options" rows="4" placeholder="saw&#10;have seen&#10;had seen&#10;see">${esc(d.options)}</textarea>
+        </div>
+
+        <div class="form-field full" data-ex-type="word_order">
+          <label>Scrambled words — one per line (optional)</label>
+          <textarea class="input" name="words" rows="3" placeholder="this&#10;seen&#10;have&#10;I&#10;film">${esc(d.words)}</textarea>
+          <div class="small muted">Leave empty to scramble the answer automatically.</div>
+        </div>
+
+        <div class="form-field full" data-ex-type="matching">
+          <label>Pairs — one per line, “left = right” *</label>
+          <textarea class="input" name="pairs" rows="5" placeholder="I have seen = experience&#10;I saw = finished past time">${esc(d.pairs)}</textarea>
+        </div>
+
+        <div class="form-field full" data-ex-type="answer">
+          <label>Answer * <span class="muted small" id="ex-answer-hint"></span></label>
+          <textarea class="input" name="answer" rows="2" placeholder="have seen">${esc(d.answer)}</textarea>
+        </div>
+
+        <div class="form-field full">
+          <label>Explanation</label>
+          <textarea class="input" name="explanation" rows="3" placeholder="Why is this the answer?">${esc(d.explanation)}</textarea>
+        </div>
+
+      </div>
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn primary" data-action="save-exercise" data-editing="${editing?"1":"0"}" data-id="${esc(d.id)}">${editing?"Save changes":"Create exercise"}</button>
+        ${backBtn}
+        ${editing?`<button class="btn danger" data-action="delete-exercise" data-id="${esc(d.id)}" style="margin-left:auto">Delete exercise</button>`:""}
+      </div>
+    </form>
+  </div>`;
 }
 
 /* =========================================================
@@ -2651,6 +2882,7 @@ function viewReview(){
   <div class="btn-row" style="margin-bottom:18px">
     <button class="btn primary" data-action="practice" data-ids="${esc(ids)}" data-title="Review session" ${queue.length?"":"disabled"}>Start review (${queue.length})</button>
     ${newOnes.length?`<button class="btn" data-action="practice" data-ids="${esc(newOnes.map(e=>e.id).join(","))}" data-title="New exercises">Try ${newOnes.length} new exercises</button>`:""}
+    <button class="btn" data-action="new-exercise">+ Add exercise</button>
   </div>
   <div class="list">${items}</div>`;
 }
@@ -2675,6 +2907,7 @@ function viewMistakes(){
       <div class="explain small" style="background:var(--panel-3);padding:9px 12px;border-radius:8px">${esc(ex.explanation||"")}</div>
       <div class="btn-row" style="margin-top:12px">
         <button class="btn sm primary" data-action="practice" data-ids="${esc(ex.id)}">Practice again</button>
+        <button class="btn sm" data-action="edit-exercise" data-id="${esc(ex.id)}">Edit</button>
         <span class="small muted">${s.correct}/${s.total} correct overall</span>
       </div>
     </div>`;
@@ -3022,6 +3255,151 @@ document.addEventListener("click", (e)=>{
     case "new-material": go("material-form", "new"); break;
     case "edit-material": go("material-form", el.dataset.id); break;
 
+    /* ---------- NEW: exercise form navigation ---------- */
+    case "new-exercise": {
+      const r = el.dataset.returnRoute;
+      exForm = {
+        topicId:    el.dataset.topic || null,
+        materialId: el.dataset.material || null,
+        returnTo:   r ? { name: r, id: el.dataset.returnId || null } : null
+      };
+      go("exercise-form", "new");
+      break;
+    }
+    case "edit-exercise": {
+      const r = el.dataset.returnRoute;
+      exForm = {
+        topicId: null, materialId: null,
+        returnTo: r ? { name: r, id: el.dataset.returnId || null } : null
+      };
+      go("exercise-form", el.dataset.id);
+      break;
+    }
+    case "go-return": {
+      const r = exForm.returnTo;
+      exForm.returnTo = null;
+      if(r && r.id) go(r.name, r.id);
+      else if(r) go(r.name);
+      else go("exercises");
+      break;
+    }
+    case "save-exercise": {
+      const form = document.getElementById("exercise-form");
+      if(!form) break;
+      const editing = el.dataset.editing === "1";
+
+      const type     = form.querySelector('[name="type"]').value;
+      const level    = form.querySelector('[name="level"]').value;
+      const question = form.querySelector('[name="question"]').value.trim();
+      const explanation = form.querySelector('[name="explanation"]').value.trim();
+      const answerRaw = form.querySelector('[name="answer"]').value.trim();
+      const materialSel = form.querySelector('[name="material_id"]');
+      const material_id = materialSel ? (materialSel.value || null) : null;
+
+      if(!question){ alert("The question is required."); break; }
+
+      /* --- Resolve the grammar topic --- */
+      let topic_id = "";
+      const newToggle = document.getElementById("ex-new-topic-toggle");
+      if(newToggle && newToggle.checked){
+        const idIn    = form.querySelector('[name="new_topic_id"]').value.trim();
+        const titleIn = form.querySelector('[name="new_topic_title"]').value.trim();
+        const lvIn    = form.querySelector('[name="new_topic_level"]').value;
+        if(!idIn && !titleIn){ alert("Give the new topic a title (or an ID)."); break; }
+        let newId = idIn ? slugify(idIn) : "";
+        if(!newId) newId = uniqueTopicId(titleIn);
+        if(findTopic(newId)){ alert(`A topic with ID "${newId}" already exists. Pick it from the list instead.`); break; }
+        DB.topics.push({
+          id: newId,
+          title: titleIn || titleFromId(newId),
+          level: lvIn || level,
+          explanation: "",
+          examples: []
+        });
+        topic_id = newId;
+      } else {
+        const sel = form.querySelector('[name="topic_id"]');
+        topic_id = sel ? sel.value : "";
+      }
+      if(!topic_id){ alert("Please choose a grammar topic, or tick “Create a new topic instead”."); break; }
+
+      /* --- Build the exercise object --- */
+      const ex = { id:"", topic_id, material_id, level, type, question, answer:"", explanation };
+
+      if(type === "multiple_choice"){
+        const opts = form.querySelector('[name="options"]').value.split("\n").map(s=>s.trim()).filter(Boolean);
+        if(opts.length < 2){ alert("Add at least two options, one per line."); break; }
+        if(!answerRaw){ alert("The answer is required."); break; }
+        if(!opts.some(o=> norm(o) === norm(answerRaw))){
+          alert("The answer must match one of the options, exactly.");
+          break;
+        }
+        ex.options = opts;
+        ex.answer = answerRaw;
+      } else if(type === "word_order"){
+        if(!answerRaw){ alert("The answer is required."); break; }
+        const words = form.querySelector('[name="words"]').value.split("\n").map(s=>s.trim()).filter(Boolean);
+        ex.answer = answerRaw;
+        ex.words = words.length ? words : shuffle(answerRaw.split(/\s+/));
+      } else if(type === "matching"){
+        const lines = form.querySelector('[name="pairs"]').value.split("\n").map(s=>s.trim()).filter(Boolean);
+        const pairs = [];
+        for(const line of lines){
+          const parts = line.split("=");
+          if(parts.length < 2){ alert(`Each pair must look like "left = right". Problem line:\n${line}`); pairs.length = 0; break; }
+          const left = parts[0].trim();
+          const right = parts.slice(1).join("=").trim();
+          if(!left || !right){ alert(`Both sides of a pair are required:\n${line}`); pairs.length = 0; break; }
+          pairs.push([left, right]);
+        }
+        if(!pairs.length){ if(!lines.length) alert("Add at least one pair."); break; }
+        ex.pairs = pairs;
+        ex.answer = pairs.map(p=>`${p[0]} → ${p[1]}`).join(" | ");
+      } else {
+        if(!answerRaw){ alert("The answer is required."); break; }
+        ex.answer = answerRaw;
+      }
+
+      /* --- Save --- */
+      if(editing){
+        const cur = findEx(el.dataset.id);
+        if(!cur) break;
+        ex.id = cur.id;
+        Object.assign(cur, ex);
+        save();
+      } else {
+        ex.id = uniqueExerciseId(topic_id + "-" + (DB.exercises.filter(x=>x.topic_id===topic_id).length + 1));
+        DB.exercises.push(ex);
+        save();
+      }
+
+      const back = exForm.returnTo;
+      exForm.returnTo = null;
+      if(back && back.id) go(back.name, back.id);
+      else if(back) go(back.name);
+      else go("exercises");
+      break;
+    }
+    case "delete-exercise": {
+      const ex = findEx(el.dataset.id);
+      if(!ex) break;
+      const preview = ex.question.split("\n")[0].slice(0,80);
+      if(!confirm(`Delete this exercise?\n\n"${preview}"\n\nIts attempt history will be removed as well. This cannot be undone.`)) break;
+      DB.exercises = DB.exercises.filter(x=>x.id !== ex.id);
+      DB.attempts  = DB.attempts.filter(a=>a.exerciseId !== ex.id);
+      save();
+      if(view.name === "exercise-form"){
+        const r = exForm.returnTo;
+        exForm.returnTo = null;
+        if(r && r.id) go(r.name, r.id);
+        else if(r) go(r.name);
+        else go("exercises");
+      } else {
+        render();
+      }
+      break;
+    }
+
     /* ---------- ROADMAP ---------- */
     case "roadmap-view": {
       DB.roadmap.view = el.dataset.view === "list" ? "list" : "grid";
@@ -3159,7 +3537,6 @@ document.addEventListener("click", (e)=>{
       const k = el.dataset.key;
       hmSelectedDay = (hmSelectedDay === k) ? null : k;
       render();
-      /* Scroll the details card into view when selecting */
       if(hmSelectedDay){
         setTimeout(()=>{
           const card = document.querySelector('main .card[style*="border-color:var(--accent)"]');
@@ -3586,6 +3963,7 @@ ex-002,${topicId},${materialId},B1,fill_blank,She _____ (live) in London since 2
         save();
         impState = { text:"", format:"auto", createMissing:true, report:null, valid:null };
         matImport = null; modal = null;
+        exForm = { topicId:null, materialId:null, returnTo:null };
         hmYear = new Date().getFullYear(); hmSelectedDay = null;
         document.body.style.overflow = "";
         go("dashboard");
@@ -3599,6 +3977,18 @@ document.addEventListener("change", (e)=>{
   if(id === "f-topic" || id === "f-level" || id === "f-type"){
     exFilters[id.slice(2)] = e.target.value;
     render(); return;
+  }
+  /* NEW: exercise-form dynamic fields */
+  if(id === "ex-type"){
+    applyExTypeVisibility();
+    return;
+  }
+  if(id === "ex-new-topic-toggle"){
+    const box = document.getElementById("ex-new-topic-fields");
+    if(box) box.style.display = e.target.checked ? "" : "none";
+    const sel = document.getElementById("ex-topic-select");
+    if(sel) sel.disabled = e.target.checked;
+    return;
   }
   if(e.target.dataset && e.target.dataset.action === "match" && !ui.submitted){
     ui.matches[e.target.dataset.i] = e.target.value;
