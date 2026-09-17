@@ -302,6 +302,11 @@
   }
   .rbtn:hover{border-color:var(--accent);color:var(--accent)}
   .rbtn.on{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
+  .taskopen{
+    flex-shrink:0;white-space:nowrap;background:transparent;border:1px solid var(--line);
+    border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:700;color:var(--accent);
+  }
+  .taskopen:hover{border-color:var(--accent);background:var(--accent-soft)}
 
   .rsseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   @media (max-width:600px){ .rsseg{grid-template-columns:repeat(2,1fr)} }
@@ -551,10 +556,10 @@
 
   /* Which module feeds which kind of resource into a phase / day. */
   const RES_MODULES = {
-    grammar:    { name:'Grammar',    icon:'📘', cls:'g', kind:'Topics · Exercises · Review' },
-    vocabulary: { name:'Vocabulary', icon:'📚', cls:'v', kind:'Resources' },
-    writepath:  { name:'WritePath',  icon:'✍️', cls:'w', kind:'Sessions'  },
-    pace:       { name:'Pace',       icon:'📖', cls:'p', kind:'Library'   }
+    grammar:    { name:'Grammar',    icon:'📘', cls:'g', kind:'Topics'   },
+    vocabulary: { name:'Vocabulary', icon:'📚', cls:'v', kind:'Review'   },
+    writepath:  { name:'WritePath',  icon:'✍️', cls:'w', kind:'Sessions' },
+    pace:       { name:'Pace',       icon:'📖', cls:'p', kind:'Library'  }
   };
   const RES_ORDER = ['grammar','vocabulary','writepath','pace'];
 
@@ -879,22 +884,6 @@
       });
     });
 
-    /* ---------- Grammar → Exercises ---------- */
-    (g.exercises || []).forEach((ex, i) => {
-      const q = String(ex.question || ex.prompt || ex.text || ex.title || '')
-        .split('\n')[0].trim().slice(0, 80);
-      const metaBits = [];
-      if(ex.difficulty) metaBits.push(ex.difficulty);
-      if(ex.type) metaBits.push(ex.type);
-      if(Array.isArray(ex.options) && ex.options.length) metaBits.push(ex.options.length + ' options');
-      out.grammar.push({
-        refId: 'exercise:' + String(ex.id != null ? ex.id : i),
-        label: q || ('Exercise ' + (i+1)),
-        meta:  metaBits.join(' · '),
-        sub:   'Exercise'
-      });
-    });
-
     /* ---------- Grammar → Review (falls back to materials) ---------- */
     const reviewArr = Array.isArray(g.review) ? g.review
       : (g.review && Array.isArray(g.review.items) ? g.review.items : []);
@@ -911,13 +900,14 @@
       });
     });
 
-    /* ---------- Vocabulary → Resources ---------- */
-    (v.resources || []).forEach((r, i) => {
+    /* ---------- Vocabulary → Review (words currently due) ---------- */
+    const vToday = todayKey();
+    (v.items || []).filter(it => !it.inbox && it.nextReview && it.nextReview <= vToday).forEach((it, i) => {
       out.vocabulary.push({
-        refId: String(r.id != null ? r.id : (r.url || 'vres-' + i)),
-        label: r.title || r.name || r.label || r.term || r.url || ('Resource ' + (i+1)),
-        meta:  [r.type, r.url].filter(Boolean).join(' · '),
-        sub:   'Resource'
+        refId: String(it.id != null ? it.id : (it.term || 'vitem-' + i)),
+        label: it.term || ('Word ' + (i+1)),
+        meta:  it.meaning ? String(it.meaning).slice(0, 60) : '',
+        sub:   'Review'
       });
     });
 
@@ -1539,7 +1529,7 @@
                     title="Remove from this phase">✕</button>
           </div>`;
       }).join('') : `<div class="tiny muted" style="padding:4px 2px">
-          No phase-wide resources yet — add topics, exercises, review, resources, sessions or reading texts.
+          No phase-wide resources yet — add topics, review, vocabulary review words, sessions or reading texts.
         </div>`;
 
       return `
@@ -1582,7 +1572,7 @@
         <div style="min-width:0">
           <h1>Study roadmap</h1>
           <p>Four phases of twenty days each. <strong>Click any day</strong> to open its planner and attach
-             grammar topics, exercises, review material, vocabulary resources, writing sessions or Pace reading texts
+             grammar topics, review material, vocabulary words due for review, writing sessions or Pace reading texts
              as that day's tasks.</p>
           <div style="margin-top:12px;max-width:420px">
             <div class="rm-progress"><i style="width:${overall}%"></i></div>
@@ -1846,10 +1836,14 @@
 
   /* Generic row used for both day tasks and phase resources inside the modal */
   function dayRowHTML(item, kind){
-    const mod = RES_MODULES[item.module] || { icon:'•', cls:'', name: item.module || 'Item' };
+    const mod = RES_MODULES[item.module] || { icon:'•', cls:'', name: item.module || 'Item', kind:'' };
     const toggleAct = kind === 'task' ? 'toggle-task' : 'toggle-res';
     const removeAct = kind === 'task' ? 'remove-task' : 'remove-res';
     const subBits = [mod.name, item.sub, item.meta].filter(Boolean).join(' · ');
+    const openBtn = (kind === 'task' && mod.kind)
+      ? `<button type="button" class="taskopen" data-act="open-module" data-mod="${esc(item.module)}"
+                title="Open ${esc(mod.name)} · ${esc(mod.kind)}">↗ ${esc(mod.kind)}</button>`
+      : '';
 
     return `
       <div class="taskrow${item.done ? ' done' : ''}">
@@ -1862,6 +1856,7 @@
           <span class="rtitle" title="${esc(item.label)}">${esc(item.label)}</span>
           <span class="rsub">${esc(subBits)}${item.doneAt ? ' · done ' + esc(fmtDay(item.doneAt)) : ''}</span>
         </span>
+        ${openBtn}
         <button type="button" class="rbtn" data-act="${removeAct}" data-id="${esc(item.id)}"
                 title="Remove">✕</button>
       </div>`;
@@ -2277,6 +2272,7 @@
     else if(act === 'remove-task') removeDayTask(btn.dataset.id);
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
+    else if(act === 'open-module'){ closeDayModal(); go(btn.dataset.mod); }
   });
 
   $('#dayPickerToggle').addEventListener('click', () => {
