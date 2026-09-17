@@ -272,6 +272,66 @@
     font-weight: 700;
   }
 
+  /* Matching exercise */
+  .match-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media(max-width:520px){
+    .match-grid{grid-template-columns:1fr;gap:16px}
+  }
+  .match-col{display:flex;flex-direction:column;gap:6px}
+  .match-item{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    padding:10px 12px;
+    border-radius:9px;
+    font:inherit;
+    font-size:13px;
+    font-weight:500;
+    text-align:left;
+    cursor:pointer;
+    transition:.15s;
+    word-break:break-word;
+    overflow-wrap:break-word;
+    line-height:1.4;
+    min-height:42px;
+    display:flex;
+    align-items:center;
+  }
+  .match-item:hover:not(:disabled){background:#f7f8fa;border-color:#c9ced8}
+  .match-item:disabled{cursor:default}
+  .match-item.sel{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:700;
+    box-shadow:0 0 0 3px rgba(79,70,229,.12);
+  }
+  .match-item.ok{
+    background:#ecfdf5;
+    border-color:var(--good);
+    color:#047857;
+    opacity:.6;
+    text-decoration:line-through;
+    cursor:default;
+  }
+  .match-item.wrong{
+    background:#fef2f2;
+    border-color:#fecaca;
+    color:#b91c1c;
+  }
+  .match-head{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--soft);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-bottom:4px;
+  }
+
   /* ============================================================
      DARK THEME COMPONENT OVERRIDES
      ============================================================ */
@@ -365,6 +425,13 @@
     color:var(--ink);
   }
   [data-theme="dark"] .example-expanded mark{background:#78350f;color:#fde68a}
+
+  /* Matching exercise — dark theme */
+  [data-theme="dark"] .match-item{background:#1e222a;border-color:#2f3540;color:var(--ink)}
+  [data-theme="dark"] .match-item:hover:not(:disabled){background:#252a33;border-color:#3a4049}
+  [data-theme="dark"] .match-item.sel{background:var(--accent-soft);border-color:var(--accent);color:#c7d2fe;box-shadow:0 0 0 3px rgba(129,140,248,.18)}
+  [data-theme="dark"] .match-item.ok{background:#0f2e22;border-color:var(--good);color:#6ee7b7}
+  [data-theme="dark"] .match-item.wrong{background:#3b1a1a;border-color:#7f1d1d;color:#fca5a5}
 </style>
 </head>
 <body>
@@ -399,6 +466,7 @@ const SCHEDULE  = ['Day 0','Day 1','Day 3','Day 7','Day 14','Day 30','Mastered']
 const WRITE_REQ = {collocation:2,phrasal:1,chunk:1,vocab:2};
 const LS_KEY = 'words30.v2';
 const MEM_PAIRS = 6;
+const MATCH_PAIRS = 6;
 
 /* --- Resources --- */
 const RES_TYPES = ['book','podcast','course','article','video','other'];
@@ -2233,14 +2301,16 @@ function viewPractice(){
     <div class="grid g-2">
       ${modeCard('recognition','👁','Recognition','See expression, pick the meaning.')}
       ${modeCard('recall','🧠','Recall','Read meaning, produce the expression.')}
+      ${modeCard('matching','🔗','Match Definitions','Pair each word with its definition.')}
       ${modeCard('memory','🎴','Memory Game','Flip cards, match term with meaning.')}
       ${modeCard('production','✍️','Production','Write your own sentence.')}
     </div>`;
   }
 
   const p = ui.practice;
-  if(p.mode === 'memory') return viewMemory();
-  if(p.idx >= p.q.length) return summary();
+  if(p.mode === 'memory')   return viewMemory();
+  if(p.mode === 'matching') return viewMatching();
+  if(p.idx >= p.q.length)   return summary();
 
   const it = S.items.find(x=>x.id===p.q[p.idx]);
   if(!it){ ui.practice=null; return viewPractice(); }
@@ -2381,8 +2451,81 @@ function startMemoryGame(ids){
   render();
 }
 
+/* ---------- Matching exercise ---------- */
+function viewMatching(){
+  const p = ui.practice;
+  if(p.matched === p.totalPairs){
+    return `<div class="card" style="text-align:center;padding:32px 14px">
+      <div style="font-size:30px">🎉</div>
+      <h2 style="margin-top:6px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:16px">All matched!</h2>
+      <div class="muted tiny">${p.moves} move${p.moves===1?'':'s'} · ${p.totalPairs} pair${p.totalPairs===1?'':'s'}</div>
+      <div class="wrap" style="margin-top:12px;justify-content:center">
+        <button class="btn pri" data-act="pracAgain">New game</button>
+        <button class="btn" data-act="pracStop">Back to modes</button>
+      </div>
+    </div>`;
+  }
+  const leftCol = p.left.map((it,i)=>{
+    const cls = it.matched ? 'ok'
+              : it.wrong   ? 'wrong'
+              : (p.selLeft === i) ? 'sel' : '';
+    return `<button class="match-item ${cls}" data-match="L|${i}" ${it.matched?'disabled':''}>${esc(it.text)}</button>`;
+  }).join('');
+  const rightCol = p.right.map((it,i)=>{
+    const cls = it.matched ? 'ok'
+              : it.wrong   ? 'wrong'
+              : (p.selRight === i) ? 'sel' : '';
+    return `<button class="match-item ${cls}" data-match="R|${i}" ${it.matched?'disabled':''}>${esc(it.text)}</button>`;
+  }).join('');
+  return `<div class="card">
+    <div class="between" style="margin-bottom:12px">
+      <div class="tiny muted">Moves <b>${p.moves}</b> · Matched <b>${p.matched}/${p.totalPairs}</b></div>
+      <button class="btn ghost sm" data-act="pracStop">End</button>
+    </div>
+    <div class="match-grid">
+      <div>
+        <div class="match-head">Words</div>
+        <div class="match-col">${leftCol}</div>
+      </div>
+      <div>
+        <div class="match-head">Definitions</div>
+        <div class="match-col">${rightCol}</div>
+      </div>
+    </div>
+    <div class="tiny muted" style="margin-top:14px;text-align:center">Tap a word, then its definition.</div>
+  </div>`;
+}
+
+function startMatchingGame(ids){
+  const T = iso();
+  const rank = i => (i.challengeDate===T?0:2) + (i.nextReview<=T?0:1);
+  let pool = S.items.filter(i=>!i.inbox && i.meaning);
+  if(Array.isArray(ids)){
+    const set = new Set(ids);
+    pool = pool.filter(i=>set.has(i.id));
+  }
+  pool.sort((a,b)=> rank(a)-rank(b) || a.stage-b.stage);
+  pool = pool.slice(0, MATCH_PAIRS);
+  if(pool.length < 2){ toast('Need at least 2 items with meanings'); return; }
+  const left  = pool.map(it => ({pairId: it.id, text: it.term,    matched:false, wrong:false}));
+  const right = pool.map(it => ({pairId: it.id, text: it.meaning, matched:false, wrong:false}));
+  shuffle(left);
+  shuffle(right);
+  ui.practice = {
+    mode:'matching',
+    left, right,
+    selLeft:null, selRight:null,
+    moves:0, matched:0,
+    totalPairs: pool.length,
+    locked:false,
+    poolIds: Array.isArray(ids)?ids.slice():null
+  };
+  render();
+}
+
 function startPractice(mode, ids){
-  if(mode==='memory'){ startMemoryGame(ids); return; }
+  if(mode==='memory'){   startMemoryGame(ids);   return; }
+  if(mode==='matching'){ startMatchingGame(ids); return; }
   const T = iso();
   const rank = i => (i.challengeDate===T?0:2) + (i.nextReview<=T?0:1);
   let pool = S.items.filter(i=>!i.inbox && i.meaning);
@@ -3048,6 +3191,53 @@ document.addEventListener('click', e=>{
 
   const openEl = e.target.closest('[data-open]');
   if(openEl){ openItem(openEl.dataset.open); return; }
+
+  const matchBtn = e.target.closest('[data-match]');
+  if(matchBtn){
+    const p = ui.practice;
+    if(!p || p.mode !== 'matching' || p.locked) return;
+    const [side, idxStr] = matchBtn.dataset.match.split('|');
+    const idx = Number(idxStr);
+    if(side === 'L'){
+      if(p.left[idx].matched) return;
+      p.selLeft = (p.selLeft === idx) ? null : idx;
+    } else {
+      if(p.right[idx].matched) return;
+      p.selRight = (p.selRight === idx) ? null : idx;
+    }
+    if(p.selLeft !== null && p.selRight !== null){
+      p.moves++;
+      const l = p.left[p.selLeft];
+      const r = p.right[p.selRight];
+      if(l.pairId === r.pairId){
+        l.matched = true;
+        r.matched = true;
+        p.matched++;
+        const it = S.items.find(x=>x.id===l.pairId);
+        if(it) markPracticed(it);
+        p.selLeft = null;
+        p.selRight = null;
+        render();
+      } else {
+        l.wrong = true;
+        r.wrong = true;
+        p.locked = true;
+        render();
+        setTimeout(()=>{
+          if(!ui.practice || ui.practice !== p) return;
+          l.wrong = false;
+          r.wrong = false;
+          p.selLeft = null;
+          p.selRight = null;
+          p.locked = false;
+          render();
+        }, 700);
+      }
+    } else {
+      render();
+    }
+    return;
+  }
 
   const act = e.target.closest('[data-act]');
   if(act){ handleAct(act); return; }
