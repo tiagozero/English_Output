@@ -373,8 +373,6 @@
   }
   .btn-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
 
-  /* --- FIX 1: the day list is scrollable, its columns are wide enough,
-         and task names are allowed to wrap instead of being cut off. --- */
   #daySection{
     flex:0 0 auto;max-height:38vh;overflow-y:auto;
     padding:12px 16px;background:var(--faint);border-bottom:1px solid var(--line);
@@ -396,7 +394,6 @@
   .day-cat-head.w{color:var(--amber)}  .day-cat-head.p{color:var(--teal)}
   .day-cat-rows{display:flex;flex-direction:column;gap:6px}
 
-  /* rows inside the planner stay readable — long labels wrap to a 2nd line */
   #daySection .taskrow{align-items:flex-start;padding:8px 9px}
   #daySection .rmain{gap:2px;padding-top:1px}
   #daySection .rtitle{
@@ -564,14 +561,59 @@
     pace:       { file:'Pace-Reading.html', name:'Pace',           icon:'📖', cls:'p' }
   };
 
-  /* Which section inside each module a given resource belongs to.
-     Used to build deep links such as GrammarStudy.html#topics. */
-  const MODULE_SECTIONS = {
-    grammar:    { topic:'#topics', review:'#review' },
-    vocabulary: { word:'#review',  default:'#review' },
-    writepath:  { session:'#sessions' },
-    pace:       { text:'#library' }
+  /* ============================================================
+     DEEP-LINK TAB MAP
+     ------------------------------------------------------------
+     Each module exposes one or more "tabs" (a <button role="tab">,
+     a [data-tab] element, or just a button/link whose label matches).
+
+     When the hub navigates to a module with a tab target it will:
+
+       1. load the module file (no hash — src stays stable so the
+          iframe doesn't reload when only the tab changes),
+       2. after the iframe loads, look inside the module document
+          for the tab whose label matches, and .click() it,
+       3. if the module opts in, also post a `hub:open-tab` message
+          with { tab: '<Name>' }.
+
+     So the module itself only has to expose ordinary tab buttons —
+     no extra glue code is required.
+     ============================================================ */
+  const MODULE_TABS = {
+    grammar:    { topic:'Topics',    review:'Review'   },
+    vocabulary: { word:'Review',     default:'Review'  },
+    writepath:  { session:'Sessions'                   },
+    pace:       { text:'Library'                       }
   };
+
+  /* Tab used when the user opens the module from the Overview cards,
+     the nav bar, or a "module not specified" link. */
+  const MODULE_PRIMARY_TAB = {
+    grammar:    'Topics',
+    vocabulary: 'Review',
+    writepath:  'Sessions',
+    pace:       'Library'
+  };
+
+  /* refId prefixes produced by collectSources():
+       grammar    → "topic:<id>"  |  "review:<id>"
+       vocabulary → "<id>"        (always a review word)
+       writepath  → "<id>"        (session)
+       pace       → "<id>"        (library text)
+     moduleTabFor() turns that into the tab name to open. */
+  function moduleTabFor(module, refId){
+    const raw = String(refId == null ? '' : refId);
+    const cut = raw.indexOf(':');
+    const prefix = cut >= 0 ? raw.slice(0, cut) : '';
+    const map = MODULE_TABS[module];
+    if(!map) return null;
+
+    if(module === 'grammar')    return prefix === 'review' ? map.review : map.topic;
+    if(module === 'vocabulary') return map.word || map.default;
+    if(module === 'writepath')  return map.session;
+    if(module === 'pace')       return map.text;
+    return null;
+  }
 
   /* Pace's shared Library store — same DB the Pace module itself opens. */
   const PACE_DB    = 'pace-library-db';
@@ -662,32 +704,78 @@
   }
 
   /* ============================================================
-     DEEP LINKS
+     TAB ACTIVATION — click the right tab inside the module iframe
      ============================================================ */
-  /* Ref id prefixes used by collectSources():
-       grammar    → "topic:<id>"  |  "review:<id>"
-       vocabulary → "<id>"        (always a review word)
-       writepath  → "<id>"        (session)
-       pace       → "<id>"        (library text)
-     moduleTarget() turns that into the hash the module understands. */
-  function moduleTarget(module, refId){
-    const raw = String(refId == null ? '' : refId);
-    const cut = raw.indexOf(':');
-    const prefix = cut >= 0 ? raw.slice(0, cut) : '';
+  function normText(s){
+    return String(s == null ? '' : s).replace(/\s+/g,' ').trim().toLowerCase();
+  }
 
-    switch(module){
-      case 'grammar':
-        return prefix === 'review'
-          ? MODULE_SECTIONS.grammar.review
-          : MODULE_SECTIONS.grammar.topic;
-      case 'vocabulary':
-        return MODULE_SECTIONS.vocabulary.default;
-      case 'writepath':
-        return MODULE_SECTIONS.writepath.session;
-      case 'pace':
-        return MODULE_SECTIONS.pace.text;
-      default:
-        return '';
+  /* Find the element inside `doc` that looks like the tab called `tabName`. */
+  function findTabElement(doc, tabName){
+    if(!doc || !tabName) return null;
+    const target = normText(tabName);
+
+    /* Pass 1 — elements that explicitly declare themselves as tabs. */
+    let marked;
+    try{
+      marked = doc.querySelectorAll(
+        '[role="tab"], [data-tab], [data-tab-target], [data-tab-id], [data-tab-name]'
+      );
+    }catch(e){ marked = []; }
+
+    for(const el of marked){
+      const attrs = [
+        el.getAttribute('data-tab'),
+        el.getAttribute('data-tab-target'),
+        el.getAttribute('data-tab-id'),
+        el.getAttribute('data-tab-name'),
+        el.getAttribute('aria-controls')
+      ].map(normText);
+      if(attrs.indexOf(target) >= 0) return el;
+
+      const txt = normText(el.textContent);
+      if(txt === target || txt.startsWith(target + ' ') || txt.startsWith(target + '(')) return el;
+    }
+
+    /* Pass 2 — any button / link / [class*=tab] whose visible label
+       equals (or starts with) the tab name. */
+    let loose;
+    try{
+      loose = doc.querySelectorAll('button, a[href^="#"], [class*="tab" i], [class*="nav" i] > *');
+    }catch(e){ loose = []; }
+
+    for(const el of loose){
+      const txt = normText(el.textContent);
+      if(txt === target || txt.startsWith(target + ' ') || txt.startsWith(target + '(')) return el;
+    }
+
+    return null;
+  }
+
+  /* Click the tab; retry a few times in case the module renders late. */
+  function activateModuleTab(frame, tabName, attempt){
+    attempt = attempt || 0;
+    if(!frame || !tabName) return;
+
+    let doc;
+    try{ doc = frame.contentDocument; }catch(e){ doc = null; }
+    if(!doc){ return; }
+
+    const el = findTabElement(doc, tabName);
+    if(el){
+      try{ el.click(); }catch(e){}
+      /* If the click didn't visibly change the hash, still fine —
+         many modules bind tab clicks purely in JS. */
+      return;
+    }
+
+    if(attempt < 6){
+      setTimeout(() => activateModuleTab(frame, tabName, attempt + 1), 120);
+    }else{
+      /* Last resort — let the module opt-in via postMessage. */
+      try{
+        frame.contentWindow.postMessage({ type:'hub:open-tab', tab: tabName, module: frame.dataset.route }, '*');
+      }catch(e){}
     }
   }
 
@@ -1574,6 +1662,7 @@
       const resHTML = phase.resources.length ? phase.resources.map(r => {
         const mod = RES_MODULES[r.module] || { icon:'•', cls:'', name: r.module || 'Item' };
         const subBits = [mod.name, r.sub, r.meta].filter(Boolean).join(' · ');
+        const tabName = moduleTabFor(r.module, r.refId);
         return `
           <div class="resrow${r.done?' done':''}">
             <span class="ricon ${esc(mod.cls)}" title="${esc(mod.name)}">${mod.icon}</span>
@@ -1583,7 +1672,7 @@
             </span>
             <button type="button" class="rbtn" data-act="open"
                     data-mod="${esc(r.module)}" data-ref="${esc(r.refId)}"
-                    title="Open in ${esc(mod.name)}">↗</button>
+                    title="Open in ${esc(mod.name)}${tabName ? ' · ' + esc(tabName) + ' tab' : ''}">↗</button>
             <button type="button" class="rbtn${r.done?' on':''}" data-act="toggle" data-res="${esc(r.id)}"
                     title="${r.done ? 'Mark as not done' : 'Mark as done'}">${r.done ? '✓' : '○'}</button>
             <button type="button" class="rbtn" data-act="remove" data-res="${esc(r.id)}"
@@ -1698,9 +1787,11 @@
     const phaseEl = btn.closest('[data-phase]');
     if(!phaseEl) return;
 
-    /* --- FIX 2: open the module at the right section --- */
+    /* Open the module on the correct tab */
     if(act === 'open'){
-      go(btn.dataset.mod, moduleTarget(btn.dataset.mod, btn.dataset.ref));
+      const mod = btn.dataset.mod;
+      const ref = btn.dataset.ref;
+      go(mod, moduleTabFor(mod, ref) || MODULE_PRIMARY_TAB[mod] || null);
       return;
     }
 
@@ -1908,11 +1999,10 @@
     const removeAct = kind === 'task' ? 'remove-task' : 'remove-res';
     const subBits = [mod.name, item.sub, item.meta].filter(Boolean).join(' · ');
 
-    /* --- FIX 2: carry the refId so the button can deep-link --- */
     const openBtn = mod.kind
       ? `<button type="button" class="taskopen" data-act="open-module"
                 data-mod="${esc(item.module)}" data-ref="${esc(item.refId)}"
-                title="Open ${esc(mod.name)} · ${esc(mod.kind)}">↗ ${esc(mod.kind)}</button>`
+                title="Open ${esc(mod.name)} · ${esc(mod.kind)} tab">↗ ${esc(mod.kind)}</button>`
       : '';
 
     return `
@@ -2210,12 +2300,11 @@
   const ROUTES = ['overview','roadmap','grammar','vocabulary','writepath','pace'];
 
   let currentRoute = 'overview';
-  let iframeLoadedFor = null;
-  let pendingTarget = null;       // hash to append to the module file
-  let pendingModuleMsg = null;    // postMessage payload for the embedded module
+  let pendingTab = null;          // tab name queued by go()
+  let pendingTabOnLoad = null;    // tab name to activate after the iframe loads
 
-  function go(route, target){
-    pendingTarget = (target === undefined) ? null : (target || null);
+  function go(route, tab){
+    pendingTab = tab || null;
     if(location.hash === '#' + route){ routeTo(route); return; }
     location.hash = '#' + route;
   }
@@ -2224,8 +2313,8 @@
     return ROUTES.indexOf(h) >= 0 ? h : 'overview';
   }
   function routeTo(route){
-    const target = pendingTarget;
-    pendingTarget = null;
+    const tab = pendingTab;
+    pendingTab = null;
 
     const prev = currentRoute;
     currentRoute = route;
@@ -2255,23 +2344,16 @@
     $('#modTitle').textContent = mod.icon + '  ' + mod.name;
 
     const frame = $('#frame');
-    const src = mod.file + (target || '');
     frame.dataset.route = route;
 
-    if(frame.getAttribute('src') !== src){
-      /* a different document (or a different section) — reload it */
-      pendingModuleMsg = target
-        ? { type:'hub:open', module: route, target: target }
-        : null;
-      frame.setAttribute('src', src);
-      iframeLoadedFor = route;
+    /* The iframe src stays stable so switching tabs doesn't reload the module. */
+    if(frame.getAttribute('src') !== mod.file){
+      frame.setAttribute('src', mod.file);
+      pendingTabOnLoad = tab || null;
+      if(!tab) pendingTabOnLoad = null;
     }else{
       decorateFrame();
-      if(target){
-        try{
-          frame.contentWindow.postMessage({ type:'hub:open', module: route, target: target }, '*');
-        }catch(e){}
-      }
+      if(tab) activateModuleTab(frame, tab);
     }
   }
   function decorateFrame(){
@@ -2302,7 +2384,11 @@
   /* any element carrying data-route navigates (module cards, library rows, roadmap strip) */
   $('#overviewContent').addEventListener('click', e => {
     const el = e.target.closest('[data-route]');
-    if(el) go(el.dataset.route);
+    if(!el) return;
+    const route = el.dataset.route;
+    const tab = MODULE_PRIMARY_TAB[route];
+    if(tab) go(route, tab);
+    else go(route);
   });
 
   /* roadmap page */
@@ -2360,11 +2446,11 @@
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
     else if(act === 'open-module'){
-      /* --- FIX 2: deep-link straight to the item's section --- */
       const mod = btn.dataset.mod;
       const ref = btn.dataset.ref;
+      const tab = moduleTabFor(mod, ref) || MODULE_PRIMARY_TAB[mod] || null;
       closeDayModal();
-      go(mod, moduleTarget(mod, ref));
+      go(mod, tab);
     }
   });
 
@@ -2392,9 +2478,9 @@
 
   $('#frame').addEventListener('load', () => {
     decorateFrame();
-    if(pendingModuleMsg){
-      try{ $('#frame').contentWindow.postMessage(pendingModuleMsg, '*'); }catch(e){}
-      pendingModuleMsg = null;
+    if(pendingTabOnLoad){
+      activateModuleTab($('#frame'), pendingTabOnLoad);
+      pendingTabOnLoad = null;
     }
   });
 
