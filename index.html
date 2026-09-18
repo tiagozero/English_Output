@@ -372,12 +372,15 @@
     font-size:11.5px;font-weight:700;color:var(--accent);flex-shrink:0;transition:all .12s;
   }
   .btn-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* --- FIX 1: the day list is scrollable, its columns are wide enough,
+         and task names are allowed to wrap instead of being cut off. --- */
   #daySection{
-    flex:0 0 auto;max-height:320px;overflow-y:auto;
-    padding:11px 16px;background:var(--faint);border-bottom:1px solid var(--line);
+    flex:0 0 auto;max-height:38vh;overflow-y:auto;
+    padding:12px 16px;background:var(--faint);border-bottom:1px solid var(--line);
   }
   .daysection-cols{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:start;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;align-items:start;
   }
   .day-cat-col{display:flex;flex-direction:column;gap:6px;min-width:0}
   .day-cat-head{
@@ -392,6 +395,22 @@
   .day-cat-head.g{color:var(--violet)} .day-cat-head.v{color:var(--green)}
   .day-cat-head.w{color:var(--amber)}  .day-cat-head.p{color:var(--teal)}
   .day-cat-rows{display:flex;flex-direction:column;gap:6px}
+
+  /* rows inside the planner stay readable — long labels wrap to a 2nd line */
+  #daySection .taskrow{align-items:flex-start;padding:8px 9px}
+  #daySection .rmain{gap:2px;padding-top:1px}
+  #daySection .rtitle{
+    white-space:normal;overflow:visible;text-overflow:clip;
+    overflow-wrap:anywhere;line-height:1.3;font-weight:600;
+  }
+  #daySection .rsub{
+    white-space:normal;overflow:visible;text-overflow:clip;
+    overflow-wrap:anywhere;line-height:1.35;
+  }
+  #daySection .rbtn,
+  #daySection .taskopen,
+  #daySection .ricon{margin-top:1px}
+
   .dt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   #dayModuleHead{
     flex:0 0 auto;padding:10px 16px;
@@ -413,6 +432,7 @@
     nav a .icon{font-size:15px}
     #overview,#roadmap{padding:16px 14px 40px}
     .hero{padding:18px}
+    .daysection-cols{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -544,6 +564,15 @@
     pace:       { file:'Pace-Reading.html', name:'Pace',           icon:'📖', cls:'p' }
   };
 
+  /* Which section inside each module a given resource belongs to.
+     Used to build deep links such as GrammarStudy.html#topics. */
+  const MODULE_SECTIONS = {
+    grammar:    { topic:'#topics', review:'#review' },
+    vocabulary: { word:'#review',  default:'#review' },
+    writepath:  { session:'#sessions' },
+    pace:       { text:'#library' }
+  };
+
   /* Pace's shared Library store — same DB the Pace module itself opens. */
   const PACE_DB    = 'pace-library-db';
   const PACE_DB_V  = 1;
@@ -569,7 +598,6 @@
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
   const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const wordsIn = t => (String(t||'').trim().match(/[A-Za-z0-9'’\-]+/g) || []).length;
   const safeParse = (raw, fb) => { try{ if(!raw) return fb; const v = JSON.parse(raw); return v||fb; }catch(e){ return fb; } };
   const pct = (n, d) => d ? Math.round((n/d)*100) : 0;
   const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -631,6 +659,36 @@
   function num(n){
     const v = Number(n)||0;
     return v.toLocaleString();
+  }
+
+  /* ============================================================
+     DEEP LINKS
+     ============================================================ */
+  /* Ref id prefixes used by collectSources():
+       grammar    → "topic:<id>"  |  "review:<id>"
+       vocabulary → "<id>"        (always a review word)
+       writepath  → "<id>"        (session)
+       pace       → "<id>"        (library text)
+     moduleTarget() turns that into the hash the module understands. */
+  function moduleTarget(module, refId){
+    const raw = String(refId == null ? '' : refId);
+    const cut = raw.indexOf(':');
+    const prefix = cut >= 0 ? raw.slice(0, cut) : '';
+
+    switch(module){
+      case 'grammar':
+        return prefix === 'review'
+          ? MODULE_SECTIONS.grammar.review
+          : MODULE_SECTIONS.grammar.topic;
+      case 'vocabulary':
+        return MODULE_SECTIONS.vocabulary.default;
+      case 'writepath':
+        return MODULE_SECTIONS.writepath.session;
+      case 'pace':
+        return MODULE_SECTIONS.pace.text;
+      default:
+        return '';
+    }
   }
 
   /* ============================================================
@@ -1523,6 +1581,9 @@
               <span class="rtitle" title="${esc(r.label)}">${esc(r.label)}</span>
               <span class="rsub">${esc(subBits)}</span>
             </span>
+            <button type="button" class="rbtn" data-act="open"
+                    data-mod="${esc(r.module)}" data-ref="${esc(r.refId)}"
+                    title="Open in ${esc(mod.name)}">↗</button>
             <button type="button" class="rbtn${r.done?' on':''}" data-act="toggle" data-res="${esc(r.id)}"
                     title="${r.done ? 'Mark as not done' : 'Mark as done'}">${r.done ? '✓' : '○'}</button>
             <button type="button" class="rbtn" data-act="remove" data-res="${esc(r.id)}"
@@ -1636,6 +1697,12 @@
 
     const phaseEl = btn.closest('[data-phase]');
     if(!phaseEl) return;
+
+    /* --- FIX 2: open the module at the right section --- */
+    if(act === 'open'){
+      go(btn.dataset.mod, moduleTarget(btn.dataset.mod, btn.dataset.ref));
+      return;
+    }
 
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === phaseEl.dataset.phase);
@@ -1840,8 +1907,11 @@
     const toggleAct = kind === 'task' ? 'toggle-task' : 'toggle-res';
     const removeAct = kind === 'task' ? 'remove-task' : 'remove-res';
     const subBits = [mod.name, item.sub, item.meta].filter(Boolean).join(' · ');
-    const openBtn = (kind === 'task' && mod.kind)
-      ? `<button type="button" class="taskopen" data-act="open-module" data-mod="${esc(item.module)}"
+
+    /* --- FIX 2: carry the refId so the button can deep-link --- */
+    const openBtn = mod.kind
+      ? `<button type="button" class="taskopen" data-act="open-module"
+                data-mod="${esc(item.module)}" data-ref="${esc(item.refId)}"
                 title="Open ${esc(mod.name)} · ${esc(mod.kind)}">↗ ${esc(mod.kind)}</button>`
       : '';
 
@@ -2141,8 +2211,11 @@
 
   let currentRoute = 'overview';
   let iframeLoadedFor = null;
+  let pendingTarget = null;       // hash to append to the module file
+  let pendingModuleMsg = null;    // postMessage payload for the embedded module
 
-  function go(route){
+  function go(route, target){
+    pendingTarget = (target === undefined) ? null : (target || null);
     if(location.hash === '#' + route){ routeTo(route); return; }
     location.hash = '#' + route;
   }
@@ -2151,6 +2224,9 @@
     return ROUTES.indexOf(h) >= 0 ? h : 'overview';
   }
   function routeTo(route){
+    const target = pendingTarget;
+    pendingTarget = null;
+
     const prev = currentRoute;
     currentRoute = route;
 
@@ -2179,12 +2255,23 @@
     $('#modTitle').textContent = mod.icon + '  ' + mod.name;
 
     const frame = $('#frame');
-    if(iframeLoadedFor !== route){
-      frame.setAttribute('src', mod.file);
+    const src = mod.file + (target || '');
+    frame.dataset.route = route;
+
+    if(frame.getAttribute('src') !== src){
+      /* a different document (or a different section) — reload it */
+      pendingModuleMsg = target
+        ? { type:'hub:open', module: route, target: target }
+        : null;
+      frame.setAttribute('src', src);
       iframeLoadedFor = route;
-      frame.dataset.route = route;
-    } else {
+    }else{
       decorateFrame();
+      if(target){
+        try{
+          frame.contentWindow.postMessage({ type:'hub:open', module: route, target: target }, '*');
+        }catch(e){}
+      }
     }
   }
   function decorateFrame(){
@@ -2272,7 +2359,13 @@
     else if(act === 'remove-task') removeDayTask(btn.dataset.id);
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
-    else if(act === 'open-module'){ closeDayModal(); go(btn.dataset.mod); }
+    else if(act === 'open-module'){
+      /* --- FIX 2: deep-link straight to the item's section --- */
+      const mod = btn.dataset.mod;
+      const ref = btn.dataset.ref;
+      closeDayModal();
+      go(mod, moduleTarget(mod, ref));
+    }
   });
 
   $('#dayPickerToggle').addEventListener('click', () => {
@@ -2297,7 +2390,13 @@
     applyTheme(next);
   });
 
-  $('#frame').addEventListener('load', () => decorateFrame());
+  $('#frame').addEventListener('load', () => {
+    decorateFrame();
+    if(pendingModuleMsg){
+      try{ $('#frame').contentWindow.postMessage(pendingModuleMsg, '*'); }catch(e){}
+      pendingModuleMsg = null;
+    }
+  });
 
   /* Refresh numbers when the hub tab regains focus (e.g. coming back
      from a module in another tab/window). */
