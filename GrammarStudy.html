@@ -190,7 +190,7 @@ tr:last-child td{border-bottom:1px solid var(--border)}
 .interactive-card:hover{border-color:var(--text);box-shadow:none;background:var(--hover-2)}
 .interactive-card .open-hint{font-size:11px;font-weight:500;color:var(--muted);background:transparent;padding:0;border-radius:0;display:inline-flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:.4px}
 .modal-backdrop{position:fixed;inset:0;background:var(--backdrop);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn .15s ease}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:2px;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--modal-shadow);animation:slideUp .18s ease}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:2px;max-width:760px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--modal-shadow);animation:slideUp .18s ease}
 .modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);gap:12px}
 .modal-body{padding:24px;overflow:auto;flex:1}
 .modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:transparent;flex-wrap:wrap}
@@ -203,7 +203,7 @@ tr:last-child td{border-bottom:1px solid var(--border)}
 ::-webkit-scrollbar-thumb{background:var(--bar-bg);border-radius:0;border:none}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 /* ---- Roadmap ---- */
-.seg{display:inline-flex;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:0;gap:0}
+.seg{display:inline-flex;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:0;gap:0;flex-wrap:wrap}
 .seg-btn{border:none;background:transparent;color:var(--muted-2);font-size:12px;font-weight:500;padding:7px 14px;border-radius:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .12s,color .12s;border-right:1px solid var(--border)}
 .seg-btn:last-child{border-right:none}
 .seg-btn:hover{color:var(--text);background:var(--hover)}
@@ -261,6 +261,195 @@ tr:last-child td{border-bottom:1px solid var(--border)}
   transition:border-color .12s,color .12s;
 }
 .title-info:hover{border-color:var(--text);color:var(--text)}
+
+/* ---- File inputs (PDF / PNG / TXT import) ---- */
+input[type="file"]{
+  width:100%;
+  font-family:inherit;
+  font-size:13px;
+  color:var(--text-2);
+  background:var(--panel-2);
+  border:1px dashed var(--border);
+  border-radius:var(--radius);
+  padding:12px;
+  cursor:pointer;
+  transition:border-color .12s, background-color .2s, color .2s;
+}
+input[type="file"]:hover{border-color:var(--text);color:var(--text)}
+input[type="file"]:focus{outline:none;border-color:var(--text);border-style:solid}
+input[type="file"]::file-selector-button{
+  font-family:inherit;
+  font-size:12.5px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  padding:5px 12px;
+  border-radius:var(--radius);
+  margin-right:10px;
+  cursor:pointer;
+  transition:border-color .12s, background .12s;
+}
+input[type="file"]::file-selector-button:hover{border-color:var(--text);background:var(--hover)}
+/* Import progress bar for extraction */
+.expl-progress{
+  height:2px;width:100%;background:var(--bar-bg);overflow:hidden;margin-top:10px;border-radius:0;
+}
+.expl-progress > i{
+  display:block;height:100%;width:0%;background:var(--accent);
+  transition:width .25s ease;
+}
+.expl-panel-note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+.expl-status{font-size:12.5px;min-height:18px;margin-top:12px;color:var(--muted-2);line-height:1.5}
+
+/* ============================================================
+   RICH CONTENT — HTML / CSS / tables in Explanation & Examples
+   ============================================================ */
+.rich-content{
+  font-size:14.5px;
+  line-height:1.75;
+  color:var(--text-2);
+  word-wrap:break-word;
+}
+.rich-content p{margin:0 0 12px}
+.rich-content p:last-child{margin-bottom:0}
+.rich-content h1,.rich-content h2,.rich-content h3,.rich-content h4,.rich-content h5,.rich-content h6{
+  color:var(--text);
+  font-weight:600;
+  margin:22px 0 10px;
+  letter-spacing:0;
+  text-transform:none;
+  line-height:1.3;
+}
+.rich-content h1{font-size:21px}
+.rich-content h2{font-size:18px}
+.rich-content h3{font-size:16px}
+.rich-content h4{font-size:15px}
+.rich-content h5,.rich-content h6{font-size:14px}
+.rich-content > *:first-child{margin-top:0}
+.rich-content ul,.rich-content ol{margin:0 0 12px 22px;padding:0}
+.rich-content li{margin-bottom:4px}
+.rich-content code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12.5px;
+  background:var(--panel-3);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:1px 5px;
+}
+.rich-content pre{
+  background:var(--panel-3);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:12px 14px;
+  overflow-x:auto;
+  font-size:12.5px;
+  line-height:1.6;
+  margin:0 0 14px;
+}
+.rich-content pre code{background:transparent;border:none;padding:0}
+.rich-content blockquote{
+  border-left:3px solid var(--border);
+  margin:0 0 14px;
+  padding:4px 14px;
+  color:var(--muted-2);
+  background:var(--panel-2);
+  border-radius:0 2px 2px 0;
+}
+.rich-content table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13.5px;
+  margin:6px 0 16px;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:0;
+  overflow:hidden;
+}
+.rich-content th,.rich-content td{
+  text-align:left;
+  padding:9px 11px;
+  border:1px solid var(--border);
+  vertical-align:top;
+}
+.rich-content th{
+  background:var(--panel-3);
+  font-weight:600;
+  color:var(--text);
+  font-size:12.5px;
+  text-transform:none;
+  letter-spacing:0;
+}
+.rich-content tbody tr:nth-child(even) td{background:var(--panel-2)}
+.rich-content hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+.rich-content a{color:var(--blue-text);text-decoration:underline}
+.rich-content a:hover{color:var(--text)}
+.rich-content img{max-width:100%;height:auto;border-radius:2px}
+.rich-content .callout{
+  border:1px solid var(--border);
+  border-left:3px solid var(--blue);
+  background:var(--panel-2);
+  padding:12px 16px;
+  margin:12px 0;
+  border-radius:2px;
+  color:var(--text-2);
+}
+.rich-content .callout.tip{border-left-color:var(--green)}
+.rich-content .callout.warn{border-left-color:var(--amber)}
+.rich-content .callout.err{border-left-color:var(--red)}
+.rich-content .callout strong{color:var(--text)}
+.rich-content .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+.rich-content .cols > div{border:1px solid var(--border);padding:12px 14px;border-radius:2px;background:var(--panel-2)}
+.rich-content .cols > div > h4{margin-top:0}
+@media (max-width:560px){
+  .rich-content .cols{grid-template-columns:1fr}
+}
+
+/* Rich editor UI (inside the modal) */
+.rich-editor{display:flex;flex-direction:column;gap:10px}
+.rich-toolbar{
+  display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px;
+  border:1px solid var(--border);border-radius:2px;
+  background:var(--panel-2);
+}
+.rich-toolbar button{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-2);
+  font-family:inherit;
+  font-size:12px;
+  padding:4px 9px;
+  border-radius:2px;
+  cursor:pointer;
+  transition:.12s;
+}
+.rich-toolbar button:hover{border-color:var(--text);color:var(--text);background:var(--hover)}
+.rich-toolbar .sep{width:1px;background:var(--border);margin:0 2px;align-self:stretch}
+.rich-preview{
+  border:1px dashed var(--border);
+  border-radius:2px;
+  padding:16px 18px;
+  background:var(--panel);
+  min-height:60px;
+  max-height:340px;
+  overflow:auto;
+}
+.rich-preview .rich-empty{color:var(--muted);font-size:13px;font-style:italic}
+.rich-note{
+  font-size:12px;color:var(--muted);line-height:1.6;
+}
+.rich-note code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11.5px;background:var(--panel-3);border:1px solid var(--border);
+  border-radius:2px;padding:0 4px;
+}
+.rich-editor textarea{
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:2px;
+  font-size:13px;
+  line-height:1.55;
+}
+
 @media (max-width:900px){
   #topbar{padding:14px 18px;gap:14px}
   .topbar-stats{display:none}
@@ -347,10 +536,8 @@ let impState = { text:"", format:"auto", createMissing:true, report:null, valid:
 let matImport = null;
 let modal = null;
 
-/* NEW: context for the manual exercise form (preset topic/material + where to return) */
 let exForm = { topicId:null, materialId:null, returnTo:null };
 
-/* Heatmap local state (not persisted in DB) */
 let hmYear = new Date().getFullYear();
 let hmSelectedDay = null;
 
@@ -384,6 +571,11 @@ function loadDB(){
       if(!d.roadmap || typeof d.roadmap !== "object") d.roadmap = defaultRoadmap();
       d.roadmap.phases = d.roadmap.phases || [];
       d.roadmap.view = d.roadmap.view || "grid";
+      /* ensure rich-content fields exist on topics */
+      d.topics.forEach(t=>{
+        if(!t.explanationFormat) t.explanationFormat = "text";
+        if(!t.examplesFormat) t.examplesFormat = "text";
+      });
       return d;
     }
   }catch(e){ console.warn("Load failed", e); }
@@ -432,7 +624,6 @@ function uniqueMaterialId(base){
   let i = 2; while(findMaterial(id+"-"+i)) i++;
   return id+"-"+i;
 }
-/* NEW: unique exercise id */
 function uniqueExerciseId(base){
   let id = slugify(base) || "exercise";
   if(!findEx(id)) return id;
@@ -445,6 +636,7 @@ const findEx = id => DB.exercises.find(e=>e.id===id);
 const LEVELS = ["A1","A2","B1","B2","C1","C2"];
 const MATERIAL_TYPES = ["book","pdf","course","website","notes","custom"];
 const UNIT_LABELS = ["Unit","Lesson","Page","Chapter","Module","Section"];
+const EXERCISE_TYPES = ["multiple_choice","fill_blank","error_correction","transformation","word_order","matching","completion","production"];
 
 function materialFallbackLevel(m){
   if(!m || !m.level) return "";
@@ -481,6 +673,281 @@ function fromDateInput(v){
   const parts = String(v).split("-").map(Number);
   if(parts.length !== 3 || parts.some(isNaN)) return null;
   return new Date(parts[0], parts[1]-1, parts[2]).getTime();
+}
+
+/* =========================================================
+   2b. EXTERNAL LIBRARY LOADERS  (PDF.js / Tesseract.js)
+   ========================================================= */
+const PDFJS_VERSION     = "3.11.174";
+const TESSERACT_VERSION = "5.0.4";
+
+function loadExternalScript(src){
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[data-ext-src="${src}"]`);
+    if(existing){
+      if(existing.dataset.loaded === "1") return resolve();
+      existing.addEventListener("load",  () => resolve());
+      existing.addEventListener("error", () => reject(new Error("Failed to load " + src)));
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.dataset.extSrc = src;
+    s.addEventListener("load",  () => { s.dataset.loaded = "1"; resolve(); });
+    s.addEventListener("error", () => reject(new Error("Failed to load " + src)));
+    document.head.appendChild(s);
+  });
+}
+
+async function ensurePdfJs(){
+  if(window.pdfjsLib) return window.pdfjsLib;
+  await loadExternalScript(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.min.js`);
+  if(!window.pdfjsLib) throw new Error("pdf.js failed to initialise.");
+  try{
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`;
+  }catch(e){ /* ignore */ }
+  return window.pdfjsLib;
+}
+
+async function ensureTesseract(){
+  if(window.Tesseract) return window.Tesseract;
+  await loadExternalScript(`https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/${TESSERACT_VERSION}/tesseract.min.js`);
+  if(!window.Tesseract) throw new Error("Tesseract.js failed to initialise.");
+  return window.Tesseract;
+}
+
+function pageTextFromItems(items){
+  const rows = new Map();
+  items.forEach(it => {
+    if(!it || typeof it.str !== "string" || !it.str) return;
+    if(!it.transform || it.transform.length < 6) return;
+    const y = Math.round(it.transform[5]);
+    const x = it.transform[4];
+    if(!rows.has(y)) rows.set(y, []);
+    rows.get(y).push({ x, str: it.str });
+  });
+  const ys = [...rows.keys()].sort((a,b)=> b - a);
+  const lines = ys.map(y => {
+    const cells = rows.get(y).sort((a,b)=> a.x - b.x);
+    let out = "";
+    let lastRight = null;
+    cells.forEach(c => {
+      if(lastRight !== null && c.x - lastRight > 1.5 && out && !/\s$/.test(out)) out += " ";
+      out += c.str;
+      lastRight = c.x + c.str.length * 4;
+    });
+    return out.replace(/\s+/g," ").trim();
+  });
+  return lines.filter(Boolean).join("\n");
+}
+
+async function extractPdfText(file, onProgress){
+  const pdfjsLib = await ensurePdfJs();
+  if(onProgress) onProgress("Reading PDF file…", 0.05);
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  const total = pdf.numPages || 1;
+  const pages = [];
+  for(let i = 1; i <= total; i++){
+    if(onProgress) onProgress(`Extracting text — page ${i} of ${total}…`, 0.05 + (i-1)/total * 0.9);
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const text = pageTextFromItems(content.items || []);
+    if(text) pages.push(text);
+  }
+  if(onProgress) onProgress("Done.", 1);
+  return pages.join("\n\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+
+async function extractPngText(file, onProgress){
+  const Tesseract = await ensureTesseract();
+  const result = await Tesseract.recognize(file, "eng", {
+    logger: m => {
+      if(!onProgress || !m) return;
+      switch(m.status){
+        case "loading tesseract core":          onProgress("Loading OCR engine…", 0.05); break;
+        case "loading language traineddata":    onProgress("Loading English model…", 0.25); break;
+        case "initializing api":                onProgress("Initialising OCR…", 0.5); break;
+        case "recognizing text":                onProgress(`Recognising text… ${Math.round((m.progress||0)*100)}%`, 0.5 + (m.progress||0)*0.5); break;
+      }
+    }
+  });
+  const text = (result && result.data && result.data.text) ? result.data.text : "";
+  return String(text).replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+
+/* =========================================================
+   2c. RICH CONTENT (HTML / CSS / tables)
+   ---------------------------------------------------------
+   Sanitises user HTML: strips <script>, on* handlers and
+   javascript: URLs. Keeps <style> tags — users should scope
+   their selectors with .rich-content if they want to avoid
+   leaking styles into the rest of the app.
+   ========================================================= */
+function sanitizeHtml(html){
+  if(!html) return "";
+  let s = String(html);
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+  s = s.replace(/<script\b[^>]*\/?>/gi, "");
+  s = s.replace(/\son\w+\s*=\s*"[^"]*"/gi, "");
+  s = s.replace(/\son\w+\s*=\s*'[^']*'/gi, "");
+  s = s.replace(/\son\w+\s*=\s*[^\s>]+/gi, "");
+  s = s.replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"');
+  s = s.replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'");
+  return s;
+}
+function renderRichContent(html){
+  if(!html || !String(html).trim()) return "";
+  return `<div class="rich-content">${sanitizeHtml(html)}</div>`;
+}
+
+/* Convert plain text → HTML (used when switching modes) */
+function textToHtml(text){
+  if(!text || !String(text).trim()) return "";
+  const blocks = String(text).split(/\n{2,}/);
+  return blocks.map(b=>{
+    const lines = b.split("\n").map(l => esc(l));
+    return "<p>" + lines.join("<br>") + "</p>";
+  }).join("\n");
+}
+/* Convert HTML → plain text (used when switching modes) */
+function htmlToText(html){
+  if(!html || !String(html).trim()) return "";
+  let s = String(html);
+  s = s.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+  s = s.replace(/<\/(p|div|h[1-6]|li|tr|blockquote|pre|section|article)>/gi, "\n\n");
+  s = s.replace(/<br\s*\/?>/gi, "\n");
+  s = s.replace(/<\/(td|th)>/gi, "\t");
+  s = s.replace(/<[^>]+>/g, "");
+  s = s.replace(/&nbsp;/g," ").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+       .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  return s.replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+
+/* Ready-made HTML snippets for the toolbar */
+const RICH_SNIPPETS = {
+  table:
+`<table>
+  <thead>
+    <tr><th>Form</th><th>Use</th><th>Example</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>have/has + V3</td><td>Experience / result</td><td>I have seen this film.</td></tr>
+    <tr><td>have/has been + V-ing</td><td>Continuous action</td><td>I have been studying all day.</td></tr>
+  </tbody>
+</table>`,
+  "callout-rule":
+`<div class="callout">
+  <strong>Rule:</strong> Use the present perfect for experiences without a specific past time.
+</div>`,
+  "callout-tip":
+`<div class="callout tip">
+  <strong>Tip:</strong> If you can say <em>when</em> it happened, use the past simple instead.
+</div>`,
+  "callout-warn":
+`<div class="callout warn">
+  <strong>Watch out:</strong> <em>I have seen him yesterday</em> is wrong — use <em>I saw him yesterday</em>.
+</div>`,
+  "two-col":
+`<div class="cols">
+  <div>
+    <h4>Form</h4>
+    <p>have / has + past participle</p>
+  </div>
+  <div>
+    <h4>Example</h4>
+    <p>I <b>have finished</b> my homework.</p>
+  </div>
+</div>`,
+  code:
+`<pre><code>have / has + past participle</code></pre>`,
+  "styled-para":
+`<p style="color:var(--text);font-size:15px;font-weight:500">
+  Your styled paragraph…
+</p>`,
+  headings:
+`<h3>Heading</h3>
+<p>Paragraph text…</p>
+<ul>
+  <li>First point</li>
+  <li>Second point</li>
+</ul>`
+};
+
+function insertRichSnippet(textareaId, snippetKey){
+  const ta = document.getElementById(textareaId);
+  if(!ta) return;
+  const snippet = RICH_SNIPPETS[snippetKey] || "";
+  if(!snippet) return;
+  const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+  const end   = ta.selectionEnd   != null ? ta.selectionEnd   : ta.value.length;
+  const before = ta.value.slice(0, start);
+  const after  = ta.value.slice(end);
+  const sep = before && !/\n\s*$/.test(before) ? "\n\n" : "";
+  ta.value = before + sep + snippet + after;
+  const newPos = (before + sep + snippet).length;
+  ta.focus();
+  try{ ta.setSelectionRange(newPos, newPos); }catch(e){}
+  updateRichPreview(textareaId);
+  if(modal && modal.drafts){
+    if(textareaId === "modal-input-html") modal.drafts.html = ta.value;
+    else if(textareaId === "modal-input") modal.drafts.text = ta.value;
+  }
+}
+function updateRichPreview(textareaId){
+  const ta = document.getElementById(textareaId);
+  const preview = document.getElementById(textareaId + "-preview");
+  if(!ta || !preview) return;
+  const v = ta.value;
+  preview.innerHTML = v.trim()
+    ? sanitizeHtml(v)
+    : `<div class="rich-empty">Preview will appear here…</div>`;
+}
+
+/* Rich editor widget (used for explanation & examples HTML mode) */
+function richEditorHTML(id, value, opts){
+  opts = opts || {};
+  const placeholder = opts.placeholder || "Write HTML here…";
+  const hasContent = !!(value && String(value).trim());
+  const previewHTML = hasContent
+    ? sanitizeHtml(value)
+    : `<div class="rich-empty">Preview will appear here…</div>`;
+  const rows = opts.rows || 12;
+  return `
+    <div class="rich-editor">
+      <div class="rich-toolbar">
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="table">▦ Table</button>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="two-col">▥ Two columns</button>
+        <span class="sep"></span>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="callout-rule">📘 Rule box</button>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="callout-tip">💡 Tip box</button>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="callout-warn">⚠ Warning box</button>
+        <span class="sep"></span>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="headings">☰ Headings + list</button>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="code">⟨/⟩ Code</button>
+        <button type="button" data-action="rich-insert" data-target="${id}" data-snippet="styled-para">✎ Styled paragraph</button>
+      </div>
+      <textarea class="input mono" id="${id}" rows="${rows}" placeholder="${esc(placeholder)}">${esc(value)}</textarea>
+      <div class="rich-note">
+        Content renders inside <code>.rich-content</code>. Use inline <code>style="…"</code> for one-offs,
+        or a <code>&lt;style&gt;</code> block scoped to <code>.rich-content</code> for topic-wide styling.
+        Tables, callouts (<code>.callout</code>, <code>.callout.tip</code>, <code>.callout.warn</code>)
+        and two-column grids (<code>.cols</code>) are pre-styled.
+      </div>
+      <div class="rich-preview" id="${id}-preview">${previewHTML}</div>
+    </div>`;
+}
+
+/* Mode toggle (Text / HTML) shared by explanation & examples editors */
+function modeToggleHTML(mode){
+  return `
+    <div class="seg" style="margin-bottom:14px">
+      <button type="button" class="seg-btn ${mode==="text"?"active":""}" data-action="set-mode" data-mode="text">✎ Plain text</button>
+      <button type="button" class="seg-btn ${mode==="html"?"active":""}" data-action="set-mode" data-mode="html">⟨/⟩ HTML &amp; CSS</button>
+    </div>`;
 }
 
 /* =========================================================
@@ -609,7 +1076,7 @@ function createStubTopic(id, materialId, levelOverride){
   if(!level) level = dominantExerciseLevel(id);
   if(!level) level = materialFallbackLevel(findMaterial(materialId));
   if(!level || !LEVELS.includes(level)) level = "A1";
-  const t = { id, title: titleFromId(id), level, explanation: "", examples: [] };
+  const t = { id, title: titleFromId(id), level, explanation: "", examples: [], explanationFormat:"text", examplesFormat:"text" };
   DB.topics.push(t);
   return t;
 }
@@ -658,9 +1125,6 @@ function parseDayKey(k){
   if(parts.length !== 3 || parts.some(isNaN)) return new Date();
   return new Date(parts[0], parts[1]-1, parts[2]);
 }
-/* Build a map: 'YYYY-MM-DD' -> activity count.
-   Activities = every exercise attempt + every completed roadmap day
-   (roadmap days are mapped to their scheduled date via the phase start date). */
 function activityByDay(){
   const map = {};
   const add = (ts) => {
@@ -695,7 +1159,6 @@ function computeStreak(activity){
   }
   return streak;
 }
-/* Compact mini heatmap: last `weeks` weeks ending with the current week. */
 function miniHeatmapHTML(weeks){
   weeks = weeks || 15;
   const activity = activityByDay();
@@ -726,7 +1189,15 @@ function miniHeatmapHTML(weeks){
 function openTopicModal(topicId, type){
   const t = findTopic(topicId);
   if(!t) return;
-  modal = { kind:"topic", topicId, type, editing: false };
+  modal = {
+    kind:"topic",
+    topicId,
+    type,
+    editing: false,
+    mode: "text",
+    importTab: "text",
+    drafts: null
+  };
   document.body.style.overflow = "hidden";
   paintModal();
 }
@@ -741,6 +1212,153 @@ function closeModal(){
   const root = document.getElementById("modal-root");
   if(root) root.innerHTML = "";
 }
+/* Sync current textarea content into modal.drafts before repaint */
+function syncModalDraft(){
+  if(!modal || modal.kind !== "topic" || !modal.drafts) return;
+  const id = modal.mode === "html" ? "modal-input-html" : "modal-input";
+  const ta = document.getElementById(id);
+  if(ta) modal.drafts[modal.mode] = ta.value;
+}
+function setExplStatus(msg, kind){
+  const el = document.getElementById("expl-status");
+  if(!el) return;
+  el.textContent = msg || "";
+  el.style.color = kind === "err"  ? "var(--red-text)"
+                 : kind === "warn" ? "var(--amber-text)"
+                 : kind === "ok"   ? "var(--green-text)"
+                 : "var(--muted-2)";
+}
+function setExplProgress(fraction){
+  const bar = document.getElementById("expl-progress-bar");
+  if(!bar) return;
+  const f = Math.max(0, Math.min(1, Number(fraction) || 0));
+  bar.style.width = Math.round(f * 100) + "%";
+}
+function appendExplanationText(text){
+  const ta = document.getElementById("modal-input");
+  if(!ta) return;
+  text = String(text == null ? "" : text).replace(/\r\n/g,"\n").trim();
+  if(!text){
+    setExplStatus("Nothing to add — no text could be read from that file.", "warn");
+    return;
+  }
+  const cur = ta.value.replace(/\s+$/,"");
+  ta.value = cur ? cur + "\n\n" + text : text;
+  if(modal && modal.drafts) modal.drafts.text = ta.value;
+  setExplStatus(`Added ${text.length.toLocaleString()} characters to the explanation. Review it above, then press Save.`, "ok");
+  setExplProgress(1);
+  ta.scrollTop = ta.scrollHeight;
+}
+
+/* ------- import panel (text mode) ------- */
+function explanationImportPanelHTML(tab){
+  tab = tab || "text";
+  return `
+    <div class="seg" style="margin-bottom:12px;flex-wrap:wrap">
+      <button type="button" class="seg-btn ${tab==="text"?"active":""}" data-action="expl-tab" data-tab="text">✎ Paste text / TXT</button>
+      <button type="button" class="seg-btn ${tab==="pdf"?"active":""}"  data-action="expl-tab" data-tab="pdf">📄 PDF</button>
+      <button type="button" class="seg-btn ${tab==="png"?"active":""}"  data-action="expl-tab" data-tab="png">🖼 PNG</button>
+    </div>
+
+    <div data-expl-panel="text" style="display:${tab==="text"?"":"none"}">
+      <div class="form-field">
+        <label>Load a .txt / .md file (optional)</label>
+        <input type="file" id="expl-txt-file" accept=".txt,.md,.text,text/plain">
+      </div>
+      <div class="expl-panel-note">Or simply type or paste the rule into the box below.</div>
+    </div>
+
+    <div data-expl-panel="pdf" style="display:${tab==="pdf"?"":"none"}">
+      <div class="form-field">
+        <label>Upload a PDF — its text will be extracted</label>
+        <input type="file" id="expl-pdf-file" accept="application/pdf,.pdf">
+      </div>
+      <div class="expl-panel-note">
+        Works with text-based PDFs. Scanned / photographed pages have no selectable text —
+        use the <strong>PNG</strong> tab (OCR) for those instead.
+      </div>
+    </div>
+
+    <div data-expl-panel="png" style="display:${tab==="png"?"":"none"}">
+      <div class="form-field">
+        <label>Upload a PNG / JPG — text is recognised (OCR)</label>
+        <input type="file" id="expl-png-file" accept="image/png,image/jpeg,image/webp,image/*">
+      </div>
+      <div class="expl-panel-note">
+        The first OCR run downloads a small engine and the English model (a few MB).
+        Clear, high-contrast screenshots work best.
+      </div>
+    </div>
+
+    <div class="expl-progress" aria-hidden="true"><i id="expl-progress-bar"></i></div>
+    <div class="expl-status" id="expl-status"></div>`;
+}
+
+/* ------- editors ------- */
+function explanationEditorHTML(t){
+  const mode = modal.mode || "text";
+  const draft = modal.drafts[mode] || "";
+  let modeBody = "";
+  if(mode === "text"){
+    modeBody = `
+      ${explanationImportPanelHTML(modal.importTab || "text")}
+      <div class="form-field" style="margin-top:14px">
+        <label>Explanation text</label>
+        <textarea class="input" id="modal-input" rows="12"
+          placeholder="Write the rule in your own words — or import it from a PDF, PNG or TXT file above…">${esc(draft)}</textarea>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button type="button" class="btn sm" data-action="expl-clear">Clear text</button>
+        <span class="small muted" style="margin-left:auto">Switch to <b>HTML &amp; CSS</b> above to add tables and styled boxes.</span>
+      </div>`;
+  } else {
+    modeBody = richEditorHTML("modal-input-html", draft, {
+      rows: 14,
+      placeholder:
+`<p>Use the <b>present perfect</b> for experiences…</p>
+
+<table>
+  <thead><tr><th>Form</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>have/has + V3</td><td>I have seen this film.</td></tr>
+  </tbody>
+</table>`
+    });
+  }
+  return `
+    ${modeToggleHTML(mode)}
+    ${modeBody}`;
+}
+function examplesEditorHTML(t){
+  const mode = modal.mode || "text";
+  const draft = modal.drafts[mode] || "";
+  let modeBody = "";
+  if(mode === "text"){
+    modeBody = `
+      <div class="small muted" style="margin-bottom:8px">One example per line. Empty lines are ignored.</div>
+      <textarea class="input" id="modal-input" rows="12"
+        placeholder="I have been studying English for three years.
+She's been working since 8am.">${esc(draft)}</textarea>`;
+  } else {
+    modeBody = richEditorHTML("modal-input-html", draft, {
+      rows: 12,
+      placeholder:
+`<ul>
+  <li><b>I have seen</b> this film three times.</li>
+  <li>She <b>has lived</b> here since 2015.</li>
+</ul>
+
+<table>
+  <tr><th>Tense</th><th>Example</th></tr>
+  <tr><td>Present perfect</td><td>I have finished.</td></tr>
+</table>`
+    });
+  }
+  return `
+    ${modeToggleHTML(mode)}
+    ${modeBody}`;
+}
+
 function paintModal(){
   const root = document.getElementById("modal-root");
   if(!root) return;
@@ -770,30 +1388,21 @@ function paintModal(){
   const isExpl = modal.type === "explanation";
   const title = isExpl ? "Grammar Explanation" : "Examples";
   let bodyHTML = "";
+
   if(modal.editing){
-    if(isExpl){
-      bodyHTML = `<textarea class="input" id="modal-input" rows="12"
-        placeholder="Write the rule in your own words…">${esc(t.explanation||"")}</textarea>`;
-    } else {
-      bodyHTML = `<div class="small muted" style="margin-bottom:8px">One example per line. Empty lines are ignored.</div>
-        <textarea class="input" id="modal-input" rows="12"
-        placeholder="I have been studying English for three years.
-She's been working since 8am.">${esc((t.examples||[]).join("\n"))}</textarea>`;
-    }
+    bodyHTML = isExpl ? explanationEditorHTML(t) : examplesEditorHTML(t);
   } else {
     if(isExpl){
-      bodyHTML = t.explanation
-        ? `<div class="explain" style="white-space:pre-wrap">${esc(t.explanation)}</div>`
-        : `<div class="empty" style="padding:26px">No explanation yet.<br><br><span class="small">Click <strong>Edit</strong> below to write one.</span></div>`;
+      bodyHTML = renderExplanationHTML(t);
     } else {
-      bodyHTML = (t.examples && t.examples.length)
-        ? t.examples.map((ex,i)=>`<div class="example" style="display:flex;gap:8px"><span class="muted small" style="font-weight:700;min-width:18px">${i+1}.</span><span>${esc(ex)}</span></div>`).join("")
-        : `<div class="empty" style="padding:26px">No examples yet.<br><br><span class="small">Click <strong>Edit</strong> below to add some.</span></div>`;
+      bodyHTML = renderExamplesHTML(t);
     }
   }
+
   const footerHTML = modal.editing
     ? `<button class="btn" data-action="modal-cancel">Cancel</button><button class="btn primary" data-action="modal-save">Save</button>`
     : `<button class="btn" data-action="modal-close">Close</button><button class="btn primary" data-action="modal-edit">Edit</button>`;
+
   root.innerHTML = `
     <div class="modal-backdrop" data-action="modal-backdrop">
       <div class="modal">
@@ -808,6 +1417,37 @@ She's been working since 8am.">${esc((t.examples||[]).join("\n"))}</textarea>`;
         <div class="modal-foot">${footerHTML}</div>
       </div>
     </div>`;
+}
+
+/* Render helpers for view mode (also used inside the modal) */
+function renderExplanationHTML(t){
+  const fmt = t.explanationFormat || "text";
+  if(fmt === "html"){
+    const html = t.explanationHtml || "";
+    if(!html.trim()){
+      return `<div class="empty" style="padding:26px">No explanation yet.<br><br><span class="small">Click <strong>Edit</strong> below to write one — or to import it from a PDF, PNG or TXT file, or to add tables and styled boxes.</span></div>`;
+    }
+    return renderRichContent(html);
+  }
+  if(t.explanation && t.explanation.trim()){
+    return `<div class="explain" style="white-space:pre-wrap">${esc(t.explanation)}</div>`;
+  }
+  return `<div class="empty" style="padding:26px">No explanation yet.<br><br><span class="small">Click <strong>Edit</strong> below to write one — or to import it from a PDF, PNG or TXT file, or to add tables and styled boxes.</span></div>`;
+}
+function renderExamplesHTML(t){
+  const fmt = t.examplesFormat || "text";
+  if(fmt === "html"){
+    const html = t.examplesHtml || "";
+    if(!html.trim()){
+      return `<div class="empty" style="padding:26px">No examples yet.<br><br><span class="small">Click <strong>Edit</strong> below to add some.</span></div>`;
+    }
+    return renderRichContent(html);
+  }
+  const exs = t.examples || [];
+  if(exs.length){
+    return exs.map((ex,i)=>`<div class="example" style="display:flex;gap:8px"><span class="muted small" style="font-weight:700;min-width:18px">${i+1}.</span><span>${esc(ex)}</span></div>`).join("");
+  }
+  return `<div class="empty" style="padding:26px">No examples yet.<br><br><span class="small">Click <strong>Edit</strong> below to add some.</span></div>`;
 }
 
 /* Heatmap info content (used by the ⓘ button) */
@@ -874,7 +1514,6 @@ function render(){
     case "material":       html = viewMaterialDetail(view.id); break;
     case "import":         html = viewImport(); break;
     case "exercises":      html = viewExercises(); break;
-    /* NEW */
     case "exercise-form":  html = viewExerciseForm(view.id); break;
     case "practice":       html = viewPractice(); break;
     case "review":         html = viewReview(); break;
@@ -890,14 +1529,12 @@ function render(){
     if(view.name === "topic" || view.name === "topic-form") on = route === "topics";
     if(view.name === "material" || view.name === "material-form") on = route === "materials";
     if(view.name === "phase" || view.name === "phase-form") on = route === "roadmap";
-    /* NEW */
     if(view.name === "exercise-form") on = route === "exercises";
     n.classList.toggle("active", on);
   });
   const sf = document.getElementById("sideFoot");
   if(sf) sf.textContent = `${DB.topics.length} topics · ${DB.exercises.length} ex · ${DB.materials.length} materials`;
   if(modal) paintModal();
-  /* NEW: keep the exercise form's type-dependent fields in sync */
   if(view.name === "exercise-form") applyExTypeVisibility();
 }
 
@@ -1137,11 +1774,20 @@ function viewTopicForm(id){
   const editing = id && id !== "new";
   const t = editing ? findTopic(id) : null;
   if(editing && !t) return `<div class="empty">Topic not found.</div>`;
-  const d = t || {id:"", title:"", level:"A1", explanation:"", examples:[]};
+  const d = t || {id:"", title:"", level:"A1", explanation:"", examples:[], explanationFormat:"text", examplesFormat:"text"};
+  const richNote = (d.explanationFormat === "html" || d.examplesFormat === "html")
+    ? `<div class="alert-card blue" style="margin-bottom:16px">
+        <div class="head">ℹ This topic uses rich HTML content</div>
+        <div class="body">The explanation and/or examples contain HTML (tables, styled boxes, custom CSS).
+        Editing the plain-text fields below will <b>not</b> change the rich content. Open the topic and use the
+        <b>Explanation</b> / <b>Examples</b> cards to edit the rich version.</div>
+      </div>`
+    : "";
   return `
   <div class="btn-row" style="margin-bottom:14px"><button class="btn sm" data-action="go" data-route="topics">← All topics</button></div>
   <h1>${editing ? "Edit topic" : "Add topic"}</h1>
   <div class="sub">${editing ? "Update this topic's details." : "Create a new grammar topic."}</div>
+  ${richNote}
   <div class="card">
     <form id="topic-form" onsubmit="return false">
       <div class="form-grid">
@@ -1150,8 +1796,10 @@ function viewTopicForm(id){
           <select name="level">${LEVELS.map(l=>`<option value="${l}" ${d.level===l?"selected":""}>${l}</option>`).join("")}</select>
         </div>
         <div class="form-field"><label>ID (auto from title if blank)</label><input class="input mono" name="id" value="${esc(d.id)}" placeholder="e.g. present-perfect"></div>
-        <div class="form-field full"><label>Explanation</label><textarea class="input" name="explanation" rows="5" placeholder="Explain the rule in your own words…">${esc(d.explanation)}</textarea></div>
-        <div class="form-field full"><label>Examples (one per line)</label><textarea class="input" name="examples" rows="4" placeholder="I have seen this film three times.
+        <div class="form-field full"><label>Explanation (plain text)</label><textarea class="input" name="explanation" rows="5" placeholder="Explain the rule in your own words…">${esc(d.explanation)}</textarea>
+          <div class="small muted">Tip: open the topic and click the Explanation card to write rich HTML (tables, styled boxes, custom CSS), or to import its text from a PDF, PNG or TXT file.</div>
+        </div>
+        <div class="form-field full"><label>Examples (one per line, plain text)</label><textarea class="input" name="examples" rows="4" placeholder="I have seen this film three times.
 She has lived here since 2015.">${esc((d.examples||[]).join("\n"))}</textarea></div>
       </div>
       <div class="btn-row" style="margin-top:18px">
@@ -1216,22 +1864,29 @@ function viewTopicDetail(id){
     </div>`;
   }).join("") : `<div class="empty small">No linked materials. Open a material and tick this topic.</div>`;
 
-  const hasExplanation = !!(t.explanation && t.explanation.trim());
-  const exampleCount = (t.examples || []).length;
+  const hasExplanation = (t.explanationFormat === "html")
+    ? !!(t.explanationHtml && t.explanationHtml.trim())
+    : !!(t.explanation && t.explanation.trim());
+  const exampleCount = (t.examplesFormat === "html")
+    ? (t.examplesHtml && t.examplesHtml.trim() ? 1 : 0)
+    : (t.examples || []).length;
+  const explBadge = t.explanationFormat === "html" ? `<span class="badge blue" style="margin-left:6px">HTML</span>` : "";
+  const exBadge    = t.examplesFormat === "html"    ? `<span class="badge blue" style="margin-left:6px">HTML</span>` : "";
+
   const explanationCard = `
     <div class="card interactive-card" data-action="open-topic-modal" data-id="${esc(t.id)}" data-type="explanation">
-      <div class="between" style="margin-bottom:10px"><h3 style="margin:0">Explanation</h3><span class="open-hint">Open ↗</span></div>
+      <div class="between" style="margin-bottom:10px"><h3 style="margin:0">Explanation${explBadge}</h3><span class="open-hint">Open ↗</span></div>
       <div class="small muted" style="display:flex;align-items:center;gap:8px;padding:6px 0">
         <span style="font-size:18px">${hasExplanation ? "📘" : "＋"}</span>
-        <span>${hasExplanation ? "Click to read the full explanation" : "No explanation yet — click to add one"}</span>
+        <span>${hasExplanation ? "Click to read the full explanation" : "No explanation yet — click to write or import one (PDF / PNG / TXT / HTML)"}</span>
       </div>
     </div>`;
   const examplesCard = `
     <div class="card interactive-card" data-action="open-topic-modal" data-id="${esc(t.id)}" data-type="examples">
-      <div class="between" style="margin-bottom:10px"><h3 style="margin:0">Examples</h3><span class="open-hint">Open ↗</span></div>
+      <div class="between" style="margin-bottom:10px"><h3 style="margin:0">Examples${exBadge}</h3><span class="open-hint">Open ↗</span></div>
       <div class="small muted" style="display:flex;align-items:center;gap:8px;padding:6px 0">
         <span style="font-size:18px">${exampleCount ? "💬" : "＋"}</span>
-        <span>${exampleCount ? `${exampleCount} example${exampleCount === 1 ? "" : "s"} — click to view` : "No examples yet — click to add some"}</span>
+        <span>${exampleCount ? (t.examplesFormat === "html" ? "HTML content — click to view" : `${exampleCount} example${exampleCount === 1 ? "" : "s"} — click to view`) : "No examples yet — click to add some"}</span>
       </div>
     </div>`;
 
@@ -1799,7 +2454,6 @@ function viewHeatmap(){
   const startOfYear = new Date(year, 0, 1);
   const endOfYear = new Date(year, 11, 31);
 
-  /* Grid begins on the Sunday of the week containing Jan 1 */
   const gridStart = new Date(startOfYear);
   gridStart.setDate(gridStart.getDate() - gridStart.getDay());
 
@@ -1814,7 +2468,6 @@ function viewHeatmap(){
     weeks.push(week);
   }
 
-  /* Month labels: label the week column where the month changes (within the year) */
   const monthLabels = [];
   let lastMonth = -1;
   weeks.forEach((w, wi)=>{
@@ -1827,7 +2480,6 @@ function viewHeatmap(){
     }
   });
 
-  /* Year stats */
   let yrTotal = 0, yrActive = 0, yrCorrect = 0, yrAttempts = 0;
   Object.entries(activity).forEach(([k,v])=>{
     if(Number(k.slice(0,4)) !== year) return;
@@ -1843,14 +2495,12 @@ function viewHeatmap(){
   const yrAccuracy = pct(yrCorrect, yrAttempts);
   const streak = computeStreak(activity);
 
-  /* Best day */
   let bestCount = 0, bestKey = null;
   Object.entries(activity).forEach(([k,v])=>{
     if(Number(k.slice(0,4)) !== year) return;
     if(v > bestCount){ bestCount = v; bestKey = k; }
   });
 
-  /* Heatmap body: one column per week */
   const todayKey = dateKey(new Date());
   const cellsHTML = weeks.map(week => {
     const daysHTML = week.map(d => {
@@ -1867,7 +2517,6 @@ function viewHeatmap(){
     return `<div class="hm-week">${daysHTML}</div>`;
   }).join("");
 
-  /* Selected day details */
   let detailsHTML = "";
   if(hmSelectedDay){
     const d = parseDayKey(hmSelectedDay);
@@ -1926,7 +2575,6 @@ function viewHeatmap(){
     </div>`;
   }
 
-  /* Year navigation bounds */
   const currentYear = new Date().getFullYear();
   const canGoNext = year < currentYear;
 
@@ -2130,7 +2778,6 @@ You can also paste a plain array — the type will be guessed from the fields.'>
   </div>`;
 }
 
-/* ---- Detect the type of a single sample object ---- */
 function detectObjectKind(o){
   if(!o || typeof o !== "object") return null;
   let exScore = 0, matScore = 0, topScore = 0;
@@ -2176,7 +2823,6 @@ function coerceMaterial(o){
   };
 }
 
-/* Unified import validation — handles exercises, materials, topics, and full backups */
 function runImportValidation(text, format){
   const report = {
     total:0, validCount:0,
@@ -2241,7 +2887,6 @@ function runImportValidation(text, format){
   report.counts.topics    = bucket.topics.length;
   report.total = report.counts.materials + report.counts.exercises + report.counts.topics;
 
-  /* ---- Exercises ---- */
   {
     const seen = new Set();
     const existing = new Set(DB.exercises.map(x=>x.id));
@@ -2268,7 +2913,6 @@ function runImportValidation(text, format){
     });
   }
 
-  /* ---- Materials ---- */
   {
     const seen = new Set();
     const existing = new Set(DB.materials.map(x=>x.id));
@@ -2288,7 +2932,6 @@ function runImportValidation(text, format){
     });
   }
 
-  /* ---- Topics ---- */
   {
     const seen = new Set();
     const existing = new Set(DB.topics.map(x=>x.id));
@@ -2317,21 +2960,18 @@ function confirmImport(){
   let addedM = 0, addedE = 0, addedT = 0, addedA = 0;
   let createdTopics = 0;
 
-  /* Topics first (so exercises can link) */
   impState.valid.topics.forEach(t=>{
     const i = DB.topics.findIndex(x=>x.id === t.id);
     if(i >= 0) DB.topics[i] = t; else DB.topics.push(t);
     addedT++;
   });
 
-  /* Materials */
   impState.valid.materials.forEach(m=>{
     const i = DB.materials.findIndex(x=>x.id === m.id);
     if(i >= 0) DB.materials[i] = m; else DB.materials.push(m);
     addedM++;
   });
 
-  /* Exercises — optionally create missing stub topics */
   impState.valid.exercises.forEach(item=>{
     if(impState.createMissing && item.topic_id && !findTopic(item.topic_id)){
       createStubTopic(item.topic_id, item.material_id, item.level);
@@ -2342,7 +2982,6 @@ function confirmImport(){
     addedE++;
   });
 
-  /* Attempts (optional, from full backup) */
   if(Array.isArray(impState.valid.attempts) && impState.valid.attempts.length){
     const ids = new Set(DB.attempts.map(a=>a.id));
     impState.valid.attempts.forEach(a=>{
@@ -2353,7 +2992,6 @@ function confirmImport(){
     DB.studySeconds = Math.max(DB.studySeconds || 0, impState.valid.studySeconds);
   }
 
-  /* Roadmap (optional, from full backup) */
   let restoredRoadmap = false;
   if(impState.valid.roadmap){
     const rm = impState.valid.roadmap;
@@ -2384,7 +3022,6 @@ function confirmImport(){
   if(createdTopics) msg += `\nCreated ${createdTopics} missing topic${createdTopics===1?"":"s"}.`;
   alert(msg);
 
-  /* Go to the most relevant place */
   if(addedE) go("exercises");
   else if(addedM) go("materials");
   else if(addedT) go("topics");
@@ -2423,9 +3060,8 @@ function viewExercises(){
     .concat(DB.topics.map(t=>`<option value="${esc(t.id)}" ${exFilters.topic===t.id?"selected":""}>${esc(t.level)} · ${esc(t.title)}</option>`)).join("");
   const levelOpts = ['<option value="">All levels</option>']
     .concat(LEVELS.map(l=>`<option value="${l}" ${exFilters.level===l?"selected":""}>${l}</option>`)).join("");
-  const types = ["multiple_choice","fill_blank","error_correction","transformation","word_order","matching","completion","production"];
   const typeOpts = ['<option value="">All types</option>']
-    .concat(types.map(t=>`<option value="${t}" ${exFilters.type===t?"selected":""}>${typeLabel(t)}</option>`)).join("");
+    .concat(EXERCISE_TYPES.map(t=>`<option value="${t}" ${exFilters.type===t?"selected":""}>${typeLabel(t)}</option>`)).join("");
   if(exFilters.topic) list = list.filter(e=>e.topic_id===exFilters.topic);
   if(exFilters.level) list = list.filter(e=>e.level===exFilters.level);
   if(exFilters.type) list = list.filter(e=>e.type===exFilters.type);
@@ -2509,7 +3145,7 @@ function viewExercises(){
 }
 
 /* =========================================================
-   10b. EXERCISE FORM (NEW)
+   10b. EXERCISE FORM
    ========================================================= */
 const EX_ANSWER_HINTS = {
   multiple_choice:  "must match one of the options above, exactly",
@@ -3168,10 +3804,13 @@ function coerceTopic(o){
     explanation: o.explanation || "",
     examples: Array.isArray(o.examples)
       ? o.examples.map(String)
-      : (o.examples ? String(o.examples).split("|").map(s=>s.trim()).filter(Boolean) : [])
+      : (o.examples ? String(o.examples).split("|").map(s=>s.trim()).filter(Boolean) : []),
+    explanationFormat: o.explanationFormat || "text",
+    examplesFormat: o.examplesFormat || "text",
+    explanationHtml: o.explanationHtml || "",
+    examplesHtml: o.examplesHtml || ""
   };
 }
-const EXERCISE_TYPES = ["multiple_choice","fill_blank","error_correction","transformation","word_order","matching","completion","production"];
 
 function validateMaterialTopics(text, format, materialId, overwrite){
   const material = findMaterial(materialId);
@@ -3255,7 +3894,7 @@ document.addEventListener("click", (e)=>{
     case "new-material": go("material-form", "new"); break;
     case "edit-material": go("material-form", el.dataset.id); break;
 
-    /* ---------- NEW: exercise form navigation ---------- */
+    /* ---------- EXERCISE FORM NAVIGATION ---------- */
     case "new-exercise": {
       const r = el.dataset.returnRoute;
       exForm = {
@@ -3298,7 +3937,6 @@ document.addEventListener("click", (e)=>{
 
       if(!question){ alert("The question is required."); break; }
 
-      /* --- Resolve the grammar topic --- */
       let topic_id = "";
       const newToggle = document.getElementById("ex-new-topic-toggle");
       if(newToggle && newToggle.checked){
@@ -3314,7 +3952,9 @@ document.addEventListener("click", (e)=>{
           title: titleIn || titleFromId(newId),
           level: lvIn || level,
           explanation: "",
-          examples: []
+          examples: [],
+          explanationFormat: "text",
+          examplesFormat: "text"
         });
         topic_id = newId;
       } else {
@@ -3323,7 +3963,6 @@ document.addEventListener("click", (e)=>{
       }
       if(!topic_id){ alert("Please choose a grammar topic, or tick “Create a new topic instead”."); break; }
 
-      /* --- Build the exercise object --- */
       const ex = { id:"", topic_id, material_id, level, type, question, answer:"", explanation };
 
       if(type === "multiple_choice"){
@@ -3360,7 +3999,6 @@ document.addEventListener("click", (e)=>{
         ex.answer = answerRaw;
       }
 
-      /* --- Save --- */
       if(editing){
         const cur = findEx(el.dataset.id);
         if(!cur) break;
@@ -3567,25 +4205,107 @@ document.addEventListener("click", (e)=>{
     case "open-topic-modal": openTopicModal(el.dataset.id, el.dataset.type); break;
     case "modal-close": closeModal(); break;
     case "modal-backdrop": if(e.target === el) closeModal(); break;
-    case "modal-edit":
+
+    case "modal-edit": {
       if(!modal || modal.kind === "info") break;
+      const t = findTopic(modal.topicId);
+      if(!t) break;
+      const isExpl = modal.type === "explanation";
       modal.editing = true;
+      modal.mode = isExpl ? (t.explanationFormat || "text") : (t.examplesFormat || "text");
+      modal.importTab = "text";
+      modal.drafts = {
+        text: isExpl ? (t.explanation || "") : ((t.examples || []).join("\n")),
+        html: isExpl ? (t.explanationHtml || "") : (t.examplesHtml || "")
+      };
       paintModal();
-      setTimeout(()=>{
-        const ta = document.getElementById("modal-input");
-        if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
-      }, 0);
       break;
-    case "modal-cancel": if(!modal || modal.kind === "info") break; modal.editing = false; paintModal(); break;
+    }
+    case "modal-cancel":
+      if(!modal || modal.kind === "info") break;
+      modal.editing = false;
+      modal.drafts = null;
+      paintModal();
+      break;
     case "modal-save": {
       if(!modal || modal.kind === "info") break;
       const t = findTopic(modal.topicId);
       if(!t) break;
-      const ta = document.getElementById("modal-input");
-      const val = ta ? ta.value : "";
-      if(modal.type === "explanation"){ t.explanation = val; }
-      else { t.examples = val.split("\n").map(s=>s.trim()).filter(Boolean); }
+      /* Capture latest textarea value into drafts */
+      const taId = modal.mode === "html" ? "modal-input-html" : "modal-input";
+      const ta = document.getElementById(taId);
+      if(ta && modal.drafts) modal.drafts[modal.mode] = ta.value;
+
+      const isExpl = modal.type === "explanation";
+      if(isExpl){
+        if(modal.mode === "text"){
+          t.explanation = modal.drafts.text || "";
+          t.explanationFormat = "text";
+        } else {
+          t.explanationHtml = modal.drafts.html || "";
+          t.explanationFormat = "html";
+        }
+      } else {
+        if(modal.mode === "text"){
+          t.examples = (modal.drafts.text || "").split("\n").map(s=>s.trim()).filter(Boolean);
+          t.examplesFormat = "text";
+        } else {
+          t.examplesHtml = modal.drafts.html || "";
+          t.examplesFormat = "html";
+        }
+      }
       save(); closeModal(); render();
+      break;
+    }
+
+    /* ---------- MODE SWITCH (Text / HTML) ---------- */
+    case "set-mode": {
+      if(!modal || modal.kind !== "topic" || !modal.editing || !modal.drafts) break;
+      const newMode = el.dataset.mode;
+      if(modal.mode === newMode) break;
+      /* Sync current textarea first */
+      const curId = modal.mode === "html" ? "modal-input-html" : "modal-input";
+      const curTa = document.getElementById(curId);
+      if(curTa) modal.drafts[modal.mode] = curTa.value;
+      /* Auto-convert if target draft is empty */
+      if(newMode === "html" && !String(modal.drafts.html || "").trim()){
+        modal.drafts.html = textToHtml(modal.drafts.text || "");
+      } else if(newMode === "text" && !String(modal.drafts.text || "").trim()){
+        modal.drafts.text = htmlToText(modal.drafts.html || "");
+      }
+      modal.mode = newMode;
+      paintModal();
+      break;
+    }
+
+    /* ---------- RICH SNIPPET INSERTION ---------- */
+    case "rich-insert": {
+      const target = el.dataset.target;
+      const snippet = el.dataset.snippet;
+      insertRichSnippet(target, snippet);
+      break;
+    }
+
+    /* ---------- EXPLANATION IMPORT TABS ---------- */
+    case "expl-tab": {
+      if(!modal || modal.kind !== "topic" || modal.type !== "explanation" || !modal.editing) break;
+      if(modal.mode !== "text") break;
+      const ta = document.getElementById("modal-input");
+      if(ta && modal.drafts) modal.drafts.text = ta.value;
+      modal.importTab = el.dataset.tab || "text";
+      paintModal();
+      break;
+    }
+    case "expl-clear": {
+      if(!modal || modal.kind !== "topic") break;
+      const ta = document.getElementById("modal-input");
+      if(!ta) break;
+      if(ta.value.trim() && !confirm("Clear all the explanation text?")) break;
+      ta.value = "";
+      if(modal.drafts) modal.drafts.text = "";
+      setExplProgress(0);
+      setExplStatus("Cleared.", "ok");
+      ta.focus();
       break;
     }
 
@@ -3611,12 +4331,21 @@ document.addEventListener("click", (e)=>{
           DB.roadmap.phases.forEach(p=>{ if(p.topics) p.topics = p.topics.map(x=> x===t.id ? newId : x); });
           t.id = newId;
         }
-        t.title = title; t.level = level; t.explanation = explanation; t.examples = examples;
+        /* Only update plain-text fields — leave HTML fields alone */
+        t.title = title; t.level = level;
+        if(t.explanationFormat !== "html") t.explanation = explanation;
+        if(t.examplesFormat !== "html")    t.examples = examples;
+        if(!t.explanationFormat) t.explanationFormat = "text";
+        if(!t.examplesFormat) t.examplesFormat = "text";
         save(); go("topic", t.id);
       } else {
         const id = idInput || uniqueTopicId(title);
         if(findTopic(id)){ alert(`A topic with ID "${id}" already exists.`); break; }
-        DB.topics.push({id, title, level, explanation, examples});
+        DB.topics.push({
+          id, title, level, explanation, examples,
+          explanationFormat: "text",
+          examplesFormat: "text"
+        });
         save(); go("topic", id);
       }
       break;
@@ -3808,7 +4537,7 @@ past-simple,Past Simple,A2,"Use the past simple for finished actions at a known 
       const level = prompt(`Level (A1, A2, B1, B2, C1, C2):`, fallback);
       if(level === null) break;
       if(!LEVELS.includes(level)){ alert("Level must be one of A1, A2, B1, B2, C1, C2."); break; }
-      DB.topics.push({ id: ex.topic_id, title: title.trim(), level, explanation: "", examples: [] });
+      DB.topics.push({ id: ex.topic_id, title: title.trim(), level, explanation: "", examples: [], explanationFormat:"text", examplesFormat:"text" });
       save(); render();
       break;
     }
@@ -3972,13 +4701,59 @@ ex-002,${topicId},${materialId},B1,fill_blank,She _____ (live) in London since 2
   }
 });
 
+/* =========================================================
+   14b. FILE INPUT HANDLERS  (PDF / PNG / TXT into explanation)
+   ========================================================= */
+async function handleExplanationPdf(file){
+  if(!modal || modal.kind !== "topic") return;
+  setExplProgress(0.02);
+  setExplStatus("Loading PDF engine…", "info");
+  try{
+    const text = await extractPdfText(file, (msg, prog)=>{
+      setExplStatus(msg, "info");
+      if(typeof prog === "number") setExplProgress(prog);
+    });
+    if(!text){
+      setExplStatus("No selectable text was found in this PDF. If it is a scan or a photo, use the PNG tab (OCR) instead.", "warn");
+      setExplProgress(0);
+      return;
+    }
+    appendExplanationText(text);
+  }catch(err){
+    console.error(err);
+    setExplProgress(0);
+    setExplStatus("PDF import failed: " + (err && err.message ? err.message : err), "err");
+  }
+}
+
+async function handleExplanationPng(file){
+  if(!modal || modal.kind !== "topic") return;
+  setExplProgress(0.02);
+  setExplStatus("Loading OCR engine…", "info");
+  try{
+    const text = await extractPngText(file, (msg, prog)=>{
+      setExplStatus(msg, "info");
+      if(typeof prog === "number") setExplProgress(prog);
+    });
+    if(!text){
+      setExplStatus("No text could be recognised in this image. Try a sharper, higher-contrast scan or screenshot.", "warn");
+      setExplProgress(0);
+      return;
+    }
+    appendExplanationText(text);
+  }catch(err){
+    console.error(err);
+    setExplProgress(0);
+    setExplStatus("Image import failed: " + (err && err.message ? err.message : err), "err");
+  }
+}
+
 document.addEventListener("change", (e)=>{
   const id = e.target.id;
   if(id === "f-topic" || id === "f-level" || id === "f-type"){
     exFilters[id.slice(2)] = e.target.value;
     render(); return;
   }
-  /* NEW: exercise-form dynamic fields */
   if(id === "ex-type"){
     applyExTypeVisibility();
     return;
@@ -4009,6 +4784,35 @@ document.addEventListener("change", (e)=>{
     document.querySelectorAll('[data-topic-count]').forEach(el=>{ el.textContent = m.topics.length; });
     return;
   }
+
+  /* ---- Explanation import: TXT / PDF / PNG ---- */
+  if(id === "expl-txt-file" && e.target.files && e.target.files[0]){
+    const file = e.target.files[0];
+    e.target.value = "";
+    setExplProgress(0.3);
+    const reader = new FileReader();
+    reader.onload = () => {
+      appendExplanationText(String(reader.result || ""));
+    };
+    reader.onerror = () => {
+      setExplProgress(0);
+      setExplStatus("Could not read that text file.", "err");
+    };
+    reader.readAsText(file);
+    return;
+  }
+  if(id === "expl-pdf-file" && e.target.files && e.target.files[0]){
+    const file = e.target.files[0];
+    e.target.value = "";
+    handleExplanationPdf(file);
+    return;
+  }
+  if(id === "expl-png-file" && e.target.files && e.target.files[0]){
+    const file = e.target.files[0];
+    e.target.value = "";
+    handleExplanationPng(file);
+    return;
+  }
 });
 
 document.addEventListener("input", (e)=>{
@@ -4018,6 +4822,18 @@ document.addEventListener("input", (e)=>{
     render();
     const box = document.getElementById("f-q");
     if(box){ box.focus(); box.setSelectionRange(val.length, val.length); }
+    return;
+  }
+  /* Live update of the rich editor preview */
+  if(e.target.id === "modal-input-html"){
+    if(modal && modal.drafts) modal.drafts.html = e.target.value;
+    updateRichPreview("modal-input-html");
+    return;
+  }
+  /* Keep drafts in sync while typing in the text-mode textarea too */
+  if(e.target.id === "modal-input"){
+    if(modal && modal.drafts) modal.drafts.text = e.target.value;
+    return;
   }
 });
 
@@ -4051,7 +4867,7 @@ document.addEventListener("change", (e)=>{
 
 document.addEventListener("keydown", (e)=>{
   if(e.key === "Escape" && modal){
-    if(modal.kind !== "info" && modal.editing){ modal.editing = false; paintModal(); }
+    if(modal.kind !== "info" && modal.editing){ modal.editing = false; modal.drafts = null; paintModal(); }
     else closeModal();
   }
 });
