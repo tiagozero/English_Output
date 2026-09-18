@@ -373,7 +373,7 @@
   }
   .btn-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
 
-  /* FIX: the day list is scrollable, columns are wide enough,
+  /* the day list is scrollable, columns are wide enough,
      and task names are allowed to wrap instead of being cut off. */
   #daySection{
     flex:0 0 auto;max-height:38vh;overflow-y:auto;
@@ -561,15 +561,6 @@
     pace:       { file:'Pace-Reading.html', name:'Pace',           icon:'📖', cls:'p' }
   };
 
-  /* Which section inside each module a given resource belongs to.
-     Used to build deep links such as GrammarStudy.html#topics. */
-  const MODULE_SECTIONS = {
-    grammar:    { topic:'#topics', review:'#review' },
-    vocabulary: { word:'#review',  default:'#review' },
-    writepath:  { session:'#sessions' },
-    pace:       { text:'#library' }
-  };
-
   const PACE_DB    = 'pace-library-db';
   const PACE_DB_V  = 1;
   const PACE_STORE = 'texts';
@@ -652,30 +643,6 @@
   function num(n){
     const v = Number(n)||0;
     return v.toLocaleString();
-  }
-
-  /* ============================================================
-     DEEP LINKS
-     ============================================================ */
-  function moduleTarget(module, refId){
-    const raw = String(refId == null ? '' : refId);
-    const cut = raw.indexOf(':');
-    const prefix = cut >= 0 ? raw.slice(0, cut) : '';
-
-    switch(module){
-      case 'grammar':
-        return prefix === 'review'
-          ? MODULE_SECTIONS.grammar.review
-          : MODULE_SECTIONS.grammar.topic;
-      case 'vocabulary':
-        return MODULE_SECTIONS.vocabulary.default;
-      case 'writepath':
-        return MODULE_SECTIONS.writepath.session;
-      case 'pace':
-        return MODULE_SECTIONS.pace.text;
-      default:
-        return '';
-    }
   }
 
   /* ============================================================
@@ -1534,6 +1501,7 @@
                   data-act="day" data-day="${n}" title="${esc(label)}">${n}${taskCount?'<i class="ddot"></i>':''}</button>`;
       }).join('');
 
+      /* Phase resources — no “open in app” button anymore. */
       const resHTML = phase.resources.length ? phase.resources.map(r => {
         const mod = RES_MODULES[r.module] || { icon:'•', cls:'', name: r.module || 'Item' };
         const subBits = [mod.name, r.sub, r.meta].filter(Boolean).join(' · ');
@@ -1544,9 +1512,6 @@
               <span class="rtitle" title="${esc(r.label)}">${esc(r.label)}</span>
               <span class="rsub">${esc(subBits)}</span>
             </span>
-            <button type="button" class="rbtn" data-act="open"
-                    data-mod="${esc(r.module)}" data-ref="${esc(r.refId)}"
-                    title="Open in ${esc(mod.name)}">↗</button>
             <button type="button" class="rbtn${r.done?' on':''}" data-act="toggle" data-res="${esc(r.id)}"
                     title="${r.done ? 'Mark as not done' : 'Mark as done'}">${r.done ? '✓' : '○'}</button>
             <button type="button" class="rbtn" data-act="remove" data-res="${esc(r.id)}"
@@ -1659,11 +1624,6 @@
 
     const phaseEl = btn.closest('[data-phase]');
     if(!phaseEl) return;
-
-    if(act === 'open'){
-      go(btn.dataset.mod, moduleTarget(btn.dataset.mod, btn.dataset.ref));
-      return;
-    }
 
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === phaseEl.dataset.phase);
@@ -1857,17 +1817,13 @@
     dayNum = null;
   }
 
+  /* Row used for both day tasks and phase resources inside the modal.
+     The “open in app” button has been removed. */
   function dayRowHTML(item, kind){
     const mod = RES_MODULES[item.module] || { icon:'•', cls:'', name: item.module || 'Item', kind:'' };
     const toggleAct = kind === 'task' ? 'toggle-task' : 'toggle-res';
     const removeAct = kind === 'task' ? 'remove-task' : 'remove-res';
     const subBits = [mod.name, item.sub, item.meta].filter(Boolean).join(' · ');
-
-    const openBtn = mod.kind
-      ? `<button type="button" class="taskopen" data-act="open-module"
-                data-mod="${esc(item.module)}" data-ref="${esc(item.refId)}"
-                title="Open ${esc(mod.name)} · ${esc(mod.kind)}">↗ ${esc(mod.kind)}</button>`
-      : '';
 
     return `
       <div class="taskrow${item.done ? ' done' : ''}">
@@ -1880,7 +1836,6 @@
           <span class="rtitle" title="${esc(item.label)}">${esc(item.label)}</span>
           <span class="rsub">${esc(subBits)}${item.doneAt ? ' · done ' + esc(fmtDay(item.doneAt)) : ''}</span>
         </span>
-        ${openBtn}
         <button type="button" class="rbtn" data-act="${removeAct}" data-id="${esc(item.id)}"
                 title="Remove">✕</button>
       </div>`;
@@ -2245,7 +2200,6 @@
   background:#4f46e5;color:#fff;border-color:#4f46e5;
 }
 
-/* ---------- dark ---------- */
 #hub-fab-root.dark{color:#e8eaef}
 #hub-fab-root.dark .hub-fab{
   background:#818cf8;color:#0e1117;
@@ -2287,8 +2241,6 @@
 #hub-fab-root.dark .hub-fab-empty{color:#8b93a3}
 `;
 
-  /* What counts as "today": any task whose day's real calendar date is
-     today. Falls back to the next up day in the active phase. */
   function resolveTodayTasks(){
     const rm = readRoadmap();
     const today = todayKey();
@@ -2628,7 +2580,6 @@
         a.setAttribute('target', '_top');
       }
     });
-    /* inject the floating today-tasks button into the module */
     ensureFab(frame);
   }
 
@@ -2700,12 +2651,6 @@
     else if(act === 'remove-task') removeDayTask(btn.dataset.id);
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
-    else if(act === 'open-module'){
-      const mod = btn.dataset.mod;
-      const ref = btn.dataset.ref;
-      closeDayModal();
-      go(mod, moduleTarget(mod, ref));
-    }
   });
 
   $('#dayPickerToggle').addEventListener('click', () => {
