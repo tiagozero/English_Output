@@ -49,7 +49,6 @@
   .row.between{justify-content:space-between}
   .wrap{max-width:1080px;margin:0 auto;padding:22px}
 
-  /* top bar */
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 22px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
   .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em}
   .logo{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;font-size:14px}
@@ -61,7 +60,6 @@
   .iconbtn{background:transparent;border:1px solid transparent;padding:5px 9px;border-radius:9px;font-size:16px;line-height:1;color:var(--muted)}
   .iconbtn:hover{background:var(--hover2);color:var(--text)}
 
-  /* buttons */
   .btn{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:500;color:var(--text);transition:.13s}
   .btn:hover{background:var(--hover);border-color:var(--line-strong)}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -73,12 +71,10 @@
   .btn.sm{padding:4px 9px;font-size:13px;border-radius:7px}
   .btn:disabled{opacity:.45;cursor:not-allowed}
 
-  /* hero */
   .hero{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:18px}
   .hero p{color:var(--muted);max-width:620px}
   .hero .btn{margin-top:8px}
 
-  /* cards */
   .cards{display:grid;gap:12px}
   .scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap;cursor:pointer;transition:.13s}
   .scard:hover{border-color:var(--line-strong);box-shadow:0 2px 10px var(--shadow)}
@@ -87,7 +83,6 @@
 
   .eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
 
-  /* session header */
   .sessionbar{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
   .sessionmeta{color:var(--muted);font-size:13.5px}
   .tabs{display:flex;gap:2px;padding:0 22px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;position:sticky;top:47px;z-index:20}
@@ -95,7 +90,6 @@
   .tab:hover{color:var(--text)}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-  /* panels */
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px}
   .panel h3,.panel h4{margin-bottom:8px}
   label.field{display:block;margin-bottom:12px}
@@ -109,12 +103,9 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:700px){.grid2{grid-template-columns:1fr}}
 
-  /* chips */
   .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-size:13px;color:var(--text)}
   .chip:hover{background:var(--hover)}
   .chip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:500}
-  .chip.opening{border-style:dashed;color:var(--muted)}
-  .chip.opening:hover{border-style:solid;border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft)}
   .minichip{display:inline-block;background:var(--chip-bg);border-radius:6px;padding:2px 8px;font-size:12.5px;color:var(--muted);margin:0 4px 4px 0}
   .badge{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--chip-bg);color:var(--muted)}
   .badge.required{background:var(--accent-soft);color:var(--accent)}
@@ -123,7 +114,6 @@
   .badge.used{background:var(--green-soft);color:var(--green)}
   .badge.missing{background:var(--red-soft);color:var(--red)}
 
-  /* kind colors */
   .k-chunk .dot,.k-chunk .kdot{background:#6366f1}
   .k-collocation .dot,.k-collocation .kdot{background:#0ea5e9}
   .k-phrasalVerb .dot,.k-phrasalVerb .kdot{background:#14b8a6}
@@ -131,14 +121,12 @@
   .k-grammar .dot,.k-grammar .kdot{background:#ec4899}
   .k-timeExpression .dot,.k-timeExpression .kdot{background:#8b5cf6}
 
-  /* target list */
   .trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hover2)}
   .trow:last-child{border-bottom:0}
   .kdot{width:8px;height:8px;border-radius:50%;flex:none;background:#9ca3af}
   .trow .ttext{flex:1;min-width:0;font-weight:500}
   .trow select{width:auto;padding:3px 6px;font-size:12.5px;border-radius:7px}
 
-  /* sidebar chips */
   .tgroup{margin-bottom:14px}
   .tgroup:last-child{margin-bottom:0}
   .tgrouphead{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 2px}
@@ -156,7 +144,6 @@
   .lg.committed{background:var(--green-soft);border-color:var(--green-line)}
   .lg.live{background:var(--accent-soft);border-color:var(--accent-line)}
 
-  /* write layout */
   .writewrap{display:grid;grid-template-columns:1fr 306px;gap:16px;align-items:start}
   @media(max-width:900px){.writewrap{grid-template-columns:1fr}}
   .sidebar{position:sticky;top:110px;max-height:calc(100vh - 130px);overflow-y:auto}
@@ -164,12 +151,10 @@
   .instr{background:linear-gradient(180deg,var(--panel),var(--faint))}
   .instr h3{font-size:17px}
 
-  /* transcript */
   .sent{border-left:3px solid var(--line);padding:6px 0 6px 13px;margin-bottom:12px}
   .sent .stext{font-size:15.5px}
   .sent .smeta{font-size:12px;color:var(--muted);margin-top:3px}
 
-  /* node cards */
   .nodecard{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:14px 16px;margin-bottom:12px}
   .nodehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   .nodeidx{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:6px}
@@ -177,7 +162,6 @@
   .branchrow input{flex:1}
   .branchrow select{width:190px;flex:none}
 
-  /* review */
   .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
   @media(max-width:760px){.statgrid{grid-template-columns:repeat(2,1fr)}}
   .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
@@ -204,7 +188,6 @@
   .histrow .arrow{color:var(--muted)}
   .histrow .after{color:var(--green);font-weight:500}
 
-  /* progress table */
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
   th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--hover2);font-size:14px}
   th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--faint)}
@@ -212,12 +195,10 @@
   .usebar{height:6px;background:var(--bar);border-radius:99px;width:80px;overflow:hidden;display:inline-block;vertical-align:middle}
   .usebar > i{display:block;height:100%;background:var(--accent)}
 
-  /* import/export */
   pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
   details summary{cursor:pointer;user-select:none}
   details summary:hover{color:var(--text)}
 
-  /* toast */
   #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;opacity:0;pointer-events:none;transition:.2s;z-index:99}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -225,10 +206,8 @@
   .choice{border-color:var(--accent-line);background:linear-gradient(180deg,var(--panel),var(--faint))}
   .branchbtn{text-align:left}
 
-  /* reset row */
   .resetrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
 
-  /* library */
   .pickbanner{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
   .selbar{background:var(--panel);border:1px solid var(--accent-line);border-radius:var(--radius);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:100px;z-index:10;box-shadow:0 2px 8px var(--shadow)}
   .librow{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--hover2);border-radius:6px}
@@ -259,12 +238,10 @@
   .exhint{background:linear-gradient(180deg,var(--panel),var(--faint));border:1px solid var(--accent-line)}
   .exprev{background:var(--faint);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;margin-bottom:8px;color:var(--muted)}
 
-  /* topic card on Basic stage */
   .topiccard{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px}
   .topiccard .eyebrow{color:var(--accent)}
   .topiccard .topictext{font-size:15.5px;font-weight:500}
 
-  /* openings panel */
   .openings{background:var(--panel);border:1px solid var(--accent-line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
   .openings .openinglist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
   .openingrow{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px dashed var(--line-strong);border-radius:9px;background:var(--faint);text-align:left;font-size:14px;color:var(--text);transition:.13s;width:100%}
@@ -273,6 +250,17 @@
   .openingrow .optext{flex:1;min-width:0}
   .openingrow .opuse{font-size:11.5px;font-weight:600;color:var(--accent);opacity:0;transition:.13s}
   .openingrow:hover .opuse{opacity:1}
+
+  /* file status rows (selected terms mode) */
+  .filerow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);margin-bottom:6px}
+  .filerow.ok{border-color:var(--green-line);background:var(--green-soft)}
+  .filerow.topicrow{border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:14px}
+  .filerow .fl{display:flex;align-items:center;gap:8px;min-width:0}
+  .filerow .fl .status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px}
+  .filerow .fl .status.ok{background:var(--green);color:#fff}
+  .filerow .fl .status.missing{background:var(--chip-bg);color:var(--muted)}
+  .filerow .fl .fname{font-weight:600;font-size:14px}
+  .filerow .fl .fcount{color:var(--muted);font-size:12.5px}
 </style>
 </head>
 <body>
@@ -285,7 +273,6 @@
    WritePath — guided English writing practice
    ============================================================ */
 
-/* ---------- tiny helpers ---------- */
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $  = (sel, root = document) => root.querySelector(sel);
@@ -294,7 +281,6 @@ const wordsIn = t => (String(t).trim().match(/[A-Za-z0-9'’\-]+/g) || []).lengt
 const norm = t => String(t).toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
 const escRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/* ---------- constants ---------- */
 const KINDS = {
   chunk:          'Chunk',
   collocation:    'Collocation',
@@ -311,8 +297,9 @@ const THEME_KEY = 'writepath.theme';
 const BACKUP_APP = 'WritePath';
 const BACKUP_VERSION = 1;
 const EXPANSION_TYPE = 'Sentence Expansion';
+const EXPANSION_MODE_FULL = 'full';
+const EXPANSION_MODE_SELECTED = 'selected';
 
-/* The eight guided stages of a Sentence Expansion exercise. */
 const EXPANSION_STAGES = [
   { key:'basic',          label:'Basic',                hint:'Create a simple sentence.',                                                kind:null,             minWords:3,  example:"I've been studying." },
   { key:'chunk',          label:'Add a Chunk',          hint:'Expand the sentence using a target chunk.',                                kind:'chunk',          minWords:0,  example:"I've been studying English." },
@@ -324,7 +311,6 @@ const EXPANSION_STAGES = [
   { key:'final',          label:'Final Version',        hint:'Produce a natural B2–C1 sentence with at least 20 words.',                 kind:null,             minWords:20, example:'A polished, natural sentence of 20+ words preserving the original meaning.' }
 ];
 
-/* ---------- state ---------- */
 let state = { sessions: [], library: [] };
 let ui = {
   view:'home', sessionId:null, step:'setup', reviseDraft:{},
@@ -332,9 +318,8 @@ let ui = {
   libraryPickForSession:null
 };
 let theme = 'light';
-let pendingImportMode = 'targets'; // 'targets' | 'library' | 'backup'
+let pendingImportMode = 'targets';
 
-/* ---------- expansion helpers ---------- */
 function newExpansionState(){
   return {
     currentStage: 0,
@@ -370,8 +355,10 @@ function expansionPickedIds(s){
   return out;
 }
 function isExpansionSession(s){ return !!(s && s.textType === EXPANSION_TYPE); }
+function expansionMode(s){
+  return (s && s.expansionMode) === EXPANSION_MODE_SELECTED ? EXPANSION_MODE_SELECTED : EXPANSION_MODE_FULL;
+}
 
-/* ---------- persistence ---------- */
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
@@ -402,6 +389,7 @@ function hydrate(s){
   s.textType = s.textType || 'Journal';
   s.targetWords = s.targetWords ?? 120;
   s.openings = Array.isArray(s.openings) ? s.openings : [];
+  if(s.expansionMode !== EXPANSION_MODE_SELECTED) s.expansionMode = EXPANSION_MODE_FULL;
   s.nodes.forEach(n => { n.branches = n.branches || []; n.targetIds = n.targetIds || []; n.instruction = n.instruction || ''; });
   s.sentences.forEach(x => { x.usedTargetIds = x.usedTargetIds || []; x.manualUsedIds = x.manualUsedIds || []; x.original = x.original ?? x.text; });
   if(isExpansionSession(s)) ensureExpansion(s);
@@ -434,12 +422,10 @@ function toast(msg){
   toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
-/* ---------- theme ---------- */
 function applyTheme(){
   document.body.classList.toggle('dark', theme === 'dark');
 }
 
-/* ---------- session helpers ---------- */
 function newSession(){
   const now = Date.now();
   return {
@@ -447,20 +433,17 @@ function newSession(){
     createdAt: now, updatedAt: now,
     targets: [], nodes: [], sentences: [], revisions: [], manualUsed: [],
     currentNodeId: null, pathComplete: false, awaitingChoice: false,
-    draft: '', draftManual: [], expansion: null, openings: []
+    draft: '', draftManual: [], expansion: null, openings: [],
+    expansionMode: EXPANSION_MODE_FULL
   };
 }
-function currentSession(){
-  return state.sessions.find(s => s.id === ui.sessionId) || null;
-}
+function currentSession(){ return state.sessions.find(s => s.id === ui.sessionId) || null; }
 function countWords(s){ return s.sentences.reduce((a, x) => a + wordsIn(x.text), 0); }
 function committedUsed(s){
   const set = new Set();
   s.sentences.forEach(x => (x.usedTargetIds || []).forEach(id => set.add(id)));
   (s.manualUsed || []).forEach(id => set.add(id));
-  if(isExpansionSession(s) && s.expansion){
-    expansionPickedIds(s).forEach(id => set.add(id));
-  }
+  if(isExpansionSession(s) && s.expansion){ expansionPickedIds(s).forEach(id => set.add(id)); }
   return set;
 }
 function autoMatch(text, targets){
@@ -478,9 +461,7 @@ function autoMatch(text, targets){
 }
 function ensureCursor(s){
   if(!s.nodes.length || s.pathComplete) return;
-  if(!s.currentNodeId || !s.nodes.some(n => n.id === s.currentNodeId)){
-    s.currentNodeId = s.nodes[0].id;
-  }
+  if(!s.currentNodeId || !s.nodes.some(n => n.id === s.currentNodeId)){ s.currentNodeId = s.nodes[0].id; }
 }
 function advanceSequential(s){
   const i = s.nodes.findIndex(n => n.id === s.currentNodeId);
@@ -495,9 +476,6 @@ function nodeLabel(s, id){
 }
 function kindName(k){ return KINDS[k] || k; }
 
-/* ============================================================
-   LIBRARY HELPERS
-   ============================================================ */
 function addLibraryItemsToSession(libIds, session){
   let added = 0;
   const existing = new Set(session.targets.map(t => t.kind + '::' + norm(t.text)));
@@ -506,12 +484,8 @@ function addLibraryItemsToSession(libIds, session){
     if(!it) return;
     const key = it.kind + '::' + norm(it.text);
     if(existing.has(key)) return;
-    session.targets.push({
-      id: uid(), kind: it.kind, text: it.text,
-      requirement: it.requirement, group: it.group || ''
-    });
-    existing.add(key);
-    added++;
+    session.targets.push({ id: uid(), kind: it.kind, text: it.text, requirement: it.requirement, group: it.group || '' });
+    existing.add(key); added++;
   });
   if(added) session.updatedAt = Date.now();
   return added;
@@ -522,20 +496,12 @@ function saveTargetsToLibrary(targets){
   targets.forEach(t => {
     const key = t.kind + '::' + norm(t.text);
     if(existing.has(key)) return;
-    state.library.push({
-      id: uid(), kind: t.kind, text: t.text,
-      requirement: t.requirement, group: t.group || '',
-      tags: [], addedAt: Date.now()
-    });
-    existing.add(key);
-    added++;
+    state.library.push({ id: uid(), kind: t.kind, text: t.text, requirement: t.requirement, group: t.group || '', tags: [], addedAt: Date.now() });
+    existing.add(key); added++;
   });
   return added;
 }
 
-/* ============================================================
-   IMPORT / EXPORT
-   ============================================================ */
 function download(filename, content, type){
   const blob = new Blob([content], { type: type || 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -593,48 +559,38 @@ function normalizeItem(obj){
   return { kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '', tags };
 }
 
-/* ---------- JSON parser: extracts topic + openings ---------- */
+function readOpenings(raw){
+  if(Array.isArray(raw)) return raw.map(x => String(x).trim()).filter(Boolean);
+  if(typeof raw === 'string') return raw.split(/[\n|;]+/).map(x => x.trim()).filter(Boolean);
+  return [];
+}
+
 function parseJSONTargetsFull(text){
   let data = JSON.parse(text);
   let topic = '';
   let openings = [];
-
   if(data && !Array.isArray(data)){
-    // topic
     if(typeof data.topic === 'string') topic = data.topic.trim();
     else if(typeof data.Topic === 'string') topic = data.Topic.trim();
-
-    // openings (accept openings / Opening / opening)
-    const rawOpenings = data.openings ?? data.Openings ?? data.opening ?? data.Opening;
-    if(Array.isArray(rawOpenings)){
-      openings = rawOpenings.map(x => String(x).trim()).filter(Boolean);
-    } else if(typeof rawOpenings === 'string'){
-      openings = rawOpenings.split(/[\n|;]+/).map(x => x.trim()).filter(Boolean);
-    }
-
+    openings = readOpenings(data.openings ?? data.Openings ?? data.opening ?? data.Opening);
     if(Array.isArray(data.targets)) data = data.targets;
     else if(Array.isArray(data.items)) data = data.items;
     else if(Array.isArray(data.library)) data = data.library;
-    else throw new Error('Expected an array of items, or an object with "topic", "openings", and "items"/"targets".');
+    else throw new Error('Expected an array of items, or an object with "topic" and "items"/"targets".');
   }
   if(!Array.isArray(data)) throw new Error('Expected an array of items');
-
   const items = data.map(item => typeof item === 'string'
     ? { kind:'vocabulary', text:item.trim(), requirement:'optional', group:'', tags:[] }
     : normalizeItem(item)
   ).filter(Boolean);
   return { items, topic, openings };
 }
-
-/* ---------- CSV parser: no topic/openings ---------- */
 function parseCSVTargetsFull(text){
   const lines = text.split(/\r?\n/).filter(l => l.trim().length);
   if(!lines.length) return { items: [], topic: '', openings: [] };
   const first = lines[0].toLowerCase();
   const hasHeader = /\b(text|term|item|kind|type|requirement|group|tags)\b/.test(first);
-  const header = hasHeader
-    ? splitCSVLine(lines[0]).map(h => h.toLowerCase().trim())
-    : ['text','kind','requirement','group','tags'];
+  const header = hasHeader ? splitCSVLine(lines[0]).map(h => h.toLowerCase().trim()) : ['text','kind','requirement','group','tags'];
   const rows = hasHeader ? lines.slice(1) : lines;
   const items = rows.map(line => {
     const cells = splitCSVLine(line);
@@ -644,7 +600,6 @@ function parseCSVTargetsFull(text){
   }).filter(Boolean);
   return { items, topic: '', openings: [] };
 }
-
 function parseTargetsFile(name, text){
   const lower = name.toLowerCase();
   const trimmed = text.trim();
@@ -653,52 +608,46 @@ function parseTargetsFile(name, text){
   }
   return parseCSVTargetsFull(text);
 }
+/* Tolerant item extractor for per-kind files (array or wrapped object) */
+function extractItemsFromJSON(text){
+  let data = JSON.parse(text);
+  if(Array.isArray(data)) return data;
+  if(data && typeof data === 'object'){
+    if(Array.isArray(data.items)) return data.items;
+    if(Array.isArray(data.targets)) return data.targets;
+    if(Array.isArray(data.library)) return data.library;
+  }
+  throw new Error('No items array found.');
+}
 
 function exportTargetsCSV(s){
   const header = 'text,kind,requirement,group';
-  const rows = s.targets.map(t => [
-    csvCell(t.text), t.kind, t.requirement, csvCell(t.group || '')
-  ].join(','));
+  const rows = s.targets.map(t => [csvCell(t.text), t.kind, t.requirement, csvCell(t.group || '')].join(','));
   return [header, ...rows].join('\n') + '\n';
 }
 function exportLibraryCSV(){
   const header = 'text,kind,requirement,group,tags';
-  const rows = state.library.map(it => [
-    csvCell(it.text), it.kind, it.requirement, csvCell(it.group || ''),
-    csvCell((it.tags || []).join('|'))
-  ].join(','));
+  const rows = state.library.map(it => [csvCell(it.text), it.kind, it.requirement, csvCell(it.group || ''), csvCell((it.tags || []).join('|'))].join(','));
   return [header, ...rows].join('\n') + '\n';
 }
 
-/* ---------- FULL BACKUP (everything: library + sessions) ---------- */
 function buildBackup(){
   return {
-    app: BACKUP_APP,
-    version: BACKUP_VERSION,
-    exportedAt: new Date().toISOString(),
-    counts: {
-      sessions: state.sessions.length,
-      library: state.library.length,
+    app: BACKUP_APP, version: BACKUP_VERSION, exportedAt: new Date().toISOString(),
+    counts: { sessions: state.sessions.length, library: state.library.length,
       sentences: state.sessions.reduce((a, s) => a + s.sentences.length, 0),
-      targets: state.sessions.reduce((a, s) => a + s.targets.length, 0)
-    },
-    library: state.library,
-    sessions: state.sessions
+      targets: state.sessions.reduce((a, s) => a + s.targets.length, 0) },
+    library: state.library, sessions: state.sessions
   };
 }
 function downloadBackup(){
   const backup = buildBackup();
-  if(!backup.sessions.length && !backup.library.length){
-    toast('Nothing to export yet.');
-    return;
-  }
+  if(!backup.sessions.length && !backup.library.length){ toast('Nothing to export yet.'); return; }
   const stamp = new Date().toISOString().slice(0,10);
   download(`writepath-backup-${stamp}.json`, JSON.stringify(backup, null, 2), 'application/json');
   toast(`Exported ${backup.sessions.length} session${backup.sessions.length===1?'':'s'} + ${backup.library.length} library item${backup.library.length===1?'':'s'}`);
 }
-
-/* ---------- FULL RESTORE ---------- */
-function applyBackup(data, mode /* 'replace' | 'merge' */){
+function applyBackup(data, mode){
   const lib = Array.isArray(data.library) ? data.library : [];
   const sess = Array.isArray(data.sessions) ? data.sessions : [];
   if(mode === 'replace'){
@@ -719,39 +668,21 @@ function applyBackup(data, mode /* 'replace' | 'merge' */){
     existingLib.add(k); libAdded++;
   });
   let sessAdded = 0;
-  sess.forEach(s => {
-    state.sessions.push(hydrate({ ...s, id: uid() }));
-    sessAdded++;
-  });
+  sess.forEach(s => { state.sessions.push(hydrate({ ...s, id: uid() })); sessAdded++; });
   return { libAdded, sessAdded, replaced: false };
 }
 
-/* ============================================================
-   RENDER
-   ============================================================ */
 function sessionSteps(s){
-  if(isExpansionSession(s)){
-    return [
-      ['setup','Setup'],
-      ['targets','Target language'],
-      ['expand','Expand'],
-      ['review','Review']
-    ];
-  }
-  return [
-    ['setup','Setup'], ['targets','Target language'], ['path','Sentence path'],
-    ['write','Write'], ['review','Review'], ['revise','Revise']
-  ];
+  if(isExpansionSession(s)) return [['setup','Setup'],['targets','Target language'],['expand','Expand'],['review','Review']];
+  return [['setup','Setup'],['targets','Target language'],['path','Sentence path'],['write','Write'],['review','Review'],['revise','Revise']];
 }
 
 function render(){
   applyTheme();
   const app = $('#app');
-  if(ui.view === 'progress'){
-    app.innerHTML = renderProgress();
-  } else if(ui.view === 'library'){
-    app.innerHTML = renderLibrary();
-  } else if(ui.view === 'session' && currentSession()){
+  if(ui.view === 'progress'){ app.innerHTML = renderProgress(); }
+  else if(ui.view === 'library'){ app.innerHTML = renderLibrary(); }
+  else if(ui.view === 'session' && currentSession()){
     const s = currentSession();
     const valid = sessionSteps(s).map(x => x[0]);
     if(!valid.includes(ui.step)) ui.step = 'setup';
@@ -777,7 +708,6 @@ function topbar(active){
   </header>`;
 }
 
-/* ---------- HOME ---------- */
 function renderHome(){
   const sessions = state.sessions.slice().sort((a,b) => b.updatedAt - a.updatedAt);
   return `
@@ -793,25 +723,19 @@ function renderHome(){
       </div>
     </div>
     <div class="cards">
-      ${sessions.length ? sessions.map(sessionCard).join('') :
-        `<div class="empty">No sessions yet. Create your first one above.</div>`}
+      ${sessions.length ? sessions.map(sessionCard).join('') : `<div class="empty">No sessions yet. Create your first one above.</div>`}
     </div>
   </main>`;
 }
-
 function sessionCard(s){
   const used = committedUsed(s);
   const req = s.targets.filter(t => t.requirement === 'required');
   const reqUsed = req.filter(t => used.has(t.id)).length;
   const words = isExpansionSession(s) ? wordsIn(s.expansion?.stages?.final || '') : countWords(s);
-  const sentenceCount = isExpansionSession(s)
-    ? (s.expansion && s.expansion.completedAt ? 1 : 0)
-    : s.sentences.length;
+  const sentenceCount = isExpansionSession(s) ? (s.expansion && s.expansion.completedAt ? 1 : 0) : s.sentences.length;
   const status = isExpansionSession(s)
-    ? (s.expansion && s.expansion.completedAt ? 'Expansion complete'
-        : (s.expansion && (s.expansion.stages.basic || '').trim() ? 'Expanding' : 'Not started'))
-    : (s.sentences.length === 0 ? 'Not started'
-        : (s.reviewedAt ? 'Reviewed' : 'In progress'));
+    ? (s.expansion && s.expansion.completedAt ? 'Expansion complete' : (s.expansion && (s.expansion.stages.basic || '').trim() ? 'Expanding' : 'Not started'))
+    : (s.sentences.length === 0 ? 'Not started' : (s.reviewedAt ? 'Reviewed' : 'In progress'));
   return `<div class="scard" data-act="open-session" data-id="${s.id}">
     <div>
       <div class="eyebrow">${esc(s.textType)} · ${status}</div>
@@ -825,7 +749,6 @@ function sessionCard(s){
   </div>`;
 }
 
-/* ---------- LIBRARY ---------- */
 function renderLibrary(){
   const lib = state.library;
   const search = ui.librarySearch.trim().toLowerCase();
@@ -857,27 +780,19 @@ function renderLibrary(){
           <div class="muted small">Tick items below, then click “Add selected”.</div>
         </div>
         <button class="btn ghost" data-act="cancel-library-picker">Cancel</button>
-      </div>
-    ` : ''}
-
+      </div>` : ''}
     <div class="row between" style="align-items:flex-start; flex-wrap:wrap; gap:12px">
-      <div>
-        <h1 style="margin-bottom:4px">Library</h1>
-        <p class="muted" style="margin:0">Your reusable collection of target language across all sessions.</p>
-      </div>
+      <div><h1 style="margin-bottom:4px">Library</h1><p class="muted" style="margin:0">Your reusable collection of target language across all sessions.</p></div>
       <div class="row">
         <button class="btn" data-act="import-library">📥 Import terms (JSON / CSV)</button>
         <button class="btn" data-act="export-library-csv">📤 Export library (CSV)</button>
         <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
       </div>
     </div>
-
     <div class="panel" style="margin-top:16px">
       <h3>Add new item</h3>
       <div class="grid2">
-        <label class="field"><span>Type</span>
-          <select id="libKind">${Object.entries(KINDS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}</select>
-        </label>
+        <label class="field"><span>Type</span><select id="libKind">${Object.entries(KINDS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}</select></label>
         <label class="field"><span>Requirement</span>
           <select id="libReq">
             <option value="optional" selected>Optional</option>
@@ -886,20 +801,13 @@ function renderLibrary(){
           </select>
         </label>
       </div>
-      <label class="field"><span>Item</span>
-        <input type="text" id="libText" placeholder="e.g. take into account / as far as I'm concerned" />
-      </label>
+      <label class="field"><span>Item</span><input type="text" id="libText" placeholder="e.g. take into account / as far as I'm concerned" /></label>
       <div class="grid2">
-        <label class="field"><span>Group <span class="muted">(only for “choose one”)</span></span>
-          <input type="text" id="libGroup" placeholder="e.g. Linking words" />
-        </label>
-        <label class="field"><span>Tags <span class="muted">(comma-separated, optional)</span></span>
-          <input type="text" id="libTags" placeholder="e.g. B2, essay, opinion" />
-        </label>
+        <label class="field"><span>Group <span class="muted">(only for “choose one”)</span></span><input type="text" id="libGroup" placeholder="e.g. Linking words" /></label>
+        <label class="field"><span>Tags <span class="muted">(comma-separated, optional)</span></span><input type="text" id="libTags" placeholder="e.g. B2, essay, opinion" /></label>
       </div>
       <button class="btn primary" data-act="add-library-item">+ Add to library</button>
     </div>
-
     <div class="panel">
       <div class="row between" style="margin-bottom:10px">
         <input type="text" id="libSearch" value="${esc(ui.librarySearch)}" placeholder="Search library…" style="max-width:320px" />
@@ -910,14 +818,11 @@ function renderLibrary(){
         ${KIND_ORDER.map(k => `<button class="chip ${ui.libraryFilter===k?'on':''}" data-act="filter-library" data-kind="${k}">${KINDS[k]} (${counts[k]})</button>`).join('')}
       </div>
     </div>
-
     ${selected.size ? `
       <div class="selbar">
         <span><strong>${selected.size}</strong> selected</span>
         <div class="row">
-          ${pickFor ? `
-            <button class="btn primary" data-act="confirm-library-picker">Add selected to session</button>
-          ` : `
+          ${pickFor ? `<button class="btn primary" data-act="confirm-library-picker">Add selected to session</button>` : `
             <select id="bulkSessionSelect" style="width:auto; padding:6px 10px" ${sessions.length ? '' : 'disabled'}>
               ${sessions.length ? sessions.map(s => `<option value="${s.id}" ${defaultSession===s.id?'selected':''}>${esc(s.title || s.topic || 'Untitled session')}</option>`).join('') : '<option>— no sessions —</option>'}
             </select>
@@ -926,55 +831,39 @@ function renderLibrary(){
           `}
           <button class="btn ghost" data-act="clear-library-selection">Clear</button>
         </div>
-      </div>
-    ` : ''}
-
-    ${lib.length === 0 ? `
-      <div class="empty">Your library is empty. Add items above, or save target language from a session.</div>
-    ` : filtered.length === 0 ? `
-      <div class="empty">No items match your search or filter.</div>
-    ` : KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
-      <div class="panel">
-        <div class="eyebrow" style="display:flex;align-items:center;gap:6px">
-          <span class="kdot k-${kind}"></span>${KINDS[kind]} (${byKind[kind].length})
-        </div>
-        ${byKind[kind].map(it => {
-          const isSel = selected.has(it.id);
-          return `
-          <label class="librow ${isSel?'sel':''}">
-            <input type="checkbox" ${isSel?'checked':''} data-act="toggle-library-select" data-id="${it.id}" />
-            <span class="kdot k-${it.kind}"></span>
-            <span class="libtext">${esc(it.text)}</span>
-            ${it.requirement === 'chooseOne' && it.group ? `<span class="badge chooseOne">${esc(it.group)}</span>`
-              : it.requirement !== 'optional' ? `<span class="badge ${it.requirement}">${REQS[it.requirement]}</span>` : ''}
-            ${(it.tags||[]).map(tg => `<span class="minichip">${esc(tg)}</span>`).join('')}
-            <button class="btn ghost sm" data-act="del-library-item" data-id="${it.id}" title="Delete from library" type="button">✕</button>
-          </label>`;
-        }).join('')}
-      </div>
-    `).join('')}
+      </div>` : ''}
+    ${lib.length === 0 ? `<div class="empty">Your library is empty. Add items above, or save target language from a session.</div>`
+      : filtered.length === 0 ? `<div class="empty">No items match your search or filter.</div>`
+      : KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
+        <div class="panel">
+          <div class="eyebrow" style="display:flex;align-items:center;gap:6px"><span class="kdot k-${kind}"></span>${KINDS[kind]} (${byKind[kind].length})</div>
+          ${byKind[kind].map(it => {
+            const isSel = selected.has(it.id);
+            return `<label class="librow ${isSel?'sel':''}">
+              <input type="checkbox" ${isSel?'checked':''} data-act="toggle-library-select" data-id="${it.id}" />
+              <span class="kdot k-${it.kind}"></span>
+              <span class="libtext">${esc(it.text)}</span>
+              ${it.requirement === 'chooseOne' && it.group ? `<span class="badge chooseOne">${esc(it.group)}</span>` : it.requirement !== 'optional' ? `<span class="badge ${it.requirement}">${REQS[it.requirement]}</span>` : ''}
+              ${(it.tags||[]).map(tg => `<span class="minichip">${esc(tg)}</span>`).join('')}
+              <button class="btn ghost sm" data-act="del-library-item" data-id="${it.id}" title="Delete from library" type="button">✕</button>
+            </label>`;
+          }).join('')}
+        </div>`).join('')}
   </main>`;
 }
 
-/* ---------- SESSION SHELL ---------- */
 function renderSession(){
   const s = currentSession();
   const steps = sessionSteps(s);
   return `
   ${topbar('home')}
   <div class="sessionbar">
-    <div>
-      <div class="eyebrow">${esc(s.textType)}</div>
-      <h2>${esc(s.title || s.topic || 'Untitled session')}</h2>
-    </div>
+    <div><div class="eyebrow">${esc(s.textType)}</div><h2>${esc(s.title || s.topic || 'Untitled session')}</h2></div>
     <div class="sessionmeta" id="sessionmeta"></div>
   </div>
-  <div class="tabs">
-    ${steps.map(([k,l]) => `<button class="tab ${ui.step===k?'active':''}" data-act="step" data-step="${k}">${l}</button>`).join('')}
-  </div>
+  <div class="tabs">${steps.map(([k,l]) => `<button class="tab ${ui.step===k?'active':''}" data-act="step" data-step="${k}">${l}</button>`).join('')}</div>
   <main class="wrap">${stepContent(s)}</main>`;
 }
-
 function updateMeta(){
   const el = $('#sessionmeta');
   const s = currentSession();
@@ -987,7 +876,6 @@ function updateMeta(){
     el.textContent = `${countWords(s)} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'}`;
   }
 }
-
 function stepContent(s){
   switch(ui.step){
     case 'targets': return targetsStep(s);
@@ -1002,6 +890,8 @@ function stepContent(s){
 
 /* ---------- STEP: SETUP ---------- */
 function setupStep(s){
+  const isExp = isExpansionSession(s);
+  const mode = expansionMode(s);
   return `
   <div class="panel">
     <h3>Session setup</h3>
@@ -1009,7 +899,7 @@ function setupStep(s){
     <label class="field">
       <span>Topic / prompt</span>
       <textarea rows="2" data-sfield="topic" placeholder="e.g. A decision that changed my routine">${esc(s.topic)}</textarea>
-      <span class="muted small" style="font-weight:400">${isExpansionSession(s) ? 'Filled automatically from the <code>topic</code> field of your uploaded JSON.' : 'Tip: this can also come from the <code>topic</code> field in your uploaded JSON.'}</span>
+      <span class="muted small" style="font-weight:400">${isExp ? 'Filled automatically from the <code>topic</code> field of your exercise file.' : 'Tip: this can also come from the <code>topic</code> field in your uploaded JSON.'}</span>
     </label>
     <label class="field">
       <span>Title (optional)</span>
@@ -1018,25 +908,24 @@ function setupStep(s){
     <div class="grid2">
       <label class="field">
         <span>Text type</span>
-        <select data-sfield="textType">
-          ${TEXT_TYPES.map(t => `<option ${s.textType===t?'selected':''}>${t}</option>`).join('')}
-        </select>
+        <select data-sfield="textType">${TEXT_TYPES.map(t => `<option ${s.textType===t?'selected':''}>${t}</option>`).join('')}</select>
       </label>
       <label class="field">
-        <span>Target word count <span class="muted">(${isExpansionSession(s) ? 'final sentence minimum' : 'whole text'})</span></span>
+        <span>Target word count <span class="muted">(${isExp ? 'final sentence minimum' : 'whole text'})</span></span>
         <input type="number" min="0" step="10" data-sfield="targetWords" value="${s.targetWords}" />
       </label>
     </div>
     <button class="btn primary" data-act="step" data-step="targets">Next: target language →</button>
   </div>
 
-  ${isExpansionSession(s) ? `
+  ${isExp ? `
     <div class="panel exhint">
       <div class="eyebrow">Sentence Expansion mode</div>
       <h3 style="margin-top:2px">Build one sentence through eight guided stages</h3>
       <p class="small" style="margin-bottom:8px">
-        Upload a JSON file with your target language. The file <strong>must include</strong> a <code>topic</code>
-        and an <code>openings</code> array — the openings are the suggested starting points for your Basic sentence.
+        ${mode === EXPANSION_MODE_FULL
+          ? 'Upload a single JSON file containing the <strong>topic</strong>, <strong>openings</strong>, and every target-language item.'
+          : 'Upload one JSON for the <strong>topic</strong> first, then a separate JSON for each stage you want (Chunks, Collocations, Phrasal verbs, Vocabulary, Grammar, Time expressions). Only the topic file is required up front.'}
       </p>
       <ol class="small" style="margin:0 0 0 18px; padding:0; color:var(--muted)">
         ${EXPANSION_STAGES.map(st => `<li>${esc(st.label)} — ${esc(st.hint)}</li>`).join('')}
@@ -1050,6 +939,7 @@ function targetsStep(s){
   s.targets.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
   const reqCount = s.targets.filter(t => t.requirement === 'required').length;
   const isExp = isExpansionSession(s);
+  const mode = expansionMode(s);
   const nextStep = isExp ? 'expand' : 'path';
   const nextLabel = isExp ? 'Next: start expansion' : 'Next: build sentence path';
   const hasTopic = !!(s.topic || '').trim();
@@ -1058,35 +948,62 @@ function targetsStep(s){
   return `
   <div class="panel">
     <h3>Add target language</h3>
-    <p class="muted small">${isExp
-      ? 'Upload your JSON file — it is the source of truth. It must contain a topic and openings, plus the items each stage pulls from.'
-      : 'Add the chunks, collocations, phrasal verbs, vocabulary and grammar points you want to force yourself to use.'}</p>
-    <div class="row" style="margin-bottom:12px">
-      <button class="btn primary" data-act="import-targets">📥 Upload target language (JSON${isExp ? '' : ' / CSV'})</button>
-    </div>
-
     ${isExp ? `
-      <div class="panel" style="background:var(--faint); border-color:var(--line); box-shadow:none; margin:12px 0 0">
-        <div class="eyebrow">Exercise file status</div>
-        <div class="row" style="gap:10px; margin-top:4px">
-          <span class="chip ${hasTopic ? 'on' : ''}">${hasTopic ? '✓' : '✗'} topic</span>
-          <span class="chip ${openingsCount ? 'on' : ''}">${openingsCount ? '✓' : '✗'} openings${openingsCount ? ' ('+openingsCount+')' : ''}</span>
-        </div>
-        ${hasTopic ? `<div class="muted small" style="margin-top:8px"><strong>Topic:</strong> ${esc(s.topic)}</div>` : ''}
-        ${openingsCount ? `<div class="muted small" style="margin-top:4px"><strong>Openings:</strong> ${s.openings.map(o => esc(o)).join(' · ')}</div>` : ''}
+      <p class="muted small">Choose how to bring your exercise files in. You can switch at any time.</p>
+      <div class="row" style="margin-bottom:14px; gap:6px">
+        <button class="chip ${mode===EXPANSION_MODE_FULL?'on':''}" data-act="set-expansion-mode" data-mode="${EXPANSION_MODE_FULL}">Full terms — one JSON</button>
+        <button class="chip ${mode===EXPANSION_MODE_SELECTED?'on':''}" data-act="set-expansion-mode" data-mode="${EXPANSION_MODE_SELECTED}">Selected terms — one JSON per stage</button>
       </div>
-    ` : ''}
+    ` : `<p class="muted small">Add the chunks, collocations, phrasal verbs, vocabulary and grammar points you want to force yourself to use.</p>`}
+
+    ${!isExp ? `
+      <div class="row" style="margin-bottom:12px">
+        <button class="btn primary" data-act="import-targets">📥 Upload target language (JSON / CSV)</button>
+      </div>
+    ` : mode === EXPANSION_MODE_FULL ? `
+      <p class="muted small">Upload one JSON file containing <code>topic</code>, <code>openings</code>, and an <code>items</code> array. The topic and openings are required.</p>
+      <div class="row" style="margin-bottom:4px">
+        <button class="btn primary" data-act="import-targets">📥 Upload full exercise (JSON)</button>
+      </div>
+    ` : `
+      <p class="muted small">Upload the topic file first — it is required. Then upload a separate JSON for each stage you want. You can do this in any order, at any time.</p>
+
+      <div class="filerow topicrow">
+        <div class="fl">
+          <span class="status ${hasTopic?'ok':'missing'}">${hasTopic?'✓ Set':'Required'}</span>
+          <div>
+            <div class="fname">Topic file</div>
+            <div class="fcount">${hasTopic ? esc(s.topic) + (openingsCount ? ` · ${openingsCount} opening${openingsCount===1?'':'s'}` : '') : 'No topic set yet.'}</div>
+          </div>
+        </div>
+        <button class="btn ${hasTopic?'':'primary'}" data-act="import-topic">${hasTopic ? '↻ Replace topic' : '📥 Upload topic JSON'}</button>
+      </div>
+
+      <div class="eyebrow" style="margin:6px 0 6px 2px">Stage files <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">(optional — upload one per stage)</span></div>
+      ${KIND_ORDER.map(k => {
+        const cnt = (byKind[k] || []).length;
+        return `<div class="filerow ${cnt?'ok':''}">
+          <div class="fl">
+            <span class="status ${cnt?'ok':'missing'}">${cnt?'✓ Loaded':'Empty'}</span>
+            <span class="kdot k-${k}"></span>
+            <div>
+              <div class="fname">${kindName(k)}</div>
+              <div class="fcount">${cnt} item${cnt===1?'':'s'}</div>
+            </div>
+          </div>
+          <button class="btn sm" data-act="import-kind" data-kind="${k}">${cnt ? '↻ Add more' : '📥 Upload'}</button>
+        </div>`;
+      }).join('')}
+    `}
   </div>
 
   <div class="panel">
     <h3>Add item manually</h3>
     <div class="grid2">
-      <label class="field">
-        <span>Type</span>
+      <label class="field"><span>Type</span>
         <select id="ntKind">${Object.entries(KINDS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}</select>
       </label>
-      <label class="field">
-        <span>Requirement</span>
+      <label class="field"><span>Requirement</span>
         <select id="ntReq">
           <option value="required">Required — must appear</option>
           <option value="chooseOne">Choose one — pick from a group</option>
@@ -1094,12 +1011,10 @@ function targetsStep(s){
         </select>
       </label>
     </div>
-    <label class="field">
-      <span>Item</span>
+    <label class="field"><span>Item</span>
       <input type="text" id="ntText" placeholder="e.g. take into account / as far as I'm concerned / used to + verb" />
     </label>
-    <label class="field">
-      <span>Group name <span class="muted">(only for “choose one” — items sharing a group name compete)</span></span>
+    <label class="field"><span>Group name <span class="muted">(only for “choose one”)</span></span>
       <input type="text" id="ntGroup" placeholder="e.g. Linking words" />
     </label>
     <button class="btn primary" data-act="add-target">+ Add target</button>
@@ -1121,9 +1036,7 @@ function targetsStep(s){
     </div>
     ${s.targets.length ? KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
       <div style="margin-top:14px">
-        <div class="eyebrow" style="display:flex;align-items:center;gap:6px">
-          <span class="kdot k-${kind}"></span>${kindName(kind)}
-        </div>
+        <div class="eyebrow" style="display:flex;align-items:center;gap:6px"><span class="kdot k-${kind}"></span>${kindName(kind)}</div>
         ${byKind[kind].map(t => `
           <div class="trow">
             <span class="kdot k-${kind}"></span>
@@ -1142,42 +1055,61 @@ function targetsStep(s){
     <h3>Import &amp; export</h3>
     <p class="muted small">Back up and restore everything — all sessions and all library items — as one file.</p>
     <div class="row">
-      <button class="btn" data-act="import-targets">📥 Import terms (JSON${isExp ? '' : ' / CSV'})</button>
       <button class="btn" data-act="export-targets-csv">📤 Export this session's targets (CSV)</button>
       <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
       <button class="btn" data-act="import-all-data">📥 Import backup</button>
     </div>
+    ${isExp ? `
     <details style="margin-top:12px">
-      <summary class="muted small">File format (Sentence Expansion)</summary>
+      <summary class="muted small">Exercise file formats</summary>
       <div class="small" style="margin-top:10px">
-        <div class="eyebrow">Required JSON shape</div>
+        <div class="eyebrow">Full terms (one JSON)</div>
         <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">{
   "topic": "Building better study habits",
   "openings": [
     "I've been studying English...",
-    "Lately I've been trying to...",
-    "These days I want to..."
+    "Lately I've been trying to..."
   ],
   "items": [
     {"text": "at the end of the day", "kind": "chunk", "requirement": "required"},
-    {"text": "make a decision", "kind": "collocation", "requirement": "chooseOne", "group": "decisions"},
     {"text": "keep up with", "kind": "phrasalVerb", "requirement": "required"},
-    {"text": "these days", "kind": "timeExpression", "requirement": "optional"},
-    {"text": "used to + verb", "kind": "grammar", "requirement": "optional"}
+    {"text": "these days", "kind": "timeExpression", "requirement": "optional"}
   ]
 }</pre>
-        <p class="muted" style="margin-top:0"><strong>topic</strong> and <strong>openings</strong> are required for Sentence Expansion. Both are rejected if missing or empty. The <code>items</code> array can also be called <code>targets</code> or <code>library</code>.</p>
-        <p class="muted"><strong>CSV is not accepted for Sentence Expansion</strong> — it cannot carry the topic or openings cleanly. Use JSON.</p>
-        <p class="muted">Valid kinds: <code>chunk</code>, <code>collocation</code>, <code>phrasalVerb</code>, <code>vocabulary</code>, <code>grammar</code>, <code>timeExpression</code>. Valid requirements: <code>required</code>, <code>chooseOne</code>, <code>optional</code>.</p>
+        <div class="eyebrow">Topic file (selected terms mode)</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">{
+  "topic": "Building better study habits",
+  "openings": [
+    "I've been studying English...",
+    "Lately I've been trying to..."
+  ]
+}</pre>
+        <p class="muted" style="margin-top:0">Only <strong>topic</strong> is required in the topic file; <strong>openings</strong> are optional. If included, they become clickable starting points on the Basic stage.</p>
+        <div class="eyebrow">Stage file (one per kind)</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">[
+  {"text": "keep up with", "requirement": "required"},
+  {"text": "stick to", "requirement": "chooseOne", "group": "commitment verbs"},
+  {"text": "get through", "requirement": "chooseOne", "group": "commitment verbs"}
+]</pre>
+        <p class="muted" style="margin-top:0">A plain array (or an object with <code>items</code> / <code>targets</code> / <code>library</code>) works. The <code>kind</code> field is optional — each file's kind is set by which button you clicked (Chunks.json → chunk, Collocations.json → collocation, etc.).</p>
         <p class="muted">The <strong>Export all data</strong> file is a full backup (sessions + library) and can be restored with <strong>Import backup</strong>.</p>
       </div>
-    </details>
+    </details>` : `
+    <details style="margin-top:12px">
+      <summary class="muted small">File format examples</summary>
+      <div class="small" style="margin-top:10px">
+        <div class="eyebrow">Terms — JSON</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">[
+  {"text": "at the end of the day", "kind": "chunk", "requirement": "required"},
+  {"text": "make a decision", "kind": "collocation", "requirement": "chooseOne", "group": "decisions"}
+]</pre>
+      </div>
+    </details>`}
   </div>
 
   <button class="btn primary" data-act="step" data-step="${nextStep}">${nextLabel} →</button>`;
 }
 
-/* ---------- STEP: PATH ---------- */
 function pathStep(s){
   return `
   <div class="panel">
@@ -1185,15 +1117,12 @@ function pathStep(s){
     <p class="muted small">Each node is one sentence you will write. Give it an instruction, assign target language, and optionally add branches so you can choose where the text goes next.</p>
     <button class="btn primary" data-act="add-node">+ Add sentence node</button>
   </div>
-  ${s.nodes.length ? s.nodes.map((n, i) => nodeCard(s, n, i)).join('') :
-    `<div class="empty">No nodes yet. Add your first sentence node above — or skip this and write freely.</div>`}
+  ${s.nodes.length ? s.nodes.map((n, i) => nodeCard(s, n, i)).join('') : `<div class="empty">No nodes yet. Add your first sentence node above — or skip this and write freely.</div>`}
   ${s.nodes.length ? `<button class="btn primary" data-act="step" data-step="write">Start writing →</button>` : ''}`;
 }
-
 function nodeCard(s, n, i){
   const byKind = {};
   s.targets.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
-
   return `
   <div class="nodecard">
     <div class="nodehead">
@@ -1210,16 +1139,10 @@ function nodeCard(s, n, i){
         <div style="display:flex; flex-direction:column; gap:12px;">
           ${KIND_ORDER.filter(k => byKind[k] && byKind[k].length).map(kind => `
             <div>
-              <div class="eyebrow" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:11px;">
-                <span class="kdot k-${kind}"></span>${kindName(kind)}
-              </div>
-              <div class="row">
-                ${byKind[kind].map(t => `<button class="chip ${n.targetIds.includes(t.id)?'on':''}" data-act="toggle-node-target" data-id="${n.id}" data-tid="${t.id}">${esc(t.text)}</button>`).join('')}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      ` : `<span class="muted small">Add target language first.</span>`}
+              <div class="eyebrow" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:11px;"><span class="kdot k-${kind}"></span>${kindName(kind)}</div>
+              <div class="row">${byKind[kind].map(t => `<button class="chip ${n.targetIds.includes(t.id)?'on':''}" data-act="toggle-node-target" data-id="${n.id}" data-tid="${t.id}">${esc(t.text)}</button>`).join('')}</div>
+            </div>`).join('')}
+        </div>` : `<span class="muted small">Add target language first.</span>`}
     </div>
     <div class="field" style="margin-bottom:0">
       <span style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">Branches <span class="muted">(optional — if empty, the path continues to the next node)</span></span>
@@ -1237,12 +1160,10 @@ function nodeCard(s, n, i){
   </div>`;
 }
 
-/* ---------- sidebar grouping ---------- */
 function sidebarTargetsHTML(s, committed, auto, manual){
   if(!s.targets.length) return '<p class="muted small">No target language added.</p>';
   const groups = {};
   s.targets.forEach(t => (groups[t.kind] = groups[t.kind] || []).push(t));
-
   return KIND_ORDER.filter(k => groups[k] && groups[k].length).map(k => `
     <div class="tgroup">
       <div class="tgrouphead"><span class="kdot k-${k}"></span>${KINDS[k]}</div>
@@ -1258,7 +1179,6 @@ function sidebarTargetsHTML(s, committed, auto, manual){
     </div>`).join('');
 }
 
-/* ---------- STEP: WRITE ---------- */
 function writeStep(s){
   ensureCursor(s);
   const node = s.nodes.find(n => n.id === s.currentNodeId) || null;
@@ -1266,12 +1186,10 @@ function writeStep(s){
   const auto = autoMatch(s.draft || '', s.targets);
   const manual = new Set(s.draftManual || []);
   const awaiting = s.awaitingChoice && node && node.branches.length;
-
   let instruction;
   if(node) instruction = node.instruction || 'Write the next sentence.';
   else if(s.nodes.length) instruction = 'Free writing — the path is complete. Keep going or finish.';
   else instruction = 'Free writing — write any sentence that fits your topic.';
-
   const nodeTargets = node ? s.targets.filter(t => node.targetIds.includes(t.id)) : [];
   const hasAnyProgress = s.sentences.length > 0 || (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
   const hasDraft = (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
@@ -1284,20 +1202,12 @@ function writeStep(s){
         <h3>${esc(instruction)}</h3>
         ${nodeTargets.length ? `<div style="margin-top:8px">${nodeTargets.map(t => `<span class="minichip k-${t.kind}">${esc(t.text)}</span>`).join('')}</div>` : ''}
       </div>
-
       ${awaiting ? `
         <div class="panel choice">
           <h4>Where next?</h4>
           <p class="muted small">Sentence added. Choose the branch your text takes now.</p>
-          <div class="row">
-            ${node.branches.map(b => `<button class="btn branchbtn" data-act="choose-branch" data-id="${b.id}">
-              ${esc(b.label || 'Continue')} <span class="muted small">→ ${esc(nodeLabel(s, b.targetNodeId))}</span>
-            </button>`).join('')}
-          </div>
-          <div class="resetrow">
-            <span class="muted small">Added the wrong sentence?</span>
-            <button class="btn danger sm" data-act="undo-last-sentence">↶ Undo last sentence</button>
-          </div>
+          <div class="row">${node.branches.map(b => `<button class="btn branchbtn" data-act="choose-branch" data-id="${b.id}">${esc(b.label || 'Continue')} <span class="muted small">→ ${esc(nodeLabel(s, b.targetNodeId))}</span></button>`).join('')}</div>
+          <div class="resetrow"><span class="muted small">Added the wrong sentence?</span><button class="btn danger sm" data-act="undo-last-sentence">↶ Undo last sentence</button></div>
         </div>` : `
         <div class="panel">
           <textarea class="editor" data-draft rows="4" placeholder="Write one sentence…">${esc(s.draft || '')}</textarea>
@@ -1309,30 +1219,20 @@ function writeStep(s){
               <button class="btn primary" data-act="add-sentence">Add sentence →</button>
             </div>
           </div>
-          ${hasAnyProgress ? `
-            <div class="resetrow">
-              <span class="muted small">Start this writing session over from the first node.</span>
-              <button class="btn danger sm" data-act="reset-writing">↺ Reset all writing</button>
-            </div>` : ''}
+          ${hasAnyProgress ? `<div class="resetrow"><span class="muted small">Start this writing session over from the first node.</span><button class="btn danger sm" data-act="reset-writing">↺ Reset all writing</button></div>` : ''}
         </div>`}
-
       ${transcriptHTML(s)}
     </div>
-
     <aside class="sidebar">
       <div class="panel">
         <h4>Target language</h4>
         <p class="muted small">Matched items light up as you type. Click any item to mark it used in this sentence (grammar points aren’t auto-detected).</p>
         ${sidebarTargetsHTML(s, committed, auto, manual)}
-        <div class="legend">
-          <span class="lg committed"></span> used
-          <span class="lg live"></span> in this sentence
-        </div>
+        <div class="legend"><span class="lg committed"></span> used <span class="lg live"></span> in this sentence</div>
       </div>
     </aside>
   </div>`;
 }
-
 function transcriptHTML(s){
   if(!s.sentences.length) return '';
   return `<div class="panel">
@@ -1340,20 +1240,12 @@ function transcriptHTML(s){
     ${s.sentences.map((x, i) => {
       const node = s.nodes.find(n => n.id === x.nodeId);
       const usedTargets = s.targets.filter(t => (x.usedTargetIds||[]).includes(t.id));
-      return `<div class="sent">
-        <div class="stext">${esc(x.text)}</div>
-        <div class="smeta">
-          #${i + 1}${node ? ' · ' + esc(node.instruction || 'step') : ''}
-          ${usedTargets.length ? ' · ' + usedTargets.map(t => esc(t.text)).join(', ') : ''}
-        </div>
-      </div>`;
+      return `<div class="sent"><div class="stext">${esc(x.text)}</div><div class="smeta">#${i + 1}${node ? ' · ' + esc(node.instruction || 'step') : ''}${usedTargets.length ? ' · ' + usedTargets.map(t => esc(t.text)).join(', ') : ''}</div></div>`;
     }).join('')}
   </div>`;
 }
 
-/* ============================================================
-   STEP: EXPAND  (Sentence Expansion)
-   ============================================================ */
+/* ---------- STEP: EXPAND ---------- */
 function expandStep(s){
   const ex = ensureExpansion(s);
   const idx = Math.max(0, Math.min(EXPANSION_STAGES.length - 1, ex.currentStage));
@@ -1363,13 +1255,10 @@ function expandStep(s){
   const minWords = stage.minWords || 0;
   const isFinal = stage.key === 'final';
   const isLast = idx === EXPANSION_STAGES.length - 1;
-
   const picked = new Set(ex.picked[stage.key] || []);
   const stageTargets = stage.kind ? s.targets.filter(t => t.kind === stage.kind) : [];
-
   const prevKey = idx > 0 ? EXPANSION_STAGES[idx-1].key : null;
   const prevText = prevKey ? (ex.stages[prevKey] || '') : '';
-
   const missing = Array.from(picked).filter(id => {
     const t = s.targets.find(x => x.id === id);
     return t ? !textIncludes(curText, t.text) : false;
@@ -1379,8 +1268,7 @@ function expandStep(s){
     const filled = !!(ex.stages[st.key] || '').trim();
     const active = i === idx;
     return `<button class="exstage ${active?'active':''} ${filled && !active?'done':''}" data-act="expand-jump" data-idx="${i}">
-      <span class="exnum">${i+1}</span>
-      <span class="exlabel">${esc(st.label)}</span>
+      <span class="exnum">${i+1}</span><span class="exlabel">${esc(st.label)}</span>
     </button>`;
   }).join('');
 
@@ -1395,11 +1283,11 @@ function expandStep(s){
   }).join('');
 
   const counterHtml = `${wc} word${wc===1?'':'s'}${minWords?` · minimum ${minWords}`:''}${missing.length?` · <span style="color:var(--amber)">${missing.length} picked item${missing.length===1?'':'s'} not yet in the sentence</span>`:''}`;
-
   const showExtras = (stage.key === 'detail' || stage.key === 'connection');
   const extras = showExtras ? s.targets.filter(t => ['vocabulary','grammar','chunk','collocation','phrasalVerb','timeExpression'].includes(t.kind)) : [];
   const sessionTopic = (s.topic || '').trim();
   const openings = Array.isArray(s.openings) ? s.openings : [];
+  const missingKind = stage.kind && stageTargets.length === 0;
 
   return `
   <div class="writewrap">
@@ -1417,10 +1305,7 @@ function expandStep(s){
       </div>
 
       ${idx === 0 && sessionTopic ? `
-        <div class="topiccard">
-          <div class="eyebrow">Topic</div>
-          <div class="topictext">${esc(sessionTopic)}</div>
-        </div>` : ''}
+        <div class="topiccard"><div class="eyebrow">Topic</div><div class="topictext">${esc(sessionTopic)}</div></div>` : ''}
 
       ${idx === 0 && openings.length ? `
         <div class="openings">
@@ -1444,22 +1329,18 @@ function expandStep(s){
           </div>
           ${stageTargets.length ? `
             <p class="muted small">Click to mark the one(s) you’re going to use in this stage — they stay highlighted while you rewrite the sentence below.</p>
-            <div class="row">
-              ${stageTargets.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}">${esc(t.text)}</button>`).join('')}
-            </div>
+            <div class="row">${stageTargets.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}">${esc(t.text)}</button>`).join('')}</div>
           ` : `
-            <p class="muted small" style="margin:0">No ${esc(kindName(stage.kind).toLowerCase())} items in your targets. Add some in the <strong>Target language</strong> step, or just write the stage freely and continue.</p>
+            <p class="muted small" style="margin:0 0 8px">No ${esc(kindName(stage.kind).toLowerCase())} items loaded yet.</p>
+            <button class="btn sm" data-act="import-kind" data-kind="${stage.kind}">📥 Upload ${kindName(stage.kind)} JSON</button>
           `}
-        </div>
-      ` : ''}
+        </div>` : ''}
 
       ${showExtras && extras.length ? `
         <div class="panel">
           <h4 style="margin:0 0 6px">Optional target language</h4>
           <p class="muted small">You can weave any of these in to make the sentence richer.</p>
-          <div class="row">
-            ${extras.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}"><span class="kdot k-${t.kind}" style="margin-right:2px"></span>${esc(t.text)}</button>`).join('')}
-          </div>
+          <div class="row">${extras.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}"><span class="kdot k-${t.kind}" style="margin-right:2px"></span>${esc(t.text)}</button>`).join('')}</div>
         </div>` : ''}
 
       <div class="panel">
@@ -1487,63 +1368,41 @@ function expandStep(s){
     </div>
 
     <aside class="sidebar">
-      <div class="panel">
-        <h4>Stages</h4>
-        <div class="exstages">${stageList}</div>
-      </div>
-      <div class="panel">
-        <h4>Growth</h4>
-        <div class="exgrow">${growthRows || '<p class="muted small">Nothing written yet.</p>'}</div>
-      </div>
+      <div class="panel"><h4>Stages</h4><div class="exstages">${stageList}</div></div>
+      <div class="panel"><h4>Growth</h4><div class="exgrow">${growthRows || '<p class="muted small">Nothing written yet.</p>'}</div></div>
       ${s.targets.length ? `
         <div class="panel">
           <h4>All target language</h4>
-          <div class="row">
-            ${s.targets.map(t => `<span class="minichip k-${t.kind}">${esc(t.text)}</span>`).join('')}
-          </div>
+          <div class="row">${s.targets.map(t => `<span class="minichip k-${t.kind}">${esc(t.text)}</span>`).join('')}</div>
         </div>` : ''}
     </aside>
   </div>`;
 }
 
-/* ---------- STEP: REVIEW ---------- */
+/* ---------- REVIEW ---------- */
 function reviewStep(s){
   if(isExpansionSession(s)) return expansionReviewStep(s);
-
   const used = committedUsed(s);
   const total = countWords(s);
   const target = s.targetWords || 0;
   const pct = target ? Math.min(100, Math.round(total / target * 100)) : 0;
-
   const required = s.targets.filter(t => t.requirement === 'required');
   const missingRequired = required.filter(t => !used.has(t.id));
-
   const groups = {};
   s.targets.filter(t => t.requirement === 'chooseOne').forEach(t => {
     const g = (t.group || 'Group').trim() || 'Group';
     (groups[g] = groups[g] || []).push(t);
   });
   const unmetGroups = Object.entries(groups).filter(([, items]) => !items.some(t => used.has(t.id)));
-
   const analysis = analyzeSession(s);
 
   return `
   <div class="statgrid">
-    <div class="stat"><div class="lbl">Words</div><div class="num">${total}</div>
-      <div class="bar"><i style="width:${pct}%"></i></div>
-      <div class="muted small" style="margin-top:5px">target ${target || '—'}</div>
-    </div>
-    <div class="stat"><div class="lbl">Sentences</div><div class="num">${s.sentences.length}</div>
-      <div class="muted small" style="margin-top:5px">avg ${s.sentences.length ? Math.round(total / s.sentences.length) : 0} words</div>
-    </div>
-    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div>
-      <div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div>
-    </div>
-    <div class="stat"><div class="lbl">Grammar points</div><div class="num">${s.targets.filter(t => t.kind === 'grammar' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'grammar').length}</span></div>
-      <div class="muted small" style="margin-top:5px">used in your text</div>
-    </div>
+    <div class="stat"><div class="lbl">Words</div><div class="num">${total}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="muted small" style="margin-top:5px">target ${target || '—'}</div></div>
+    <div class="stat"><div class="lbl">Sentences</div><div class="num">${s.sentences.length}</div><div class="muted small" style="margin-top:5px">avg ${s.sentences.length ? Math.round(total / s.sentences.length) : 0} words</div></div>
+    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div><div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div></div>
+    <div class="stat"><div class="lbl">Grammar points</div><div class="num">${s.targets.filter(t => t.kind === 'grammar' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'grammar').length}</span></div><div class="muted small" style="margin-top:5px">used in your text</div></div>
   </div>
-
   <div class="panel">
     <h3>Missing requirements</h3>
     ${(missingRequired.length || unmetGroups.length) ? `
@@ -1551,121 +1410,75 @@ function reviewStep(s){
       ${unmetGroups.map(([g, items]) => `<div class="fb error"><span class="lvl">Choose one</span>Group “${esc(g)}” — none of these were used: ${items.map(t => esc(t.text)).join(', ')}.</div>`).join('')}
     ` : `<div class="fb tip"><span class="lvl">All clear</span> Every required item and every “choose one” group is covered. 🎉</div>`}
   </div>
-
   <div class="panel">
     <h3>Target language</h3>
     <div class="grid2">
       <div>
         <div class="eyebrow">Used (${used.size})</div>
-        ${s.targets.filter(t => used.has(t.id)).map(t => `
-          <div class="trow">
-            <span class="kdot k-${t.kind}"></span>
-            <span class="ttext">${esc(t.text)}</span>
-            <span class="badge used">${kindName(t.kind)}</span>
-            <button class="btn ghost sm" data-act="mark-used" data-id="${t.id}">unmark</button>
-          </div>`).join('') || '<p class="muted small">Nothing used yet.</p>'}
+        ${s.targets.filter(t => used.has(t.id)).map(t => `<div class="trow"><span class="kdot k-${t.kind}"></span><span class="ttext">${esc(t.text)}</span><span class="badge used">${kindName(t.kind)}</span><button class="btn ghost sm" data-act="mark-used" data-id="${t.id}">unmark</button></div>`).join('') || '<p class="muted small">Nothing used yet.</p>'}
       </div>
       <div>
         <div class="eyebrow">Unused (${s.targets.length - used.size})</div>
-        ${s.targets.filter(t => !used.has(t.id)).map(t => `
-          <div class="trow">
-            <span class="kdot k-${t.kind}"></span>
-            <span class="ttext">${esc(t.text)}</span>
-            <span class="badge ${t.requirement}">${t.requirement === 'chooseOne' ? esc(t.group || 'Choose one') : REQS[t.requirement]}</span>
-            <button class="btn sm" data-act="mark-used" data-id="${t.id}">mark used</button>
-          </div>`).join('') || '<p class="muted small">Everything was used. Nice.</p>'}
+        ${s.targets.filter(t => !used.has(t.id)).map(t => `<div class="trow"><span class="kdot k-${t.kind}"></span><span class="ttext">${esc(t.text)}</span><span class="badge ${t.requirement}">${t.requirement === 'chooseOne' ? esc(t.group || 'Choose one') : REQS[t.requirement]}</span><button class="btn sm" data-act="mark-used" data-id="${t.id}">mark used</button></div>`).join('') || '<p class="muted small">Everything was used. Nice.</p>'}
       </div>
     </div>
   </div>
-
   <div class="panel">
     <h3>Grammar &amp; naturalness feedback</h3>
-    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `
-      <div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('')
-      : '<p class="muted small">No session-level issues spotted.</p>'}
+    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `<div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('') : '<p class="muted small">No session-level issues spotted.</p>'}
   </div>
-
   <div class="panel">
     <h3>Sentence-by-sentence check</h3>
     ${s.sentences.length ? s.sentences.map((x, i) => {
       const issues = analysis.perSentence[i];
-      if(!issues.length) return `<div class="fb tip" style="background:var(--green-soft);border-color:var(--green-line)">
-        <span class="lvl" style="color:var(--green)">#${i+1} OK</span>${esc(x.text)}</div>`;
-      return `<div style="margin-bottom:12px">
-        <div class="quote">#${i + 1} ${esc(x.text)}</div>
-        ${issues.map(f => `<div class="fb ${f.level}" style="margin-top:6px"><span class="lvl">${f.level}</span>${esc(f.msg)}</div>`).join('')}
-      </div>`;
+      if(!issues.length) return `<div class="fb tip" style="background:var(--green-soft);border-color:var(--green-line)"><span class="lvl" style="color:var(--green)">#${i+1} OK</span>${esc(x.text)}</div>`;
+      return `<div style="margin-bottom:12px"><div class="quote">#${i + 1} ${esc(x.text)}</div>${issues.map(f => `<div class="fb ${f.level}" style="margin-top:6px"><span class="lvl">${f.level}</span>${esc(f.msg)}</div>`).join('')}</div>`;
     }).join('') : '<p class="muted small">No sentences written yet.</p>'}
   </div>
-
   <div class="panel">
     <h3>Sentences worth rewriting</h3>
-    ${analysis.suggestions.length ? analysis.suggestions.map(sg => `
-      <div class="trow">
-        <span class="ttext">#${sg.index + 1} ${esc(sg.text)}</span>
-        <span class="muted small">${esc(sg.reason)}</span>
-        <button class="btn sm" data-act="revise-jump" data-id="${sg.sentenceId}">Revise</button>
-      </div>`).join('') : '<p class="muted small">Nothing flagged. Your sentences read cleanly.</p>'}
+    ${analysis.suggestions.length ? analysis.suggestions.map(sg => `<div class="trow"><span class="ttext">#${sg.index + 1} ${esc(sg.text)}</span><span class="muted small">${esc(sg.reason)}</span><button class="btn sm" data-act="revise-jump" data-id="${sg.sentenceId}">Revise</button></div>`).join('') : '<p class="muted small">Nothing flagged. Your sentences read cleanly.</p>'}
   </div>
-
   <div class="row between" style="margin-top:14px">
     <button class="btn danger" data-act="reset-writing">↺ Reset all writing</button>
     <button class="btn primary" data-act="step" data-step="revise">Go to revision →</button>
   </div>`;
 }
 
-/* ---------- REVIEW (Sentence Expansion variant) ---------- */
 function expansionReviewStep(s){
   const ex = ensureExpansion(s);
   const finalText = (ex.stages.final || '').trim();
   const finalWc = wordsIn(finalText);
   const target = s.targetWords || 0;
   const pct = target ? Math.min(100, Math.round(finalWc / target * 100)) : 0;
-
   const used = committedUsed(s);
   const required = s.targets.filter(t => t.requirement === 'required');
   const missingRequired = required.filter(t => !used.has(t.id));
-
   const groups = {};
   s.targets.filter(t => t.requirement === 'chooseOne').forEach(t => {
     const g = (t.group || 'Group').trim() || 'Group';
     (groups[g] = groups[g] || []).push(t);
   });
   const unmetGroups = Object.entries(groups).filter(([, items]) => !items.some(t => used.has(t.id)));
-
   const analysis = analyzeSession(s);
 
   return `
   <div class="statgrid">
-    <div class="stat"><div class="lbl">Final words</div><div class="num">${finalWc}</div>
-      <div class="bar"><i style="width:${pct}%"></i></div>
-      <div class="muted small" style="margin-top:5px">target ${target || '—'} · min 20</div>
-    </div>
-    <div class="stat"><div class="lbl">Stages completed</div><div class="num">${EXPANSION_STAGES.filter(st => (ex.stages[st.key] || '').trim()).length}<span class="muted" style="font-size:16px">/${EXPANSION_STAGES.length}</span></div>
-      <div class="muted small" style="margin-top:5px">${ex.completedAt ? 'finished' : 'in progress'}</div>
-    </div>
-    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div>
-      <div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div>
-    </div>
-    <div class="stat"><div class="lbl">Time expressions</div><div class="num">${s.targets.filter(t => t.kind === 'timeExpression' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'timeExpression').length}</span></div>
-      <div class="muted small" style="margin-top:5px">used in your sentence</div>
-    </div>
+    <div class="stat"><div class="lbl">Final words</div><div class="num">${finalWc}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="muted small" style="margin-top:5px">target ${target || '—'} · min 20</div></div>
+    <div class="stat"><div class="lbl">Stages completed</div><div class="num">${EXPANSION_STAGES.filter(st => (ex.stages[st.key] || '').trim()).length}<span class="muted" style="font-size:16px">/${EXPANSION_STAGES.length}</span></div><div class="muted small" style="margin-top:5px">${ex.completedAt ? 'finished' : 'in progress'}</div></div>
+    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div><div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div></div>
+    <div class="stat"><div class="lbl">Time expressions</div><div class="num">${s.targets.filter(t => t.kind === 'timeExpression' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'timeExpression').length}</span></div><div class="muted small" style="margin-top:5px">used in your sentence</div></div>
   </div>
-
   <div class="panel">
     <h3>Expansion stages</h3>
     <div class="exgrow">
       ${EXPANSION_STAGES.map(st => {
         const txt = (ex.stages[st.key] || '').trim();
         if(!txt) return '';
-        return `<div class="exgrowrow ${st.key==='final'?'final':''}">
-          <span class="exglabel">${esc(st.label)}</span>
-          <span class="exgtext">${esc(txt)} <span class="muted small">· ${wordsIn(txt)}w</span></span>
-        </div>`;
+        return `<div class="exgrowrow ${st.key==='final'?'final':''}"><span class="exglabel">${esc(st.label)}</span><span class="exgtext">${esc(txt)} <span class="muted small">· ${wordsIn(txt)}w</span></span></div>`;
       }).join('') || '<p class="muted small">No stages written yet.</p>'}
     </div>
   </div>
-
   <div class="panel">
     <h3>Missing requirements</h3>
     ${(missingRequired.length || unmetGroups.length) ? `
@@ -1673,63 +1486,34 @@ function expansionReviewStep(s){
       ${unmetGroups.map(([g, items]) => `<div class="fb error"><span class="lvl">Choose one</span>Group “${esc(g)}” — none of these were used: ${items.map(t => esc(t.text)).join(', ')}.</div>`).join('')}
     ` : `<div class="fb tip"><span class="lvl">All clear</span> Every required item and every “choose one” group is covered. 🎉</div>`}
   </div>
-
   <div class="panel">
     <h3>Grammar &amp; naturalness feedback</h3>
-    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `
-      <div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('')
-      : '<p class="muted small">No issues spotted.</p>'}
+    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `<div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('') : '<p class="muted small">No issues spotted.</p>'}
   </div>
-
   <div class="row between" style="margin-top:14px">
     <button class="btn" data-act="step" data-step="expand">← Back to expansion</button>
     <button class="btn danger" data-act="reset-writing">↺ Reset all writing</button>
   </div>`;
 }
 
-/* ---------- STEP: REVISE ---------- */
 function reviseStep(s){
-  if(!s.sentences.length){
-    return `<div class="empty">Write some sentences first — then you can revise them here.</div>`;
-  }
+  if(!s.sentences.length) return `<div class="empty">Write some sentences first — then you can revise them here.</div>`;
   return `
-  <div class="panel">
-    <h3>Revise your sentences</h3>
-    <p class="muted small">Rewrite any sentence and keep the original for comparison. Target-language matches update automatically.</p>
-  </div>
+  <div class="panel"><h3>Revise your sentences</h3><p class="muted small">Rewrite any sentence and keep the original for comparison. Target-language matches update automatically.</p></div>
   ${s.sentences.map((x, i) => {
     const revs = (s.revisions || []).filter(r => r.sentenceId === x.id);
     const changed = x.text !== x.original;
     const draft = (x.id in ui.reviseDraft) ? ui.reviseDraft[x.id] : x.text;
     return `<div class="panel" id="rev-${x.id}">
-      <div class="row between" style="margin-bottom:8px">
-        <h4 style="margin:0">Sentence ${i + 1}</h4>
-        <span class="muted small">${esc(s.nodes.find(n => n.id === x.nodeId)?.instruction || 'free writing')}</span>
-      </div>
-      ${changed ? `<div class="compare">
-        <div><div class="lbl">Original</div><p class="quote">${esc(x.original)}</p></div>
-        <div><div class="lbl">Current</div><p class="quote rev">${esc(x.text)}</p></div>
-      </div>` : `<p class="quote">${esc(x.text)}</p>`}
-      <div style="margin-top:10px">
-        <textarea rows="3" data-revise="${x.id}" placeholder="Rewrite this sentence…">${esc(draft)}</textarea>
-      </div>
-      <div class="row" style="margin-top:9px">
-        <button class="btn primary" data-act="save-revision" data-id="${x.id}">Save revision</button>
-        ${changed ? `<button class="btn ghost" data-act="revert-revision" data-id="${x.id}">Revert to original</button>` : ''}
-      </div>
-      ${revs.length ? `<div class="history">
-        <div class="lbl">Revision history</div>
-        ${revs.map(r => `<div class="histrow">
-          <span class="before">${esc(r.before)}</span>
-          <span class="arrow">→</span>
-          <span class="after">${esc(r.after)}</span>
-        </div>`).join('')}
-      </div>` : ''}
+      <div class="row between" style="margin-bottom:8px"><h4 style="margin:0">Sentence ${i + 1}</h4><span class="muted small">${esc(s.nodes.find(n => n.id === x.nodeId)?.instruction || 'free writing')}</span></div>
+      ${changed ? `<div class="compare"><div><div class="lbl">Original</div><p class="quote">${esc(x.original)}</p></div><div><div class="lbl">Current</div><p class="quote rev">${esc(x.text)}</p></div></div>` : `<p class="quote">${esc(x.text)}</p>`}
+      <div style="margin-top:10px"><textarea rows="3" data-revise="${x.id}" placeholder="Rewrite this sentence…">${esc(draft)}</textarea></div>
+      <div class="row" style="margin-top:9px"><button class="btn primary" data-act="save-revision" data-id="${x.id}">Save revision</button>${changed ? `<button class="btn ghost" data-act="revert-revision" data-id="${x.id}">Revert to original</button>` : ''}</div>
+      ${revs.length ? `<div class="history"><div class="lbl">Revision history</div>${revs.map(r => `<div class="histrow"><span class="before">${esc(r.before)}</span><span class="arrow">→</span><span class="after">${esc(r.after)}</span></div>`).join('')}</div>` : ''}
     </div>`;
   }).join('')}`;
 }
 
-/* ---------- PROGRESS ---------- */
 function renderProgress(){
   const rows = computeProgress();
   const totalSessions = state.sessions.length;
@@ -1737,61 +1521,37 @@ function renderProgress(){
   const totalWords = state.sessions.reduce((a, s) => a + countWords(s), 0);
   const maxTimes = rows.reduce((a, r) => Math.max(a, r.times), 1);
   const totalLibrary = state.library.length;
-
   return `
   ${topbar('progress')}
   <main class="wrap">
     <div class="row between" style="align-items:flex-start">
-      <div>
-        <h1 style="margin-bottom:4px">Progress</h1>
-        <p class="muted" style="margin-bottom:18px">How often you have actually used each piece of target language across all sessions.</p>
-      </div>
+      <div><h1 style="margin-bottom:4px">Progress</h1><p class="muted" style="margin-bottom:18px">How often you have actually used each piece of target language across all sessions.</p></div>
     </div>
-
     <div class="statgrid" style="grid-template-columns:repeat(4,1fr)">
       <div class="stat"><div class="lbl">Sessions</div><div class="num">${totalSessions}</div></div>
       <div class="stat"><div class="lbl">Sentences</div><div class="num">${totalSentences}</div></div>
       <div class="stat"><div class="lbl">Words written</div><div class="num">${totalWords}</div></div>
       <div class="stat"><div class="lbl">Library items</div><div class="num">${totalLibrary}</div></div>
     </div>
-
     <div class="panel">
       <div class="row between" style="align-items:flex-start; flex-wrap:wrap; gap:10px">
-        <div>
-          <h3 style="margin-bottom:2px">Backup &amp; restore</h3>
-          <p class="muted small" style="margin:0">Export a single file containing every session, every library item, and all settings.</p>
-        </div>
-        <div class="row">
-          <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
-          <button class="btn" data-act="import-all-data">📥 Import backup</button>
-        </div>
+        <div><h3 style="margin-bottom:2px">Backup &amp; restore</h3><p class="muted small" style="margin:0">Export a single file containing every session, every library item, and all settings.</p></div>
+        <div class="row"><button class="btn primary" data-act="export-all-json">📤 Export all data</button><button class="btn" data-act="import-all-data">📥 Import backup</button></div>
       </div>
     </div>
-
     ${rows.length ? `
       <table>
         <thead><tr><th>Item</th><th>Type</th><th>Sessions</th><th>Times used</th><th></th></tr></thead>
-        <tbody>
-          ${rows.map(r => `<tr>
-            <td>${esc(r.text)}</td>
-            <td class="muted">${kindName(r.kind)}</td>
-            <td>${r.sessions}</td>
-            <td>${r.times}</td>
-            <td><span class="usebar"><i style="width:${Math.round(r.times / maxTimes * 100)}%"></i></span></td>
-          </tr>`).join('')}
-        </tbody>
+        <tbody>${rows.map(r => `<tr><td>${esc(r.text)}</td><td class="muted">${kindName(r.kind)}</td><td>${r.sessions}</td><td>${r.times}</td><td><span class="usebar"><i style="width:${Math.round(r.times / maxTimes * 100)}%"></i></span></td></tr>`).join('')}</tbody>
       </table>` : `<div class="empty">No target language tracked yet. Create a session and add some targets.</div>`}
   </main>`;
 }
-
 function computeProgress(){
   const map = new Map();
   for(const s of state.sessions){
     const usedInSession = committedUsed(s);
     const counts = {};
-    for(const sen of s.sentences){
-      (sen.usedTargetIds || []).forEach(id => counts[id] = (counts[id] || 0) + 1);
-    }
+    for(const sen of s.sentences){ (sen.usedTargetIds || []).forEach(id => counts[id] = (counts[id] || 0) + 1); }
     for(const t of s.targets){
       const key = t.kind + '::' + norm(t.text);
       if(!map.has(key)) map.set(key, { text: t.text, kind: t.kind, sessions: 0, times: 0 });
@@ -1803,13 +1563,10 @@ function computeProgress(){
   return Array.from(map.values()).sort((a, b) => b.times - a.times || b.sessions - a.sessions);
 }
 
-/* ============================================================
-   FEEDBACK ENGINE
-   ============================================================ */
 const SPELLING = [
   [/\balot\b/gi, '"alot" is two words: "a lot".'],
   [/\bteh\b/gi, 'Typo: "teh" → "the".'],
-  [/\brecieve\w*/gi, 'Spelling: "receive" (i before e except after c).'],
+  [/\brecieve\w*/gi, 'Spelling: "receive".'],
   [/\bseperate\w*/gi, 'Spelling: "separate".'],
   [/\bdefinately\b/gi, 'Spelling: "definitely".'],
   [/\bbecuase\b/gi, 'Spelling: "because".'],
@@ -1820,12 +1577,7 @@ const SPELLING = [
   [/\bgoverment\b/gi, 'Spelling: "government".'],
   [/\b(could|would|should|must|might)\s+of\b/gi, 'Use "have", not "of": could have / would have.']
 ];
-const APOSTROPHE = {
-  dont:"don't", cant:"can't", wont:"won't", isnt:"isn't", didnt:"didn't",
-  doesnt:"doesn't", wasnt:"wasn't", werent:"weren't", im:"I'm", ive:"I've",
-  youre:"you're", theyre:"they're", thats:"that's", wouldnt:"wouldn't",
-  couldnt:"couldn't", shouldnt:"shouldn't", hasnt:"hasn't", havent:"haven't"
-};
+const APOSTROPHE = { dont:"don't", cant:"can't", wont:"won't", isnt:"isn't", didnt:"didn't", doesnt:"doesn't", wasnt:"wasn't", werent:"weren't", im:"I'm", ive:"I've", youre:"you're", theyre:"they're", thats:"that's", wouldnt:"wouldn't", couldnt:"couldn't", shouldnt:"shouldn't", hasnt:"hasn't", havent:"haven't" };
 const FILLERS = ['very','really','just','actually','basically','quite','totally','stuff','things','nice','good','a lot'];
 
 function analyzeSentence(text){
@@ -1833,64 +1585,35 @@ function analyzeSentence(text){
   const t = String(text).trim();
   if(!t) return issues;
   const add = (level, msg) => issues.push({ level, msg });
-
   if(/^[a-z]/.test(t)) add('error', 'This sentence starts with a lowercase letter.');
   if(!/[.!?…"')\]]\s*$/.test(t)) add('error', 'This sentence has no ending punctuation.');
-
   if(/\s{2,}/.test(t)) add('warn', 'Double space detected.');
   if(/\s+[,.;:!?]/.test(t)) add('warn', 'There is a space before a punctuation mark.');
   if(/[,;:][^\s\d]/.test(t)) add('warn', 'Missing space after a punctuation mark.');
-
   if(/(^|\s)i(\s|$)/.test(t)) add('error', 'The pronoun "I" is always capitalized.');
-
   const rep = t.match(/\b(\w+)\s+\1\b/i);
   if(rep) add('error', `Repeated word: “${rep[1]} ${rep[1]}”.`);
-
   const aVowel = t.match(/\ba\s+([A-Za-z]\w*)/);
-  if(aVowel && /^[aeiou]/i.test(aVowel[1]) && !/^(uni|use|usu|eu|one|ubiq)/i.test(aVowel[1])){
-    add('warn', `Use “an” before “${aVowel[1]}”.`);
-  }
+  if(aVowel && /^[aeiou]/i.test(aVowel[1]) && !/^(uni|use|usu|eu|one|ubiq)/i.test(aVowel[1])) add('warn', `Use “an” before “${aVowel[1]}”.`);
   const anCons = t.match(/\ban\s+([A-Za-z]\w*)/);
-  if(anCons && /^[bcdfgjklmnpqrstvwxyz]/i.test(anCons[1]) && !/^(hour|honest|honor|heir|herb)/i.test(anCons[1])){
-    add('warn', `Use “a” before “${anCons[1]}”.`);
-  }
-
-  for(const [re, msg] of SPELLING){
-    if(re.test(t)) add('error', msg);
-  }
+  if(anCons && /^[bcdfgjklmnpqrstvwxyz]/i.test(anCons[1]) && !/^(hour|honest|honor|heir|herb)/i.test(anCons[1])) add('warn', `Use “a” before “${anCons[1]}”.`);
+  for(const [re, msg] of SPELLING){ if(re.test(t)) add('error', msg); }
   const lower = t.toLowerCase();
-  for(const bad in APOSTROPHE){
-    const re = new RegExp('\\b' + bad + '\\b');
-    if(re.test(lower)) add('warn', `Missing apostrophe: “${bad}” → “${APOSTROPHE[bad]}”.`);
-  }
-
+  for(const bad in APOSTROPHE){ if(new RegExp('\\b' + bad + '\\b').test(lower)) add('warn', `Missing apostrophe: “${bad}” → “${APOSTROPHE[bad]}”.`); }
   const wc = wordsIn(t);
   if(wc > 34) add('tip', `This sentence is ${wc} words long — consider splitting it into two.`);
   if(wc < 4) add('tip', 'This sentence is very short. Is it doing enough work?');
-
   const filler = FILLERS.find(f => new RegExp('\\b' + escRe(f) + '\\b', 'i').test(t));
   if(filler) add('tip', `“${filler}” is a weak filler word — a more specific word usually reads better.`);
-
-  if(/\b(is|are|was|were|be|been|being)\s+\w+(ed|en)\b/i.test(t)){
-    add('tip', 'Possible passive voice — an active version is usually clearer and more direct.');
-  }
-  if(/^(there\s+(is|are|was|were))\b/i.test(t)){
-    add('tip', 'Starting with “there is/are” is flat. Try leading with the real subject.');
-  }
-  if(/^(and|but|so)\b/i.test(t)){
-    add('tip', 'Starting a sentence with a conjunction is fine in informal writing — just be aware of it.');
-  }
+  if(/\b(is|are|was|were|be|been|being)\s+\w+(ed|en)\b/i.test(t)) add('tip', 'Possible passive voice — an active version is usually clearer and more direct.');
+  if(/^(there\s+(is|are|was|were))\b/i.test(t)) add('tip', 'Starting with “there is/are” is flat. Try leading with the real subject.');
+  if(/^(and|but|so)\b/i.test(t)) add('tip', 'Starting a sentence with a conjunction is fine in informal writing — just be aware of it.');
   return issues;
 }
-
 function analyzeSession(s){
   const perSentence = s.sentences.map(x => analyzeSentence(x.text));
-
   const sessionFeedback = [];
-  if(!s.sentences.length){
-    return { perSentence, sessionFeedback, suggestions: [] };
-  }
-
+  if(!s.sentences.length) return { perSentence, sessionFeedback, suggestions: [] };
   const total = countWords(s);
   if(!isExpansionSession(s) && s.targetWords && total < s.targetWords * 0.75){
     sessionFeedback.push({ level:'warn', msg:`You are under your target: ${total} of ${s.targetWords} words.` });
@@ -1898,7 +1621,6 @@ function analyzeSession(s){
   if(!isExpansionSession(s) && s.targetWords && total > s.targetWords * 1.4){
     sessionFeedback.push({ level:'tip', msg:`You went well past your target (${total} vs ${s.targetWords} words). Cutting usually strengthens a text.` });
   }
-
   const openers = {};
   s.sentences.forEach(x => {
     const w = (x.text.trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^a-z']/g, '');
@@ -1907,45 +1629,29 @@ function analyzeSession(s){
   Object.entries(openers).filter(([, c]) => c >= 3).forEach(([w, c]) => {
     sessionFeedback.push({ level:'tip', msg:`${c} sentences begin with “${w}”. Varying your openers makes the writing flow better.` });
   });
-
   const allWords = s.sentences.flatMap(x => (x.text.toLowerCase().match(/[a-z']+/g) || []));
   const unique = new Set(allWords);
   if(allWords.length > 40){
     const ttr = unique.size / allWords.length;
-    if(ttr < 0.45){
-      sessionFeedback.push({ level:'tip', msg:`Your vocabulary repeats a lot (type–token ratio ${ttr.toFixed(2)}). Try swapping in more precise words.` });
-    }
+    if(ttr < 0.45) sessionFeedback.push({ level:'tip', msg:`Your vocabulary repeats a lot (type–token ratio ${ttr.toFixed(2)}). Try swapping in more precise words.` });
   }
-
   const lens = s.sentences.map(x => wordsIn(x.text));
   if(lens.length >= 4){
     const avg = lens.reduce((a, b) => a + b, 0) / lens.length;
     const variance = lens.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / lens.length;
-    if(Math.sqrt(variance) < 2.5){
-      sessionFeedback.push({ level:'tip', msg:'All your sentences are a similar length. Mix short punchy sentences with longer ones for rhythm.' });
-    }
+    if(Math.sqrt(variance) < 2.5) sessionFeedback.push({ level:'tip', msg:'All your sentences are a similar length. Mix short punchy sentences with longer ones for rhythm.' });
   }
-
   const errCount = perSentence.flat().filter(f => f.level === 'error').length;
-  if(errCount === 0){
-    sessionFeedback.push({ level:'tip', msg:'No basic grammar or punctuation errors detected. Solid control.' });
-  } else {
-    sessionFeedback.push({ level:'warn', msg:`${errCount} basic error${errCount === 1 ? '' : 's'} detected across your sentences — see the list below.` });
-  }
-
+  if(errCount === 0) sessionFeedback.push({ level:'tip', msg:'No basic grammar or punctuation errors detected. Solid control.' });
+  else sessionFeedback.push({ level:'warn', msg:`${errCount} basic error${errCount === 1 ? '' : 's'} detected across your sentences — see the list below.` });
   const suggestions = [];
   perSentence.forEach((issues, i) => {
     const x = s.sentences[i];
     const serious = issues.filter(f => f.level === 'error' || f.level === 'warn');
-    if(serious.length){
-      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: serious[0].msg });
-    } else if(issues.length >= 2){
-      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: issues[0].msg });
-    } else if(wordsIn(x.text) > 30){
-      suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason:'Very long — could be split or tightened.' });
-    }
+    if(serious.length) suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: serious[0].msg });
+    else if(issues.length >= 2) suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason: issues[0].msg });
+    else if(wordsIn(x.text) > 30) suggestions.push({ index:i, sentenceId:x.id, text:x.text, reason:'Very long — could be split or tightened.' });
   });
-
   return { perSentence, sessionFeedback, suggestions };
 }
 
@@ -1964,15 +1670,13 @@ document.addEventListener('click', e => {
       ui.view = btn.dataset.view;
       if(ui.view === 'home') ui.sessionId = null;
       if(ui.view !== 'library') { ui.libraryPickForSession = null; ui.librarySelected = []; }
-      save(); render();
-      break;
+      save(); render(); break;
     }
 
     case 'toggle-theme': {
       theme = theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem(THEME_KEY, theme);
-      applyTheme();
-      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      applyTheme(); btn.textContent = theme === 'dark' ? '☀️' : '🌙';
       break;
     }
 
@@ -1980,14 +1684,12 @@ document.addEventListener('click', e => {
       const ns = newSession();
       state.sessions.push(ns);
       ui.view = 'session'; ui.sessionId = ns.id; ui.step = 'setup';
-      save(); render();
-      break;
+      save(); render(); break;
     }
 
     case 'open-session': {
       ui.view = 'session'; ui.sessionId = btn.dataset.id; ui.step = 'setup';
-      save(); render();
-      break;
+      save(); render(); break;
     }
 
     case 'del-session': {
@@ -2012,6 +1714,33 @@ document.addEventListener('click', e => {
       break;
     }
 
+    /* ---- Sentence Expansion: mode toggle ---- */
+    case 'set-expansion-mode': {
+      if(!s || !isExpansionSession(s)) break;
+      const mode = btn.dataset.mode === EXPANSION_MODE_SELECTED ? EXPANSION_MODE_SELECTED : EXPANSION_MODE_FULL;
+      if(mode === expansionMode(s)) break;
+      s.expansionMode = mode;
+      touch(s); render();
+      toast(mode === EXPANSION_MODE_FULL ? 'Switched to Full terms' : 'Switched to Selected terms');
+      break;
+    }
+
+    case 'import-topic': {
+      if(!s || !isExpansionSession(s)) break;
+      pendingImportMode = 'topic';
+      $('#fileImport').click();
+      break;
+    }
+
+    case 'import-kind': {
+      if(!s || !isExpansionSession(s)) break;
+      const kind = btn.dataset.kind;
+      if(!KINDS[kind]){ toast('Unknown kind.'); break; }
+      pendingImportMode = 'kind:' + kind;
+      $('#fileImport').click();
+      break;
+    }
+
     /* ---- targets ---- */
     case 'add-target': {
       if(!s) break;
@@ -2022,8 +1751,7 @@ document.addEventListener('click', e => {
       if(!text){ toast('Type the target language first.'); break; }
       s.targets.push({ id: uid(), kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '' });
       $('#ntText').value = ''; $('#ntGroup').value = '';
-      touch(s); render();
-      toast('Target added');
+      touch(s); render(); toast('Target added');
       break;
     }
 
@@ -2043,8 +1771,7 @@ document.addEventListener('click', e => {
           s.expansion.picked[k] = (s.expansion.picked[k] || []).filter(x => x !== id);
         });
       }
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
 
     /* ---- library ---- */
@@ -2056,7 +1783,6 @@ document.addEventListener('click', e => {
       toast(added ? `Saved ${added} new item${added===1?'':'s'} to library` : 'All items already in library.');
       break;
     }
-
     case 'save-one-to-library': {
       if(!s) break;
       const t = s.targets.find(x => x.id === btn.dataset.id);
@@ -2066,40 +1792,32 @@ document.addEventListener('click', e => {
       toast(added ? 'Saved to library' : 'Already in library.');
       break;
     }
-
     case 'open-library-picker': {
       if(!s) break;
       ui.libraryPickForSession = s.id;
       ui.librarySelected = [];
       ui.view = 'library';
       save(); render();
-      window.scrollTo({ top:0, behavior:'smooth' });
-      break;
+      window.scrollTo({ top:0, behavior:'smooth' }); break;
     }
-
     case 'cancel-library-picker': {
       const sid = ui.libraryPickForSession;
-      ui.libraryPickForSession = null;
-      ui.librarySelected = [];
+      ui.libraryPickForSession = null; ui.librarySelected = [];
       if(sid){ ui.view = 'session'; ui.sessionId = sid; ui.step = 'targets'; }
-      save(); render();
-      break;
+      save(); render(); break;
     }
-
     case 'confirm-library-picker': {
       const sid = ui.libraryPickForSession;
       const ts = state.sessions.find(x => x.id === sid);
       if(!ts){ toast('Session not found.'); ui.libraryPickForSession = null; ui.librarySelected = []; save(); render(); break; }
       if(!ui.librarySelected.length){ toast('Nothing selected.'); break; }
       const added = addLibraryItemsToSession(ui.librarySelected, ts);
-      ui.libraryPickForSession = null;
-      ui.librarySelected = [];
+      ui.libraryPickForSession = null; ui.librarySelected = [];
       ui.view = 'session'; ui.sessionId = sid; ui.step = 'targets';
       save(); render();
       toast(added ? `Added ${added} item${added===1?'':'s'} to session` : 'All selected items were already in the session.');
       break;
     }
-
     case 'add-library-item': {
       const kind = $('#libKind').value;
       const text = $('#libText').value.trim();
@@ -2109,60 +1827,34 @@ document.addEventListener('click', e => {
       if(!text){ toast('Type the item first.'); break; }
       const dup = state.library.some(it => it.kind === kind && norm(it.text) === norm(text));
       if(dup){ toast('That item is already in your library.'); break; }
-      state.library.push({
-        id: uid(), kind, text, requirement,
-        group: requirement === 'chooseOne' ? (group || 'Group 1') : '',
-        tags, addedAt: Date.now()
-      });
+      state.library.push({ id: uid(), kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '', tags, addedAt: Date.now() });
       $('#libText').value = ''; $('#libGroup').value = ''; $('#libTags').value = '';
-      save(); render();
-      toast('Added to library');
+      save(); render(); toast('Added to library');
       break;
     }
-
     case 'del-library-item': {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       if(!confirm('Remove this item from your library?')) break;
       state.library = state.library.filter(it => it.id !== btn.dataset.id);
       ui.librarySelected = ui.librarySelected.filter(id => id !== btn.dataset.id);
-      save(); render();
-      break;
+      save(); render(); break;
     }
-
     case 'toggle-library-select': {
       const id = btn.dataset.id;
       const set = new Set(ui.librarySelected);
       if(set.has(id)) set.delete(id); else set.add(id);
-      ui.librarySelected = Array.from(set);
-      render();
-      break;
+      ui.librarySelected = Array.from(set); render(); break;
     }
-
-    case 'clear-library-selection': {
-      ui.librarySelected = [];
-      render();
-      break;
-    }
-
-    case 'filter-library': {
-      ui.libraryFilter = btn.dataset.kind;
-      ui.librarySelected = [];
-      render();
-      break;
-    }
-
+    case 'clear-library-selection': { ui.librarySelected = []; render(); break; }
+    case 'filter-library': { ui.libraryFilter = btn.dataset.kind; ui.librarySelected = []; render(); break; }
     case 'bulk-delete-library': {
       const ids = ui.librarySelected.slice();
       if(!ids.length) break;
       if(!confirm(`Delete ${ids.length} item${ids.length===1?'':'s'} from your library?`)) break;
       state.library = state.library.filter(it => !ids.includes(it.id));
       ui.librarySelected = [];
-      save(); render();
-      toast('Deleted');
-      break;
+      save(); render(); toast('Deleted'); break;
     }
-
     case 'bulk-add-to-session': {
       const targetSid = $('#bulkSessionSelect') ? $('#bulkSessionSelect').value : '';
       if(!targetSid){ toast('Choose a session.'); break; }
@@ -2176,88 +1868,61 @@ document.addEventListener('click', e => {
       toast(added ? `Added ${added} item${added===1?'':'s'} to session` : `${count} item${count===1?'':'s'} already in that session.`);
       break;
     }
-
-    case 'import-library': {
-      pendingImportMode = 'library';
-      $('#fileImport').click();
-      break;
-    }
-
+    case 'import-library': { pendingImportMode = 'library'; $('#fileImport').click(); break; }
     case 'export-library-csv': {
       if(!state.library.length){ toast('Library is empty.'); break; }
       download(`writepath-library-${new Date().toISOString().slice(0,10)}.csv`, exportLibraryCSV(), 'text/csv;charset=utf-8');
-      toast('Library exported as CSV');
-      break;
+      toast('Library exported as CSV'); break;
     }
-
-    case 'export-all-json': {
-      downloadBackup();
-      break;
-    }
-    case 'import-all-data': {
-      pendingImportMode = 'backup';
-      $('#fileImport').click();
-      break;
-    }
-
+    case 'export-all-json': { downloadBackup(); break; }
+    case 'import-all-data': { pendingImportMode = 'backup'; $('#fileImport').click(); break; }
     case 'import-targets': {
       if(!s) break;
       pendingImportMode = 'targets';
-      $('#fileImport').click();
-      break;
+      $('#fileImport').click(); break;
     }
     case 'export-targets-csv': {
       if(!s) break;
       if(!s.targets.length){ toast('No targets to export.'); break; }
       download(`writepath-targets-${s.id}.csv`, exportTargetsCSV(s), 'text/csv;charset=utf-8');
-      toast('Targets exported as CSV');
-      break;
+      toast('Targets exported as CSV'); break;
     }
 
     /* ---- path ---- */
     case 'add-node': {
       if(!s) break;
       s.nodes.push({ id: uid(), instruction:'', targetIds: [], branches: [] });
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'del-node': {
       if(!s) break;
       const id = btn.dataset.id;
       s.nodes = s.nodes.filter(n => n.id !== id);
       s.nodes.forEach(n => { n.branches = n.branches.filter(b => b.targetNodeId !== id); });
       if(s.currentNodeId === id) s.currentNodeId = s.nodes[0]?.id || null;
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'toggle-node-target': {
       if(!s) break;
       const n = s.nodes.find(x => x.id === btn.dataset.id);
       if(!n) break;
       const tid = btn.dataset.tid;
       n.targetIds = n.targetIds.includes(tid) ? n.targetIds.filter(x => x !== tid) : n.targetIds.concat(tid);
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'add-branch': {
       if(!s) break;
       const n = s.nodes.find(x => x.id === btn.dataset.id);
       if(!n) break;
       n.branches.push({ id: uid(), label:'', targetNodeId:'' });
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'del-branch': {
       if(!s) break;
       const n = s.nodes.find(x => x.id === btn.dataset.nid);
       if(!n) break;
       n.branches = n.branches.filter(b => b.id !== btn.dataset.id);
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
 
     /* ---- writing ---- */
@@ -2268,39 +1933,22 @@ document.addEventListener('click', e => {
       const auto = autoMatch(text, s.targets);
       const manual = new Set(s.draftManual || []);
       const usedIds = Array.from(new Set([...auto, ...manual]));
-      s.sentences.push({
-        id: uid(), nodeId: s.currentNodeId, text,
-        original: text,
-        usedTargetIds: usedIds,
-        manualUsedIds: Array.from(manual),
-        at: Date.now()
-      });
+      s.sentences.push({ id: uid(), nodeId: s.currentNodeId, text, original: text, usedTargetIds: usedIds, manualUsedIds: Array.from(manual), at: Date.now() });
       s.draft = ''; s.draftManual = [];
-
       const node = s.nodes.find(n => n.id === s.currentNodeId);
-      if(node && node.branches.length){
-        s.awaitingChoice = true;
-      } else if(node){
-        advanceSequential(s);
-      }
-      touch(s); render();
-      break;
+      if(node && node.branches.length) s.awaitingChoice = true;
+      else if(node) advanceSequential(s);
+      touch(s); render(); break;
     }
-
     case 'choose-branch': {
       if(!s) break;
       const node = s.nodes.find(n => n.id === s.currentNodeId);
       const b = node && node.branches.find(x => x.id === btn.dataset.id);
       s.awaitingChoice = false;
-      if(b && b.targetNodeId && s.nodes.some(n => n.id === b.targetNodeId)){
-        s.currentNodeId = b.targetNodeId;
-      } else {
-        advanceSequential(s);
-      }
-      touch(s); render();
-      break;
+      if(b && b.targetNodeId && s.nodes.some(n => n.id === b.targetNodeId)) s.currentNodeId = b.targetNodeId;
+      else advanceSequential(s);
+      touch(s); render(); break;
     }
-
     case 'toggle-draft-target': {
       if(!s) break;
       const tid = btn.dataset.tid;
@@ -2309,32 +1957,22 @@ document.addEventListener('click', e => {
       const set = new Set(s.draftManual || []);
       if(set.has(tid)) set.delete(tid); else set.add(tid);
       s.draftManual = Array.from(set);
-      save();
-      updateSidebarLive();
-      break;
+      save(); updateSidebarLive(); break;
     }
-
     case 'finish': {
       if(!s) break;
-      ui.step = 'review';
-      s.reviewedAt = Date.now();
-      touch(s); render();
-      break;
+      ui.step = 'review'; s.reviewedAt = Date.now();
+      touch(s); render(); break;
     }
-
     case 'reset-draft': {
       if(!s) break;
       const hasText = (s.draft || '').trim().length > 0;
       const hasManual = (s.draftManual || []).length > 0;
       if(!hasText && !hasManual){ toast('Nothing to reset.'); break; }
       if(hasText && !confirm('Clear the sentence you are currently writing?')) break;
-      s.draft = '';
-      s.draftManual = [];
-      save(); render();
-      toast('Draft cleared');
-      break;
+      s.draft = ''; s.draftManual = [];
+      save(); render(); toast('Draft cleared'); break;
     }
-
     case 'reset-writing': {
       if(!s) break;
       if(isExpansionSession(s)){
@@ -2343,9 +1981,7 @@ document.addEventListener('click', e => {
         s.sentences = s.sentences.filter(x => !x.fromExpansion);
         s.reviewedAt = null;
         ui.step = 'expand';
-        touch(s); render();
-        toast('Expansion reset');
-        break;
+        touch(s); render(); toast('Expansion reset'); break;
       }
       const hasAnything = s.sentences.length > 0 || (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
       if(!hasAnything){ toast('Nothing to reset.'); break; }
@@ -2353,38 +1989,26 @@ document.addEventListener('click', e => {
         ? `Reset all writing in this session?\n\nThis will delete ${s.sentences.length} sentence${s.sentences.length===1?'':'s'} and any revisions, and move you back to the first node. Your target language and sentence path will be kept.`
         : 'Reset all writing in this session?\n\nThis will clear the current draft and move you back to the first node.';
       if(!confirm(msg)) break;
-      s.sentences = [];
-      s.revisions = [];
-      s.manualUsed = [];
-      s.draft = '';
-      s.draftManual = [];
-      s.awaitingChoice = false;
-      s.pathComplete = false;
+      s.sentences = []; s.revisions = []; s.manualUsed = [];
+      s.draft = ''; s.draftManual = [];
+      s.awaitingChoice = false; s.pathComplete = false;
       s.currentNodeId = s.nodes[0]?.id || null;
       s.reviewedAt = null;
-      touch(s); render();
-      toast('Writing reset — back to the first node');
-      break;
+      touch(s); render(); toast('Writing reset — back to the first node'); break;
     }
-
     case 'undo-last-sentence': {
       if(!s) break;
       if(!s.sentences.length){ toast('No sentence to undo.'); break; }
       const last = s.sentences[s.sentences.length - 1];
       if(!confirm(`Undo the last sentence?\n\n"${last.text.slice(0, 80)}${last.text.length > 80 ? '…' : ''}"`)) break;
       s.sentences.pop();
-      s.awaitingChoice = false;
-      s.pathComplete = false;
-      if(last.nodeId && s.nodes.some(n => n.id === last.nodeId)){
-        s.currentNodeId = last.nodeId;
-      } else {
-        s.currentNodeId = s.nodes[0]?.id || null;
-      }
-      touch(s); render();
-      toast('Last sentence removed');
-      break;
+      s.awaitingChoice = false; s.pathComplete = false;
+      if(last.nodeId && s.nodes.some(n => n.id === last.nodeId)) s.currentNodeId = last.nodeId;
+      else s.currentNodeId = s.nodes[0]?.id || null;
+      touch(s); render(); toast('Last sentence removed'); break;
     }
 
+    /* ---- review ---- */
     case 'mark-used': {
       if(!s) break;
       const id = btn.dataset.id;
@@ -2403,18 +2027,14 @@ document.addEventListener('click', e => {
       } else {
         s.manualUsed = Array.from(new Set([...(s.manualUsed || []), id]));
       }
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'revise-jump': {
-      ui.step = 'revise';
-      save(); render();
+      ui.step = 'revise'; save(); render();
       const el = document.getElementById('rev-' + btn.dataset.id);
       if(el){ el.scrollIntoView({ behavior:'smooth', block:'center' }); el.querySelector('textarea')?.focus(); }
       break;
     }
-
     case 'save-revision': {
       if(!s) break;
       const id = btn.dataset.id;
@@ -2428,11 +2048,8 @@ document.addEventListener('click', e => {
       const auto = autoMatch(next, s.targets);
       sen.usedTargetIds = Array.from(new Set([...auto, ...(sen.manualUsedIds || [])]));
       delete ui.reviseDraft[id];
-      touch(s); render();
-      toast('Revision saved');
-      break;
+      touch(s); render(); toast('Revision saved'); break;
     }
-
     case 'revert-revision': {
       if(!s) break;
       const id = btn.dataset.id;
@@ -2444,23 +2061,18 @@ document.addEventListener('click', e => {
       const auto = autoMatch(sen.text, s.targets);
       sen.usedTargetIds = Array.from(new Set([...auto, ...(sen.manualUsedIds || [])]));
       delete ui.reviseDraft[id];
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
 
-    /* ============================================================
-       SENTENCE EXPANSION ACTIONS
-       ============================================================ */
+    /* ---- expansion ---- */
     case 'expand-jump': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
       const i = Number(btn.dataset.idx);
       if(Number.isFinite(i)) ex.currentStage = Math.max(0, Math.min(EXPANSION_STAGES.length - 1, i));
       touch(s); render();
-      window.scrollTo({ top:0, behavior:'smooth' });
-      break;
+      window.scrollTo({ top:0, behavior:'smooth' }); break;
     }
-
     case 'expand-pick': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
@@ -2471,10 +2083,8 @@ document.addEventListener('click', e => {
       const arr = ex.picked[bucketKey];
       const idx = arr.indexOf(id);
       if(idx >= 0) arr.splice(idx, 1); else arr.push(id);
-      touch(s); render();
-      break;
+      touch(s); render(); break;
     }
-
     case 'expand-use-opening': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
@@ -2494,7 +2104,6 @@ document.addEventListener('click', e => {
       }, 40);
       break;
     }
-
     case 'expand-next': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
@@ -2505,35 +2114,26 @@ document.addEventListener('click', e => {
       ex.stages[stage.key] = txt;
       const nextIdx = Math.min(idx + 1, EXPANSION_STAGES.length - 1);
       const nextStage = EXPANSION_STAGES[nextIdx];
-      if(!(ex.stages[nextStage.key] || '').trim()){
-        ex.stages[nextStage.key] = txt;
-      }
+      if(!(ex.stages[nextStage.key] || '').trim()) ex.stages[nextStage.key] = txt;
       ex.currentStage = nextIdx;
       touch(s); render();
-      window.scrollTo({ top:0, behavior:'smooth' });
-      break;
+      window.scrollTo({ top:0, behavior:'smooth' }); break;
     }
-
     case 'expand-prev': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
       if(ex.currentStage > 0) ex.currentStage--;
       touch(s); render();
-      window.scrollTo({ top:0, behavior:'smooth' });
-      break;
+      window.scrollTo({ top:0, behavior:'smooth' }); break;
     }
-
     case 'expand-restart': {
       if(!s || !isExpansionSession(s)) break;
       if(!confirm('Start this expansion over? All eight stages will be cleared. Your topic and openings will be kept.')) break;
       s.expansion = newExpansionState();
       s.sentences = s.sentences.filter(x => !x.fromExpansion);
       s.reviewedAt = null;
-      touch(s); render();
-      toast('Expansion cleared');
-      break;
+      touch(s); render(); toast('Expansion cleared'); break;
     }
-
     case 'expand-finish': {
       if(!s || !isExpansionSession(s)) break;
       const ex = ensureExpansion(s);
@@ -2544,26 +2144,20 @@ document.addEventListener('click', e => {
       s.sentences = s.sentences.filter(x => !x.fromExpansion);
       const auto = autoMatch(finalText, s.targets);
       const manual = expansionPickedIds(s);
-      s.sentences.push({
-        id: uid(), nodeId: null, text: finalText, original: finalText,
+      s.sentences.push({ id: uid(), nodeId: null, text: finalText, original: finalText,
         usedTargetIds: Array.from(new Set([...auto, ...manual])),
         manualUsedIds: Array.from(manual),
-        fromExpansion: true,
-        at: Date.now()
-      });
+        fromExpansion: true, at: Date.now() });
       s.reviewedAt = Date.now();
       ui.step = 'review';
-      touch(s); render();
-      toast('Expansion complete 🎉');
-      break;
+      touch(s); render(); toast('Expansion complete 🎉'); break;
     }
   }
 });
 
-/* ---------- live field updates (no re-render, keeps focus) ---------- */
+/* ---------- live field updates ---------- */
 function onField(e){
   const t = e.target;
-
   if(t.id === 'libSearch'){
     ui.librarySearch = t.value;
     const pos = t.selectionStart;
@@ -2572,17 +2166,15 @@ function onField(e){
     if(el){ el.focus(); el.setSelectionRange(pos, pos); }
     return;
   }
-
   if(!t.dataset) return;
   const s = currentSession();
-
   if('sfield' in t.dataset && s){
     let v = t.value;
     if(t.type === 'number') v = Math.max(0, Number(v) || 0);
     s[t.dataset.sfield] = v;
     s.updatedAt = Date.now();
     if(t.dataset.sfield === 'textType'){
-      if(v === EXPANSION_TYPE){ ensureExpansion(s); }
+      if(v === EXPANSION_TYPE){ ensureExpansion(s); if(!s.expansionMode) s.expansionMode = EXPANSION_MODE_FULL; }
     }
     save();
     if(t.dataset.sfield === 'targetWords') updateMeta();
@@ -2590,7 +2182,6 @@ function onField(e){
     return;
   }
   if(!s) return;
-
   if('tfield' in t.dataset){
     const tg = s.targets.find(x => x.id === t.dataset.targetId);
     if(tg){ tg[t.dataset.tfield] = t.value; touch(s); }
@@ -2598,7 +2189,7 @@ function onField(e){
   }
   if('nfield' in t.dataset){
     const n = s.nodes.find(x => x.id === t.dataset.nodeId);
-    if(n){ n[t.dataset.nfield] = t.value; touch(s); }
+    if(n){ n[n.dataset.nfield] = t.value; touch(s); }
     return;
   }
   if('bfield' in t.dataset){
@@ -2609,30 +2200,21 @@ function onField(e){
     return;
   }
   if('draft' in t.dataset){
-    s.draft = t.value;
-    s.updatedAt = Date.now();
-    save();
-    updateSidebarLive();
-    return;
+    s.draft = t.value; s.updatedAt = Date.now();
+    save(); updateSidebarLive(); return;
   }
-  if('revise' in t.dataset){
-    ui.reviseDraft[t.dataset.revise] = t.value;
-    return;
-  }
+  if('revise' in t.dataset){ ui.reviseDraft[t.dataset.revise] = t.value; return; }
   if('expandField' in t.dataset){
     if(!isExpansionSession(s)) return;
     const ex = ensureExpansion(s);
     ex.stages[t.dataset.expandField] = t.value;
     s.updatedAt = Date.now();
-    save();
-    updateExpandCounterLive(s);
-    return;
+    save(); updateExpandCounterLive(s); return;
   }
 }
 document.addEventListener('input', onField);
 document.addEventListener('change', onField);
 
-/* ---------- live sidebar highlighting while typing ---------- */
 function updateSidebarLive(){
   const s = currentSession();
   if(!s) return;
@@ -2651,8 +2233,6 @@ function updateSidebarLive(){
   const counter = $('.editor')?.closest('.panel')?.querySelector('.muted.small');
   if(counter) counter.textContent = `${wordsIn(s.draft || '')} word${wordsIn(s.draft||'')===1?'':'s'} in this sentence`;
 }
-
-/* ---------- live word-count + validation for the expand step ---------- */
 function updateExpandCounterLive(s){
   const el = document.getElementById('expandCounter');
   if(!el) return;
@@ -2672,14 +2252,13 @@ function updateExpandCounterLive(s){
   if(min) html += ` · minimum ${min}`;
   if(missing.length) html += ` · <span style="color:var(--amber)">${missing.length} picked item${missing.length===1?'':'s'} not yet in the sentence</span>`;
   el.innerHTML = html;
-
   const fin = document.querySelector('[data-act="expand-finish"]');
   if(fin) fin.disabled = wc < min;
   const next = document.querySelector('[data-act="expand-next"]');
   if(next) next.disabled = !txt.trim();
 }
 
-/* ---------- file import (targets OR library OR full backup) ---------- */
+/* ---------- file import ---------- */
 $('#fileImport').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   if(!file){ pendingImportMode = 'targets'; return; }
@@ -2688,8 +2267,7 @@ $('#fileImport').addEventListener('change', async e => {
   try { text = await file.text(); }
   catch(err){
     toast('Could not read file.');
-    e.target.value = ''; pendingImportMode = 'targets';
-    return;
+    e.target.value = ''; pendingImportMode = 'targets'; return;
   }
 
   /* ----- FULL BACKUP ----- */
@@ -2698,15 +2276,13 @@ $('#fileImport').addEventListener('change', async e => {
     try { data = JSON.parse(text); }
     catch(err){
       toast('Invalid backup file (not JSON).');
-      e.target.value = ''; pendingImportMode = 'targets';
-      return;
+      e.target.value = ''; pendingImportMode = 'targets'; return;
     }
     const lib = Array.isArray(data.library) ? data.library : [];
     const sess = Array.isArray(data.sessions) ? data.sessions : [];
     if(!lib.length && !sess.length){
       toast('Backup contains no sessions or library items.');
-      e.target.value = ''; pendingImportMode = 'targets';
-      return;
+      e.target.value = ''; pendingImportMode = 'targets'; return;
     }
     const replace = confirm(
       `Import backup?\n\n` +
@@ -2717,16 +2293,88 @@ $('#fileImport').addEventListener('change', async e => {
     );
     const result = applyBackup(data, replace ? 'replace' : 'merge');
     save(); render();
-    if(result.replaced){
-      toast(`Backup restored — ${result.sessAdded} session(s), ${result.libAdded} library item(s)`);
-    } else {
-      toast(`Merged — added ${result.sessAdded} session(s), ${result.libAdded} library item(s)`);
-    }
-    e.target.value = ''; pendingImportMode = 'targets';
-    return;
+    toast(result.replaced
+      ? `Backup restored — ${result.sessAdded} session(s), ${result.libAdded} library item(s)`
+      : `Merged — added ${result.sessAdded} session(s), ${result.libAdded} library item(s)`);
+    e.target.value = ''; pendingImportMode = 'targets'; return;
   }
 
-  /* ----- TARGETS / LIBRARY ----- */
+  const s = currentSession();
+
+  /* ----- TOPIC FILE (selected terms mode) ----- */
+  if(pendingImportMode === 'topic'){
+    if(!s){ toast('Open a session first.'); e.target.value=''; pendingImportMode='targets'; return; }
+    let data;
+    try { data = JSON.parse(text); }
+    catch(err){ toast('The topic file must be a JSON file.'); e.target.value=''; pendingImportMode='targets'; return; }
+    if(Array.isArray(data)){
+      toast('The topic file must be a JSON object with a "topic" field, not an array.'); e.target.value=''; pendingImportMode='targets'; return;
+    }
+    const topic = String(data.topic ?? data.Topic ?? '').trim();
+    if(!topic){
+      toast('The topic file must contain a non-empty "topic" field.');
+      e.target.value=''; pendingImportMode='targets'; return;
+    }
+    const openings = readOpenings(data.openings ?? data.Openings ?? data.opening ?? data.Opening);
+    s.topic = topic;
+    if(openings.length) s.openings = openings;
+
+    // Also accept items if present
+    let added = 0;
+    const itemsSrc = data.items ?? data.targets ?? data.library;
+    if(Array.isArray(itemsSrc)){
+      const existing = new Set(s.targets.map(t => t.kind + '::' + norm(t.text)));
+      itemsSrc.forEach(it => {
+        const obj = typeof it === 'string' ? { text: it } : it;
+        const normed = normalizeItem(obj);
+        if(!normed) return;
+        const key = normed.kind + '::' + norm(normed.text);
+        if(existing.has(key)) return;
+        s.targets.push({ id: uid(), kind: normed.kind, text: normed.text, requirement: normed.requirement,
+          group: normed.requirement === 'chooseOne' ? (normed.group || 'Group 1') : '' });
+        existing.add(key); added++;
+      });
+    }
+    touch(s); render();
+    toast(`Topic set: "${topic}"${openings.length?` · ${openings.length} opening(s)`:''}${added?` · ${added} item(s) added`:''}`);
+    e.target.value=''; pendingImportMode='targets'; return;
+  }
+
+  /* ----- KIND FILE (selected terms mode) ----- */
+  if(pendingImportMode.startsWith('kind:')){
+    if(!s){ toast('Open a session first.'); e.target.value=''; pendingImportMode='targets'; return; }
+    const forcedKind = pendingImportMode.slice(5);
+    if(!KINDS[forcedKind]){ toast('Unknown kind: ' + forcedKind); e.target.value=''; pendingImportMode='targets'; return; }
+
+    let arr;
+    try { arr = extractItemsFromJSON(text); }
+    catch(err){
+      toast('Could not read the file. Expected a JSON array of items.');
+      e.target.value=''; pendingImportMode='targets'; return;
+    }
+    const existing = new Set(s.targets.map(t => t.kind + '::' + norm(t.text)));
+    let added = 0;
+    arr.forEach(it => {
+      const obj = typeof it === 'string' ? { text: it } : it;
+      const normed = normalizeItem(obj);
+      if(!normed) return;
+      // Force the kind based on which file was uploaded
+      const key = forcedKind + '::' + norm(normed.text);
+      if(existing.has(key)) return;
+      s.targets.push({
+        id: uid(), kind: forcedKind, text: normed.text,
+        requirement: normed.requirement,
+        group: normed.requirement === 'chooseOne' ? (normed.group || 'Group 1') : ''
+      });
+      existing.add(key); added++;
+    });
+    touch(s); render();
+    toast(added ? `Added ${added} ${kindName(forcedKind).toLowerCase()} item${added===1?'':'s'}`
+                : `No new ${kindName(forcedKind).toLowerCase()} items to add.`);
+    e.target.value=''; pendingImportMode='targets'; return;
+  }
+
+  /* ----- TARGETS / LIBRARY (full mode or non-expansion) ----- */
   let items = [];
   let topic = '';
   let openings = [];
@@ -2738,13 +2386,11 @@ $('#fileImport').addEventListener('change', async e => {
   }
   catch(err){
     toast('Could not parse file: ' + err.message);
-    e.target.value = ''; pendingImportMode = 'targets';
-    return;
+    e.target.value = ''; pendingImportMode = 'targets'; return;
   }
   if(!items.length){
     toast('No terms found in the file.');
-    e.target.value = ''; pendingImportMode = 'targets';
-    return;
+    e.target.value = ''; pendingImportMode = 'targets'; return;
   }
 
   if(pendingImportMode === 'library'){
@@ -2753,46 +2399,31 @@ $('#fileImport').addEventListener('change', async e => {
     items.forEach(it => {
       const key = it.kind + '::' + norm(it.text);
       if(existing.has(key)) return;
-      state.library.push({
-        id: uid(), kind: it.kind, text: it.text,
-        requirement: it.requirement, group: it.group || '',
-        tags: it.tags || [], addedAt: Date.now()
-      });
-      existing.add(key);
-      added++;
+      state.library.push({ id: uid(), kind: it.kind, text: it.text, requirement: it.requirement, group: it.group || '', tags: it.tags || [], addedAt: Date.now() });
+      existing.add(key); added++;
     });
     save(); render();
     toast(added ? `Imported ${added} item${added === 1 ? '' : 's'} to library` : 'All items already in library.');
   } else {
-    const s = currentSession();
-    if(!s){
-      toast('Open a session first.');
-      e.target.value = ''; pendingImportMode = 'targets';
-      return;
-    }
+    if(!s){ toast('Open a session first.'); e.target.value = ''; pendingImportMode = 'targets'; return; }
 
-    /* ---- Sentence Expansion: enforce topic + openings ---- */
-    if(isExpansionSession(s)){
+    if(isExpansionSession(s) && expansionMode(s) === EXPANSION_MODE_FULL){
       const lower = file.name.toLowerCase();
       const isJSON = lower.endsWith('.json') || text.trim().startsWith('{') || text.trim().startsWith('[');
       if(!isJSON){
-        toast('Sentence Expansion requires a JSON file with "topic" and "openings". CSV is not accepted.');
-        e.target.value = ''; pendingImportMode = 'targets';
-        return;
+        toast('Full mode requires a JSON file with "topic" and "openings".');
+        e.target.value = ''; pendingImportMode = 'targets'; return;
       }
       if(!topic){
-        toast('JSON is missing the required "topic" field. Every Sentence Expansion file must include one.');
-        e.target.value = ''; pendingImportMode = 'targets';
-        return;
+        toast('JSON is missing the required "topic" field.');
+        e.target.value = ''; pendingImportMode = 'targets'; return;
       }
       if(!openings.length){
-        toast('JSON is missing the required "openings" array (or it is empty). Every Sentence Expansion file must include at least one opening.');
-        e.target.value = ''; pendingImportMode = 'targets';
-        return;
+        toast('JSON is missing the required "openings" array (or it is empty).');
+        e.target.value = ''; pendingImportMode = 'targets'; return;
       }
     }
 
-    // De-duplicate against what's already there
     const existing = new Set(s.targets.map(t => t.kind + '::' + norm(t.text)));
     let added = 0;
     items.forEach(it => {
@@ -2803,18 +2434,14 @@ $('#fileImport').addEventListener('change', async e => {
         requirement: it.requirement,
         group: it.requirement === 'chooseOne' ? (it.group || 'Group 1') : ''
       });
-      existing.add(key);
-      added++;
+      existing.add(key); added++;
     });
 
-    // Adopt topic + openings
     let metaMsg = '';
     if(topic){
       const hadTopic = (s.topic || '').trim();
-      if(!hadTopic){
-        s.topic = topic;
-        metaMsg = ' · topic set';
-      } else if(hadTopic !== topic){
+      if(!hadTopic){ s.topic = topic; metaMsg = ' · topic set'; }
+      else if(hadTopic !== topic){
         const useNew = confirm(`The file has a topic:\n\n"${topic}"\n\nYour session already has:\n\n"${hadTopic}"\n\nOK = replace with the file's topic\nCancel = keep the existing one`);
         if(useNew){ s.topic = topic; metaMsg = ' · topic replaced'; }
       }
@@ -2823,18 +2450,15 @@ $('#fileImport').addEventListener('change', async e => {
       s.openings = openings.slice();
       metaMsg += (metaMsg ? ' ' : ' · ') + `${openings.length} opening${openings.length===1?'':'s'} set`;
     }
-
     touch(s); render();
-    toast(added
-      ? `Imported ${added} item${added === 1 ? '' : 's'}${metaMsg}`
-      : `All items already in this session${metaMsg}`);
+    toast(added ? `Imported ${added} item${added === 1 ? '' : 's'}${metaMsg}` : `All items already in this session${metaMsg}`);
   }
 
   e.target.value = '';
   pendingImportMode = 'targets';
 });
 
-/* ---------- keyboard shortcut: Ctrl/Cmd + Enter adds a sentence ---------- */
+/* ---------- keyboard shortcut: Ctrl/Cmd + Enter advances a sentence or stage ---------- */
 document.addEventListener('keydown', e => {
   if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){
     if(ui.step === 'write' && ui.view === 'session' && !currentSession()?.awaitingChoice){
@@ -2854,9 +2478,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ============================================================
-   BOOT
-   ============================================================ */
 load();
 applyTheme();
 if(ui.view === 'session' && !currentSession()){ ui.view = 'home'; ui.sessionId = null; }
