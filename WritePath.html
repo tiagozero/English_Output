@@ -113,6 +113,8 @@
   .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-size:13px;color:var(--text)}
   .chip:hover{background:var(--hover)}
   .chip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:500}
+  .chip.opening{border-style:dashed;color:var(--muted)}
+  .chip.opening:hover{border-style:solid;border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft)}
   .minichip{display:inline-block;background:var(--chip-bg);border-radius:6px;padding:2px 8px;font-size:12.5px;color:var(--muted);margin:0 4px 4px 0}
   .badge{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--chip-bg);color:var(--muted)}
   .badge.required{background:var(--accent-soft);color:var(--accent)}
@@ -127,6 +129,7 @@
   .k-phrasalVerb .dot,.k-phrasalVerb .kdot{background:#14b8a6}
   .k-vocabulary .dot,.k-vocabulary .kdot{background:#f59e0b}
   .k-grammar .dot,.k-grammar .kdot{background:#ec4899}
+  .k-timeExpression .dot,.k-timeExpression .kdot{background:#8b5cf6}
 
   /* target list */
   .trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hover2)}
@@ -235,6 +238,41 @@
   .librow input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex:none;cursor:pointer}
   .librow .minichip{margin:0}
   .danger-zone{border-color:var(--red-line)}
+
+  /* ===== Sentence Expansion ===== */
+  .exstages{display:flex;flex-direction:column;gap:4px}
+  .exstage{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:9px;padding:7px 9px;color:var(--text);font-size:13.5px;transition:.13s}
+  .exstage:hover{background:var(--hover)}
+  .exstage .exnum{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--chip-bg);color:var(--muted);font-size:11px;font-weight:700;flex:none}
+  .exstage.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+  .exstage.active .exnum{background:var(--accent);color:#fff}
+  .exstage.done .exnum{background:var(--green-soft);color:var(--green);border:1px solid var(--green-line)}
+  .exstage.done .exlabel{color:var(--muted)}
+
+  .exgrow{display:flex;flex-direction:column;gap:6px}
+  .exgrowrow{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--faint)}
+  .exgrowrow.active{border-color:var(--accent-line);background:var(--accent-soft)}
+  .exgrowrow.final{background:var(--green-soft);border-color:var(--green-line)}
+  .exgrowrow .exglabel{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);flex:none;min-width:94px;padding-top:2px}
+  .exgrowrow .exgtext{flex:1;min-width:0;font-size:14.5px;word-break:break-word}
+
+  .exhint{background:linear-gradient(180deg,var(--panel),var(--faint));border:1px solid var(--accent-line)}
+  .exprev{background:var(--faint);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;margin-bottom:8px;color:var(--muted)}
+
+  /* topic card on Basic stage */
+  .topiccard{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px}
+  .topiccard .eyebrow{color:var(--accent)}
+  .topiccard .topictext{font-size:15.5px;font-weight:500}
+
+  /* openings panel */
+  .openings{background:var(--panel);border:1px solid var(--accent-line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+  .openings .openinglist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .openingrow{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px dashed var(--line-strong);border-radius:9px;background:var(--faint);text-align:left;font-size:14px;color:var(--text);transition:.13s;width:100%}
+  .openingrow:hover{border-style:solid;border-color:var(--accent-line);background:var(--accent-soft)}
+  .openingrow .opnum{font-size:11px;font-weight:700;color:var(--muted);flex:none;min-width:16px}
+  .openingrow .optext{flex:1;min-width:0}
+  .openingrow .opuse{font-size:11.5px;font-weight:600;color:var(--accent);opacity:0;transition:.13s}
+  .openingrow:hover .opuse{opacity:1}
 </style>
 </head>
 <body>
@@ -258,19 +296,33 @@ const escRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /* ---------- constants ---------- */
 const KINDS = {
-  chunk:       'Chunk',
-  collocation: 'Collocation',
-  phrasalVerb: 'Phrasal verb',
-  vocabulary:  'Vocabulary',
-  grammar:     'Grammar point'
+  chunk:          'Chunk',
+  collocation:    'Collocation',
+  phrasalVerb:    'Phrasal verb',
+  vocabulary:     'Vocabulary',
+  grammar:        'Grammar point',
+  timeExpression: 'Time expression'
 };
-const KIND_ORDER = ['chunk','collocation','phrasalVerb','vocabulary','grammar'];
+const KIND_ORDER = ['chunk','collocation','phrasalVerb','vocabulary','grammar','timeExpression'];
 const REQS = { required:'Required', chooseOne:'Choose one', optional:'Optional' };
-const TEXT_TYPES = ['Journal','Mini-essay','Story','Reddit post','Free writing'];
+const TEXT_TYPES = ['Journal','Mini-essay','Story','Reddit post','Free writing','Sentence Expansion'];
 const KEY = 'writepath.v1';
 const THEME_KEY = 'writepath.theme';
 const BACKUP_APP = 'WritePath';
 const BACKUP_VERSION = 1;
+const EXPANSION_TYPE = 'Sentence Expansion';
+
+/* The eight guided stages of a Sentence Expansion exercise. */
+const EXPANSION_STAGES = [
+  { key:'basic',          label:'Basic',                hint:'Create a simple sentence.',                                                kind:null,             minWords:3,  example:"I've been studying." },
+  { key:'chunk',          label:'Add a Chunk',          hint:'Expand the sentence using a target chunk.',                                kind:'chunk',          minWords:0,  example:"I've been studying English." },
+  { key:'collocation',    label:'Add a Collocation',    hint:'Add a natural collocation.',                                               kind:'collocation',    minWords:0,  example:"I've been studying English and making steady progress." },
+  { key:'phrasalVerb',    label:'Add a Phrasal Verb',   hint:'Add a target phrasal verb.',                                               kind:'phrasalVerb',    minWords:0,  example:"…and trying to keep up with my classes." },
+  { key:'timeExpression', label:'Add a Time Expression',hint:'Add a natural time expression.',                                           kind:'timeExpression', minWords:0,  example:"I've been studying English more consistently lately." },
+  { key:'detail',         label:'Add Detail',           hint:'Add specific information — who, what, where, how, or why.',                kind:null,             minWords:0,  example:"…with two online tutors and a weekly study group." },
+  { key:'connection',     label:'Add Connection',       hint:'Add a reason, contrast, result, condition, or similar relationship.',      kind:null,             minWords:0,  example:"…because I want to pass the IELTS exam next spring." },
+  { key:'final',          label:'Final Version',        hint:'Produce a natural B2–C1 sentence with at least 20 words.',                 kind:null,             minWords:20, example:'A polished, natural sentence of 20+ words preserving the original meaning.' }
+];
 
 /* ---------- state ---------- */
 let state = { sessions: [], library: [] };
@@ -281,6 +333,43 @@ let ui = {
 };
 let theme = 'light';
 let pendingImportMode = 'targets'; // 'targets' | 'library' | 'backup'
+
+/* ---------- expansion helpers ---------- */
+function newExpansionState(){
+  return {
+    currentStage: 0,
+    stages: { basic:'', chunk:'', collocation:'', phrasalVerb:'', timeExpression:'', detail:'', connection:'', final:'' },
+    picked: { chunk:[], collocation:[], phrasalVerb:[], timeExpression:[] },
+    startedAt: Date.now(),
+    completedAt: null
+  };
+}
+function ensureExpansion(s){
+  if(!s) return null;
+  if(!s.expansion){
+    s.expansion = newExpansionState();
+  } else {
+    const def = newExpansionState();
+    s.expansion.stages = Object.assign({}, def.stages, s.expansion.stages || {});
+    s.expansion.picked = Object.assign({}, def.picked, s.expansion.picked || {});
+    if(typeof s.expansion.currentStage !== 'number') s.expansion.currentStage = 0;
+  }
+  return s.expansion;
+}
+function textIncludes(text, phrase){
+  const needle = norm(phrase);
+  if(!needle) return false;
+  const n = ' ' + norm(text) + ' ';
+  return new RegExp('(^|[^a-z0-9])' + escRe(needle) + '([^a-z0-9]|$)').test(n);
+}
+function expansionPickedIds(s){
+  const out = new Set();
+  if(s && s.expansion && s.expansion.picked){
+    Object.values(s.expansion.picked).forEach(arr => (arr || []).forEach(id => out.add(id)));
+  }
+  return out;
+}
+function isExpansionSession(s){ return !!(s && s.textType === EXPANSION_TYPE); }
 
 /* ---------- persistence ---------- */
 function load(){
@@ -312,8 +401,10 @@ function hydrate(s){
   s.currentNodeId = s.currentNodeId || null;
   s.textType = s.textType || 'Journal';
   s.targetWords = s.targetWords ?? 120;
+  s.openings = Array.isArray(s.openings) ? s.openings : [];
   s.nodes.forEach(n => { n.branches = n.branches || []; n.targetIds = n.targetIds || []; n.instruction = n.instruction || ''; });
   s.sentences.forEach(x => { x.usedTargetIds = x.usedTargetIds || []; x.manualUsedIds = x.manualUsedIds || []; x.original = x.original ?? x.text; });
+  if(isExpansionSession(s)) ensureExpansion(s);
   return s;
 }
 function hydrateLibraryItem(it){
@@ -340,7 +431,7 @@ function toast(msg){
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2100);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 /* ---------- theme ---------- */
@@ -356,7 +447,7 @@ function newSession(){
     createdAt: now, updatedAt: now,
     targets: [], nodes: [], sentences: [], revisions: [], manualUsed: [],
     currentNodeId: null, pathComplete: false, awaitingChoice: false,
-    draft: '', draftManual: []
+    draft: '', draftManual: [], expansion: null, openings: []
   };
 }
 function currentSession(){
@@ -367,6 +458,9 @@ function committedUsed(s){
   const set = new Set();
   s.sentences.forEach(x => (x.usedTargetIds || []).forEach(id => set.add(id)));
   (s.manualUsed || []).forEach(id => set.add(id));
+  if(isExpansionSession(s) && s.expansion){
+    expansionPickedIds(s).forEach(id => set.add(id));
+  }
   return set;
 }
 function autoMatch(text, targets){
@@ -477,6 +571,7 @@ function normalizeKind(v){
   if(k === 'phrasalverb' || k === 'phrasal' || k === 'phrasalverbs') return 'phrasalVerb';
   if(k === 'vocabulary' || k === 'vocab' || k === 'word') return 'vocabulary';
   if(k === 'grammar' || k === 'grammarpoint' || k === 'grammarpoints') return 'grammar';
+  if(k === 'timeexpression' || k === 'time' || k === 'timephrase' || k === 'timephrases' || k === 'expressionoftime' || k === 'adverbial') return 'timeExpression';
   return 'vocabulary';
 }
 function normalizeReq(v){
@@ -497,44 +592,68 @@ function normalizeItem(obj){
     : String(tagsRaw).split(/[|,]/).map(t => t.trim()).filter(Boolean);
   return { kind, text, requirement, group: requirement === 'chooseOne' ? (group || 'Group 1') : '', tags };
 }
-function parseJSONTargets(text){
+
+/* ---------- JSON parser: extracts topic + openings ---------- */
+function parseJSONTargetsFull(text){
   let data = JSON.parse(text);
+  let topic = '';
+  let openings = [];
+
   if(data && !Array.isArray(data)){
+    // topic
+    if(typeof data.topic === 'string') topic = data.topic.trim();
+    else if(typeof data.Topic === 'string') topic = data.Topic.trim();
+
+    // openings (accept openings / Opening / opening)
+    const rawOpenings = data.openings ?? data.Openings ?? data.opening ?? data.Opening;
+    if(Array.isArray(rawOpenings)){
+      openings = rawOpenings.map(x => String(x).trim()).filter(Boolean);
+    } else if(typeof rawOpenings === 'string'){
+      openings = rawOpenings.split(/[\n|;]+/).map(x => x.trim()).filter(Boolean);
+    }
+
     if(Array.isArray(data.targets)) data = data.targets;
     else if(Array.isArray(data.items)) data = data.items;
     else if(Array.isArray(data.library)) data = data.library;
-    else throw new Error('Expected an array of items');
+    else throw new Error('Expected an array of items, or an object with "topic", "openings", and "items"/"targets".');
   }
   if(!Array.isArray(data)) throw new Error('Expected an array of items');
-  return data.map(item => typeof item === 'string'
+
+  const items = data.map(item => typeof item === 'string'
     ? { kind:'vocabulary', text:item.trim(), requirement:'optional', group:'', tags:[] }
     : normalizeItem(item)
   ).filter(Boolean);
+  return { items, topic, openings };
 }
-function parseCSVTargets(text){
+
+/* ---------- CSV parser: no topic/openings ---------- */
+function parseCSVTargetsFull(text){
   const lines = text.split(/\r?\n/).filter(l => l.trim().length);
-  if(!lines.length) return [];
+  if(!lines.length) return { items: [], topic: '', openings: [] };
   const first = lines[0].toLowerCase();
   const hasHeader = /\b(text|term|item|kind|type|requirement|group|tags)\b/.test(first);
   const header = hasHeader
     ? splitCSVLine(lines[0]).map(h => h.toLowerCase().trim())
     : ['text','kind','requirement','group','tags'];
   const rows = hasHeader ? lines.slice(1) : lines;
-  return rows.map(line => {
+  const items = rows.map(line => {
     const cells = splitCSVLine(line);
     const obj = {};
     header.forEach((h, i) => obj[h] = cells[i] || '');
     return normalizeItem(obj);
   }).filter(Boolean);
+  return { items, topic: '', openings: [] };
 }
+
 function parseTargetsFile(name, text){
   const lower = name.toLowerCase();
   const trimmed = text.trim();
   if(lower.endsWith('.json') || trimmed.startsWith('[') || trimmed.startsWith('{')){
-    return parseJSONTargets(text);
+    return parseJSONTargetsFull(text);
   }
-  return parseCSVTargets(text);
+  return parseCSVTargetsFull(text);
 }
+
 function exportTargetsCSV(s){
   const header = 'text,kind,requirement,group';
   const rows = s.targets.map(t => [
@@ -589,7 +708,6 @@ function applyBackup(data, mode /* 'replace' | 'merge' */){
     ui.librarySelected = []; ui.libraryPickForSession = null;
     return { libAdded: state.library.length, sessAdded: state.sessions.length, replaced: true };
   }
-  // merge
   const existingLib = new Set(state.library.map(it => it.kind + '::' + norm(it.text)));
   let libAdded = 0;
   lib.forEach(it => {
@@ -611,6 +729,21 @@ function applyBackup(data, mode /* 'replace' | 'merge' */){
 /* ============================================================
    RENDER
    ============================================================ */
+function sessionSteps(s){
+  if(isExpansionSession(s)){
+    return [
+      ['setup','Setup'],
+      ['targets','Target language'],
+      ['expand','Expand'],
+      ['review','Review']
+    ];
+  }
+  return [
+    ['setup','Setup'], ['targets','Target language'], ['path','Sentence path'],
+    ['write','Write'], ['review','Review'], ['revise','Revise']
+  ];
+}
+
 function render(){
   applyTheme();
   const app = $('#app');
@@ -619,6 +752,9 @@ function render(){
   } else if(ui.view === 'library'){
     app.innerHTML = renderLibrary();
   } else if(ui.view === 'session' && currentSession()){
+    const s = currentSession();
+    const valid = sessionSteps(s).map(x => x[0]);
+    if(!valid.includes(ui.step)) ui.step = 'setup';
     app.innerHTML = renderSession();
   } else {
     ui.view = 'home'; ui.sessionId = null;
@@ -667,14 +803,20 @@ function sessionCard(s){
   const used = committedUsed(s);
   const req = s.targets.filter(t => t.requirement === 'required');
   const reqUsed = req.filter(t => used.has(t.id)).length;
-  const words = countWords(s);
-  const status = s.sentences.length === 0 ? 'Not started'
-    : (s.reviewedAt ? 'Reviewed' : 'In progress');
+  const words = isExpansionSession(s) ? wordsIn(s.expansion?.stages?.final || '') : countWords(s);
+  const sentenceCount = isExpansionSession(s)
+    ? (s.expansion && s.expansion.completedAt ? 1 : 0)
+    : s.sentences.length;
+  const status = isExpansionSession(s)
+    ? (s.expansion && s.expansion.completedAt ? 'Expansion complete'
+        : (s.expansion && (s.expansion.stages.basic || '').trim() ? 'Expanding' : 'Not started'))
+    : (s.sentences.length === 0 ? 'Not started'
+        : (s.reviewedAt ? 'Reviewed' : 'In progress'));
   return `<div class="scard" data-act="open-session" data-id="${s.id}">
     <div>
       <div class="eyebrow">${esc(s.textType)} · ${status}</div>
       <h3>${esc(s.title || s.topic || 'Untitled session')}</h3>
-      <div class="muted small">${words} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'} · ${used.size}/${s.targets.length} targets used${req.length ? ` · ${reqUsed}/${req.length} required` : ''}</div>
+      <div class="muted small">${words} / ${s.targetWords || 0} words · ${sentenceCount} sentence${sentenceCount===1?'':'s'} · ${used.size}/${s.targets.length} targets used${req.length ? ` · ${reqUsed}/${req.length} required` : ''}</div>
     </div>
     <div class="row">
       <button class="btn primary sm" data-act="open-session" data-id="${s.id}">Open</button>
@@ -817,10 +959,7 @@ function renderLibrary(){
 /* ---------- SESSION SHELL ---------- */
 function renderSession(){
   const s = currentSession();
-  const steps = [
-    ['setup','Setup'], ['targets','Target language'], ['path','Sentence path'],
-    ['write','Write'], ['review','Review'], ['revise','Revise']
-  ];
+  const steps = sessionSteps(s);
   return `
   ${topbar('home')}
   <div class="sessionbar">
@@ -840,7 +979,13 @@ function updateMeta(){
   const el = $('#sessionmeta');
   const s = currentSession();
   if(!el || !s) return;
-  el.textContent = `${countWords(s)} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'}`;
+  if(isExpansionSession(s)){
+    const ex = s.expansion || newExpansionState();
+    const wc = wordsIn(ex.stages.final || ex.stages[EXPANSION_STAGES[ex.currentStage]?.key] || '');
+    el.textContent = `Stage ${(ex.currentStage||0)+1} / ${EXPANSION_STAGES.length} · ${wc} word${wc===1?'':'s'}`;
+  } else {
+    el.textContent = `${countWords(s)} / ${s.targetWords || 0} words · ${s.sentences.length} sentence${s.sentences.length===1?'':'s'}`;
+  }
 }
 
 function stepContent(s){
@@ -848,6 +993,7 @@ function stepContent(s){
     case 'targets': return targetsStep(s);
     case 'path':    return pathStep(s);
     case 'write':   return writeStep(s);
+    case 'expand':  return expandStep(s);
     case 'review':  return reviewStep(s);
     case 'revise':  return reviseStep(s);
     default:        return setupStep(s);
@@ -863,6 +1009,7 @@ function setupStep(s){
     <label class="field">
       <span>Topic / prompt</span>
       <textarea rows="2" data-sfield="topic" placeholder="e.g. A decision that changed my routine">${esc(s.topic)}</textarea>
+      <span class="muted small" style="font-weight:400">${isExpansionSession(s) ? 'Filled automatically from the <code>topic</code> field of your uploaded JSON.' : 'Tip: this can also come from the <code>topic</code> field in your uploaded JSON.'}</span>
     </label>
     <label class="field">
       <span>Title (optional)</span>
@@ -876,12 +1023,25 @@ function setupStep(s){
         </select>
       </label>
       <label class="field">
-        <span>Target word count</span>
+        <span>Target word count <span class="muted">(${isExpansionSession(s) ? 'final sentence minimum' : 'whole text'})</span></span>
         <input type="number" min="0" step="10" data-sfield="targetWords" value="${s.targetWords}" />
       </label>
     </div>
     <button class="btn primary" data-act="step" data-step="targets">Next: target language →</button>
-  </div>`;
+  </div>
+
+  ${isExpansionSession(s) ? `
+    <div class="panel exhint">
+      <div class="eyebrow">Sentence Expansion mode</div>
+      <h3 style="margin-top:2px">Build one sentence through eight guided stages</h3>
+      <p class="small" style="margin-bottom:8px">
+        Upload a JSON file with your target language. The file <strong>must include</strong> a <code>topic</code>
+        and an <code>openings</code> array — the openings are the suggested starting points for your Basic sentence.
+      </p>
+      <ol class="small" style="margin:0 0 0 18px; padding:0; color:var(--muted)">
+        ${EXPANSION_STAGES.map(st => `<li>${esc(st.label)} — ${esc(st.hint)}</li>`).join('')}
+      </ol>
+    </div>` : ''}`;
 }
 
 /* ---------- STEP: TARGETS ---------- */
@@ -889,11 +1049,37 @@ function targetsStep(s){
   const byKind = {};
   s.targets.forEach(t => (byKind[t.kind] = byKind[t.kind] || []).push(t));
   const reqCount = s.targets.filter(t => t.requirement === 'required').length;
+  const isExp = isExpansionSession(s);
+  const nextStep = isExp ? 'expand' : 'path';
+  const nextLabel = isExp ? 'Next: start expansion' : 'Next: build sentence path';
+  const hasTopic = !!(s.topic || '').trim();
+  const openingsCount = (s.openings || []).length;
 
   return `
   <div class="panel">
     <h3>Add target language</h3>
-    <p class="muted small">Add the chunks, collocations, phrasal verbs, vocabulary and grammar points you want to force yourself to use.</p>
+    <p class="muted small">${isExp
+      ? 'Upload your JSON file — it is the source of truth. It must contain a topic and openings, plus the items each stage pulls from.'
+      : 'Add the chunks, collocations, phrasal verbs, vocabulary and grammar points you want to force yourself to use.'}</p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn primary" data-act="import-targets">📥 Upload target language (JSON${isExp ? '' : ' / CSV'})</button>
+    </div>
+
+    ${isExp ? `
+      <div class="panel" style="background:var(--faint); border-color:var(--line); box-shadow:none; margin:12px 0 0">
+        <div class="eyebrow">Exercise file status</div>
+        <div class="row" style="gap:10px; margin-top:4px">
+          <span class="chip ${hasTopic ? 'on' : ''}">${hasTopic ? '✓' : '✗'} topic</span>
+          <span class="chip ${openingsCount ? 'on' : ''}">${openingsCount ? '✓' : '✗'} openings${openingsCount ? ' ('+openingsCount+')' : ''}</span>
+        </div>
+        ${hasTopic ? `<div class="muted small" style="margin-top:8px"><strong>Topic:</strong> ${esc(s.topic)}</div>` : ''}
+        ${openingsCount ? `<div class="muted small" style="margin-top:4px"><strong>Openings:</strong> ${s.openings.map(o => esc(o)).join(' · ')}</div>` : ''}
+      </div>
+    ` : ''}
+  </div>
+
+  <div class="panel">
+    <h3>Add item manually</h3>
     <div class="grid2">
       <label class="field">
         <span>Type</span>
@@ -954,34 +1140,41 @@ function targetsStep(s){
 
   <div class="panel">
     <h3>Import &amp; export</h3>
-    <p class="muted small">Import individual terms from JSON/CSV, or back up and restore everything — all sessions and all library items — as one file.</p>
+    <p class="muted small">Back up and restore everything — all sessions and all library items — as one file.</p>
     <div class="row">
-      <button class="btn" data-act="import-targets">📥 Import terms (JSON / CSV)</button>
+      <button class="btn" data-act="import-targets">📥 Import terms (JSON${isExp ? '' : ' / CSV'})</button>
       <button class="btn" data-act="export-targets-csv">📤 Export this session's targets (CSV)</button>
       <button class="btn primary" data-act="export-all-json">📤 Export all data</button>
       <button class="btn" data-act="import-all-data">📥 Import backup</button>
     </div>
     <details style="margin-top:12px">
-      <summary class="muted small">File format examples</summary>
+      <summary class="muted small">File format (Sentence Expansion)</summary>
       <div class="small" style="margin-top:10px">
-        <div class="eyebrow">Terms — JSON</div>
-        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">[
-  {"text": "at the end of the day", "kind": "chunk", "requirement": "required"},
-  {"text": "make a decision", "kind": "collocation", "requirement": "chooseOne", "group": "decisions"},
-  {"text": "used to + verb", "kind": "grammar", "requirement": "optional"}
-]</pre>
-        <div class="eyebrow">Terms — CSV</div>
-        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">text,kind,requirement,group,tags
-at the end of the day,chunk,required,,
-make a decision,collocation,chooseOne,decisions,
-used to + verb,grammar,optional,,</pre>
-        <p class="muted">Valid kinds: <code>chunk</code>, <code>collocation</code>, <code>phrasalVerb</code>, <code>vocabulary</code>, <code>grammar</code>. Valid requirements: <code>required</code>, <code>chooseOne</code>, <code>optional</code>.</p>
+        <div class="eyebrow">Required JSON shape</div>
+        <pre style="background:var(--faint);padding:10px;border-radius:8px;overflow:auto;font-size:12px;margin:4px 0 10px;border:1px solid var(--line)">{
+  "topic": "Building better study habits",
+  "openings": [
+    "I've been studying English...",
+    "Lately I've been trying to...",
+    "These days I want to..."
+  ],
+  "items": [
+    {"text": "at the end of the day", "kind": "chunk", "requirement": "required"},
+    {"text": "make a decision", "kind": "collocation", "requirement": "chooseOne", "group": "decisions"},
+    {"text": "keep up with", "kind": "phrasalVerb", "requirement": "required"},
+    {"text": "these days", "kind": "timeExpression", "requirement": "optional"},
+    {"text": "used to + verb", "kind": "grammar", "requirement": "optional"}
+  ]
+}</pre>
+        <p class="muted" style="margin-top:0"><strong>topic</strong> and <strong>openings</strong> are required for Sentence Expansion. Both are rejected if missing or empty. The <code>items</code> array can also be called <code>targets</code> or <code>library</code>.</p>
+        <p class="muted"><strong>CSV is not accepted for Sentence Expansion</strong> — it cannot carry the topic or openings cleanly. Use JSON.</p>
+        <p class="muted">Valid kinds: <code>chunk</code>, <code>collocation</code>, <code>phrasalVerb</code>, <code>vocabulary</code>, <code>grammar</code>, <code>timeExpression</code>. Valid requirements: <code>required</code>, <code>chooseOne</code>, <code>optional</code>.</p>
         <p class="muted">The <strong>Export all data</strong> file is a full backup (sessions + library) and can be restored with <strong>Import backup</strong>.</p>
       </div>
     </details>
   </div>
 
-  <button class="btn primary" data-act="step" data-step="path">Next: build sentence path →</button>`;
+  <button class="btn primary" data-act="step" data-step="${nextStep}">${nextLabel} →</button>`;
 }
 
 /* ---------- STEP: PATH ---------- */
@@ -1158,8 +1351,165 @@ function transcriptHTML(s){
   </div>`;
 }
 
+/* ============================================================
+   STEP: EXPAND  (Sentence Expansion)
+   ============================================================ */
+function expandStep(s){
+  const ex = ensureExpansion(s);
+  const idx = Math.max(0, Math.min(EXPANSION_STAGES.length - 1, ex.currentStage));
+  const stage = EXPANSION_STAGES[idx];
+  const curText = ex.stages[stage.key] || '';
+  const wc = wordsIn(curText);
+  const minWords = stage.minWords || 0;
+  const isFinal = stage.key === 'final';
+  const isLast = idx === EXPANSION_STAGES.length - 1;
+
+  const picked = new Set(ex.picked[stage.key] || []);
+  const stageTargets = stage.kind ? s.targets.filter(t => t.kind === stage.kind) : [];
+
+  const prevKey = idx > 0 ? EXPANSION_STAGES[idx-1].key : null;
+  const prevText = prevKey ? (ex.stages[prevKey] || '') : '';
+
+  const missing = Array.from(picked).filter(id => {
+    const t = s.targets.find(x => x.id === id);
+    return t ? !textIncludes(curText, t.text) : false;
+  });
+
+  const stageList = EXPANSION_STAGES.map((st, i) => {
+    const filled = !!(ex.stages[st.key] || '').trim();
+    const active = i === idx;
+    return `<button class="exstage ${active?'active':''} ${filled && !active?'done':''}" data-act="expand-jump" data-idx="${i}">
+      <span class="exnum">${i+1}</span>
+      <span class="exlabel">${esc(st.label)}</span>
+    </button>`;
+  }).join('');
+
+  const growthRows = EXPANSION_STAGES.map((st, i) => {
+    const txt = (ex.stages[st.key] || '').trim();
+    if(!txt && i !== idx) return '';
+    const w = wordsIn(txt);
+    return `<div class="exgrowrow ${st.key==='final'?'final':''} ${i===idx?'active':''}">
+      <span class="exglabel">${esc(st.label)}</span>
+      <span class="exgtext">${esc(txt || '—')} <span class="muted small">· ${w}w</span></span>
+    </div>`;
+  }).join('');
+
+  const counterHtml = `${wc} word${wc===1?'':'s'}${minWords?` · minimum ${minWords}`:''}${missing.length?` · <span style="color:var(--amber)">${missing.length} picked item${missing.length===1?'':'s'} not yet in the sentence</span>`:''}`;
+
+  const showExtras = (stage.key === 'detail' || stage.key === 'connection');
+  const extras = showExtras ? s.targets.filter(t => ['vocabulary','grammar','chunk','collocation','phrasalVerb','timeExpression'].includes(t.kind)) : [];
+  const sessionTopic = (s.topic || '').trim();
+  const openings = Array.isArray(s.openings) ? s.openings : [];
+
+  return `
+  <div class="writewrap">
+    <div>
+      <div class="panel instr exhint">
+        <div class="row between" style="align-items:flex-start; gap:12px">
+          <div>
+            <div class="eyebrow">Stage ${idx+1} of ${EXPANSION_STAGES.length}</div>
+            <h3>${esc(stage.label)}</h3>
+            <p class="muted small" style="margin:0">${esc(stage.hint)}</p>
+          </div>
+          <button class="btn ghost sm" data-act="expand-restart">↺ Start over</button>
+        </div>
+        ${stage.example ? `<div class="muted small" style="margin-top:8px">Example: <em>${esc(stage.example)}</em></div>` : ''}
+      </div>
+
+      ${idx === 0 && sessionTopic ? `
+        <div class="topiccard">
+          <div class="eyebrow">Topic</div>
+          <div class="topictext">${esc(sessionTopic)}</div>
+        </div>` : ''}
+
+      ${idx === 0 && openings.length ? `
+        <div class="openings">
+          <div class="eyebrow">Suggested openings</div>
+          <p class="muted small" style="margin:0 0 4px">Click one to use it as your starting point. You can then edit it freely.</p>
+          <div class="openinglist">
+            ${openings.map((op, i) => `
+              <button class="openingrow" data-act="expand-use-opening" data-idx="${i}">
+                <span class="opnum">${i+1}</span>
+                <span class="optext">${esc(op)}</span>
+                <span class="opuse">Use →</span>
+              </button>`).join('')}
+          </div>
+        </div>` : ''}
+
+      ${stage.kind ? `
+        <div class="panel">
+          <div class="row between" style="margin-bottom:6px">
+            <h4 style="margin:0">Pick your ${esc(kindName(stage.kind).toLowerCase())}${stageTargets.length>1?'s':''}</h4>
+            ${stageTargets.length ? `<span class="muted small">${picked.size} picked</span>` : ''}
+          </div>
+          ${stageTargets.length ? `
+            <p class="muted small">Click to mark the one(s) you’re going to use in this stage — they stay highlighted while you rewrite the sentence below.</p>
+            <div class="row">
+              ${stageTargets.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}">${esc(t.text)}</button>`).join('')}
+            </div>
+          ` : `
+            <p class="muted small" style="margin:0">No ${esc(kindName(stage.kind).toLowerCase())} items in your targets. Add some in the <strong>Target language</strong> step, or just write the stage freely and continue.</p>
+          `}
+        </div>
+      ` : ''}
+
+      ${showExtras && extras.length ? `
+        <div class="panel">
+          <h4 style="margin:0 0 6px">Optional target language</h4>
+          <p class="muted small">You can weave any of these in to make the sentence richer.</p>
+          <div class="row">
+            ${extras.map(t => `<button class="chip ${picked.has(t.id)?'on':''}" data-act="expand-pick" data-id="${t.id}"><span class="kdot k-${t.kind}" style="margin-right:2px"></span>${esc(t.text)}</button>`).join('')}
+          </div>
+        </div>` : ''}
+
+      <div class="panel">
+        <div class="row between" style="margin-bottom:8px">
+          <h4 style="margin:0">${idx === 0 ? 'Write your basic sentence' : (isFinal ? 'Your final version' : 'Expand your sentence')}</h4>
+          ${idx > 0 && prevText ? `<span class="muted small">from: “${esc(prevText.length > 60 ? prevText.slice(0, 60) + '…' : prevText)}”</span>` : ''}
+        </div>
+        ${idx > 0 && prevText ? `<div class="exprev">Previous stage: <em>${esc(prevText)}</em></div>` : ''}
+        <textarea class="editor" rows="${isFinal ? 4 : 3}" data-expand-field="${stage.key}" placeholder="${idx === 0 ? 'Write one simple sentence — or click an opening above…' : (isFinal ? 'Polish into a natural B2–C1 sentence of 20+ words…' : 'Edit and expand the sentence…')}">${esc(curText)}</textarea>
+        <div class="row between" style="margin-top:10px">
+          <span class="muted small" id="expandCounter">${counterHtml}</span>
+          <div class="row">
+            ${idx > 0 ? `<button class="btn" data-act="expand-prev">← Back</button>` : ''}
+            ${!isLast ? `<button class="btn primary" data-act="expand-next" ${!curText.trim() ? 'disabled' : ''}>Save &amp; continue →</button>` : ''}
+            ${isLast ? `<button class="btn primary" data-act="expand-finish" ${wc < minWords ? 'disabled title="Needs at least '+minWords+' words"' : ''}>✓ Finish expansion</button>` : ''}
+          </div>
+        </div>
+      </div>
+
+      ${isFinal && s.sentences.some(x => x.fromExpansion) ? `
+        <div class="panel">
+          <h4 style="margin:0 0 6px">Currently saved final version</h4>
+          <p class="quote rev">${esc(s.sentences.find(x => x.fromExpansion).text)}</p>
+        </div>` : ''}
+    </div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h4>Stages</h4>
+        <div class="exstages">${stageList}</div>
+      </div>
+      <div class="panel">
+        <h4>Growth</h4>
+        <div class="exgrow">${growthRows || '<p class="muted small">Nothing written yet.</p>'}</div>
+      </div>
+      ${s.targets.length ? `
+        <div class="panel">
+          <h4>All target language</h4>
+          <div class="row">
+            ${s.targets.map(t => `<span class="minichip k-${t.kind}">${esc(t.text)}</span>`).join('')}
+          </div>
+        </div>` : ''}
+    </aside>
+  </div>`;
+}
+
 /* ---------- STEP: REVIEW ---------- */
 function reviewStep(s){
+  if(isExpansionSession(s)) return expansionReviewStep(s);
+
   const used = committedUsed(s);
   const total = countWords(s);
   const target = s.targetWords || 0;
@@ -1261,6 +1611,79 @@ function reviewStep(s){
   <div class="row between" style="margin-top:14px">
     <button class="btn danger" data-act="reset-writing">↺ Reset all writing</button>
     <button class="btn primary" data-act="step" data-step="revise">Go to revision →</button>
+  </div>`;
+}
+
+/* ---------- REVIEW (Sentence Expansion variant) ---------- */
+function expansionReviewStep(s){
+  const ex = ensureExpansion(s);
+  const finalText = (ex.stages.final || '').trim();
+  const finalWc = wordsIn(finalText);
+  const target = s.targetWords || 0;
+  const pct = target ? Math.min(100, Math.round(finalWc / target * 100)) : 0;
+
+  const used = committedUsed(s);
+  const required = s.targets.filter(t => t.requirement === 'required');
+  const missingRequired = required.filter(t => !used.has(t.id));
+
+  const groups = {};
+  s.targets.filter(t => t.requirement === 'chooseOne').forEach(t => {
+    const g = (t.group || 'Group').trim() || 'Group';
+    (groups[g] = groups[g] || []).push(t);
+  });
+  const unmetGroups = Object.entries(groups).filter(([, items]) => !items.some(t => used.has(t.id)));
+
+  const analysis = analyzeSession(s);
+
+  return `
+  <div class="statgrid">
+    <div class="stat"><div class="lbl">Final words</div><div class="num">${finalWc}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="muted small" style="margin-top:5px">target ${target || '—'} · min 20</div>
+    </div>
+    <div class="stat"><div class="lbl">Stages completed</div><div class="num">${EXPANSION_STAGES.filter(st => (ex.stages[st.key] || '').trim()).length}<span class="muted" style="font-size:16px">/${EXPANSION_STAGES.length}</span></div>
+      <div class="muted small" style="margin-top:5px">${ex.completedAt ? 'finished' : 'in progress'}</div>
+    </div>
+    <div class="stat"><div class="lbl">Targets used</div><div class="num">${used.size}<span class="muted" style="font-size:16px">/${s.targets.length}</span></div>
+      <div class="bar"><i style="width:${s.targets.length ? Math.round(used.size / s.targets.length * 100) : 0}%"></i></div>
+    </div>
+    <div class="stat"><div class="lbl">Time expressions</div><div class="num">${s.targets.filter(t => t.kind === 'timeExpression' && used.has(t.id)).length}<span class="muted" style="font-size:16px">/${s.targets.filter(t => t.kind === 'timeExpression').length}</span></div>
+      <div class="muted small" style="margin-top:5px">used in your sentence</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Expansion stages</h3>
+    <div class="exgrow">
+      ${EXPANSION_STAGES.map(st => {
+        const txt = (ex.stages[st.key] || '').trim();
+        if(!txt) return '';
+        return `<div class="exgrowrow ${st.key==='final'?'final':''}">
+          <span class="exglabel">${esc(st.label)}</span>
+          <span class="exgtext">${esc(txt)} <span class="muted small">· ${wordsIn(txt)}w</span></span>
+        </div>`;
+      }).join('') || '<p class="muted small">No stages written yet.</p>'}
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Missing requirements</h3>
+    ${(missingRequired.length || unmetGroups.length) ? `
+      ${missingRequired.map(t => `<div class="fb error"><span class="lvl">Required</span>“${esc(t.text)}” (${kindName(t.kind)}) was never used.</div>`).join('')}
+      ${unmetGroups.map(([g, items]) => `<div class="fb error"><span class="lvl">Choose one</span>Group “${esc(g)}” — none of these were used: ${items.map(t => esc(t.text)).join(', ')}.</div>`).join('')}
+    ` : `<div class="fb tip"><span class="lvl">All clear</span> Every required item and every “choose one” group is covered. 🎉</div>`}
+  </div>
+
+  <div class="panel">
+    <h3>Grammar &amp; naturalness feedback</h3>
+    ${analysis.sessionFeedback.length ? analysis.sessionFeedback.map(f => `
+      <div class="fb ${f.level}"><span class="lvl">${f.level === 'tip' ? 'Style' : f.level}</span>${esc(f.msg)}</div>`).join('')
+      : '<p class="muted small">No issues spotted.</p>'}
+  </div>
+
+  <div class="row between" style="margin-top:14px">
+    <button class="btn" data-act="step" data-step="expand">← Back to expansion</button>
+    <button class="btn danger" data-act="reset-writing">↺ Reset all writing</button>
   </div>`;
 }
 
@@ -1469,10 +1892,10 @@ function analyzeSession(s){
   }
 
   const total = countWords(s);
-  if(s.targetWords && total < s.targetWords * 0.75){
+  if(!isExpansionSession(s) && s.targetWords && total < s.targetWords * 0.75){
     sessionFeedback.push({ level:'warn', msg:`You are under your target: ${total} of ${s.targetWords} words.` });
   }
-  if(s.targetWords && total > s.targetWords * 1.4){
+  if(!isExpansionSession(s) && s.targetWords && total > s.targetWords * 1.4){
     sessionFeedback.push({ level:'tip', msg:`You went well past your target (${total} vs ${s.targetWords} words). Cutting usually strengthens a text.` });
   }
 
@@ -1579,7 +2002,9 @@ document.addEventListener('click', e => {
 
     case 'step': {
       if(!s) break;
-      ui.step = btn.dataset.step;
+      const target = btn.dataset.step;
+      if(target === 'expand' && isExpansionSession(s)) ensureExpansion(s);
+      ui.step = target;
       if(ui.step === 'write') ensureCursor(s);
       if(ui.step === 'review'){ s.reviewedAt = Date.now(); }
       save(); render();
@@ -1613,11 +2038,16 @@ document.addEventListener('click', e => {
       });
       s.manualUsed = (s.manualUsed || []).filter(x => x !== id);
       s.draftManual = (s.draftManual || []).filter(x => x !== id);
+      if(s.expansion && s.expansion.picked){
+        Object.keys(s.expansion.picked).forEach(k => {
+          s.expansion.picked[k] = (s.expansion.picked[k] || []).filter(x => x !== id);
+        });
+      }
       touch(s); render();
       break;
     }
 
-    /* ---- library: save from session ---- */
+    /* ---- library ---- */
     case 'save-targets-to-library': {
       if(!s) break;
       if(!s.targets.length){ toast('No targets to save.'); break; }
@@ -1670,7 +2100,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- library: main view ---- */
     case 'add-library-item': {
       const kind = $('#libKind').value;
       const text = $('#libText').value.trim();
@@ -1761,7 +2190,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- full backup ---- */
     case 'export-all-json': {
       downloadBackup();
       break;
@@ -1772,7 +2200,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- session-level imports/exports ---- */
     case 'import-targets': {
       if(!s) break;
       pendingImportMode = 'targets';
@@ -1895,7 +2322,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- reset writing ---- */
     case 'reset-draft': {
       if(!s) break;
       const hasText = (s.draft || '').trim().length > 0;
@@ -1911,6 +2337,16 @@ document.addEventListener('click', e => {
 
     case 'reset-writing': {
       if(!s) break;
+      if(isExpansionSession(s)){
+        if(!confirm('Reset this expansion? This clears all eight stages and the final sentence. Your topic, openings and target language will be kept.')) break;
+        s.expansion = newExpansionState();
+        s.sentences = s.sentences.filter(x => !x.fromExpansion);
+        s.reviewedAt = null;
+        ui.step = 'expand';
+        touch(s); render();
+        toast('Expansion reset');
+        break;
+      }
       const hasAnything = s.sentences.length > 0 || (s.draft || '').trim().length > 0 || (s.draftManual || []).length > 0;
       if(!hasAnything){ toast('Nothing to reset.'); break; }
       const msg = s.sentences.length
@@ -1949,7 +2385,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- review ---- */
     case 'mark-used': {
       if(!s) break;
       const id = btn.dataset.id;
@@ -1960,6 +2395,11 @@ document.addEventListener('click', e => {
           x.usedTargetIds = (x.usedTargetIds || []).filter(x2 => x2 !== id);
           x.manualUsedIds = (x.manualUsedIds || []).filter(x2 => x2 !== id);
         });
+        if(s.expansion && s.expansion.picked){
+          Object.keys(s.expansion.picked).forEach(k => {
+            s.expansion.picked[k] = (s.expansion.picked[k] || []).filter(x => x !== id);
+          });
+        }
       } else {
         s.manualUsed = Array.from(new Set([...(s.manualUsed || []), id]));
       }
@@ -1975,7 +2415,6 @@ document.addEventListener('click', e => {
       break;
     }
 
-    /* ---- revision ---- */
     case 'save-revision': {
       if(!s) break;
       const id = btn.dataset.id;
@@ -2008,6 +2447,116 @@ document.addEventListener('click', e => {
       touch(s); render();
       break;
     }
+
+    /* ============================================================
+       SENTENCE EXPANSION ACTIONS
+       ============================================================ */
+    case 'expand-jump': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      const i = Number(btn.dataset.idx);
+      if(Number.isFinite(i)) ex.currentStage = Math.max(0, Math.min(EXPANSION_STAGES.length - 1, i));
+      touch(s); render();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      break;
+    }
+
+    case 'expand-pick': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      const stage = EXPANSION_STAGES[ex.currentStage];
+      const id = btn.dataset.id;
+      const bucketKey = stage.key;
+      if(!ex.picked[bucketKey]) ex.picked[bucketKey] = [];
+      const arr = ex.picked[bucketKey];
+      const idx = arr.indexOf(id);
+      if(idx >= 0) arr.splice(idx, 1); else arr.push(id);
+      touch(s); render();
+      break;
+    }
+
+    case 'expand-use-opening': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      const i = Number(btn.dataset.idx);
+      const opening = (s.openings || [])[i];
+      if(!opening){ toast('Opening not found.'); break; }
+      const cur = (ex.stages.basic || '').trim();
+      if(cur && cur !== opening.trim()){
+        if(!confirm('Replace your current basic sentence with this opening?')) break;
+      }
+      ex.stages.basic = opening;
+      ex.currentStage = 0;
+      touch(s); render();
+      setTimeout(() => {
+        const ta = document.querySelector('[data-expand-field="basic"]');
+        if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+      }, 40);
+      break;
+    }
+
+    case 'expand-next': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      const idx = ex.currentStage;
+      const stage = EXPANSION_STAGES[idx];
+      const txt = (ex.stages[stage.key] || '').trim();
+      if(!txt){ toast('Write something first.'); break; }
+      ex.stages[stage.key] = txt;
+      const nextIdx = Math.min(idx + 1, EXPANSION_STAGES.length - 1);
+      const nextStage = EXPANSION_STAGES[nextIdx];
+      if(!(ex.stages[nextStage.key] || '').trim()){
+        ex.stages[nextStage.key] = txt;
+      }
+      ex.currentStage = nextIdx;
+      touch(s); render();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      break;
+    }
+
+    case 'expand-prev': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      if(ex.currentStage > 0) ex.currentStage--;
+      touch(s); render();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      break;
+    }
+
+    case 'expand-restart': {
+      if(!s || !isExpansionSession(s)) break;
+      if(!confirm('Start this expansion over? All eight stages will be cleared. Your topic and openings will be kept.')) break;
+      s.expansion = newExpansionState();
+      s.sentences = s.sentences.filter(x => !x.fromExpansion);
+      s.reviewedAt = null;
+      touch(s); render();
+      toast('Expansion cleared');
+      break;
+    }
+
+    case 'expand-finish': {
+      if(!s || !isExpansionSession(s)) break;
+      const ex = ensureExpansion(s);
+      const finalText = (ex.stages.final || '').trim();
+      const min = EXPANSION_STAGES[EXPANSION_STAGES.length - 1].minWords || 20;
+      if(wordsIn(finalText) < min){ toast(`Final version needs at least ${min} words.`); break; }
+      ex.completedAt = Date.now();
+      s.sentences = s.sentences.filter(x => !x.fromExpansion);
+      const auto = autoMatch(finalText, s.targets);
+      const manual = expansionPickedIds(s);
+      s.sentences.push({
+        id: uid(), nodeId: null, text: finalText, original: finalText,
+        usedTargetIds: Array.from(new Set([...auto, ...manual])),
+        manualUsedIds: Array.from(manual),
+        fromExpansion: true,
+        at: Date.now()
+      });
+      s.reviewedAt = Date.now();
+      ui.step = 'review';
+      touch(s); render();
+      toast('Expansion complete 🎉');
+      break;
+    }
   }
 });
 
@@ -2032,8 +2581,12 @@ function onField(e){
     if(t.type === 'number') v = Math.max(0, Number(v) || 0);
     s[t.dataset.sfield] = v;
     s.updatedAt = Date.now();
+    if(t.dataset.sfield === 'textType'){
+      if(v === EXPANSION_TYPE){ ensureExpansion(s); }
+    }
     save();
     if(t.dataset.sfield === 'targetWords') updateMeta();
+    if(t.dataset.sfield === 'textType'){ render(); }
     return;
   }
   if(!s) return;
@@ -2066,6 +2619,15 @@ function onField(e){
     ui.reviseDraft[t.dataset.revise] = t.value;
     return;
   }
+  if('expandField' in t.dataset){
+    if(!isExpansionSession(s)) return;
+    const ex = ensureExpansion(s);
+    ex.stages[t.dataset.expandField] = t.value;
+    s.updatedAt = Date.now();
+    save();
+    updateExpandCounterLive(s);
+    return;
+  }
 }
 document.addEventListener('input', onField);
 document.addEventListener('change', onField);
@@ -2088,6 +2650,33 @@ function updateSidebarLive(){
   });
   const counter = $('.editor')?.closest('.panel')?.querySelector('.muted.small');
   if(counter) counter.textContent = `${wordsIn(s.draft || '')} word${wordsIn(s.draft||'')===1?'':'s'} in this sentence`;
+}
+
+/* ---------- live word-count + validation for the expand step ---------- */
+function updateExpandCounterLive(s){
+  const el = document.getElementById('expandCounter');
+  if(!el) return;
+  const ex = s.expansion;
+  if(!ex) return;
+  const idx = ex.currentStage;
+  const stage = EXPANSION_STAGES[idx];
+  const txt = ex.stages[stage.key] || '';
+  const wc = wordsIn(txt);
+  const min = stage.minWords || 0;
+  const picked = new Set(ex.picked[stage.key] || []);
+  const missing = Array.from(picked).filter(id => {
+    const t = s.targets.find(x => x.id === id);
+    return t ? !textIncludes(txt, t.text) : false;
+  });
+  let html = `${wc} word${wc===1?'':'s'}`;
+  if(min) html += ` · minimum ${min}`;
+  if(missing.length) html += ` · <span style="color:var(--amber)">${missing.length} picked item${missing.length===1?'':'s'} not yet in the sentence</span>`;
+  el.innerHTML = html;
+
+  const fin = document.querySelector('[data-act="expand-finish"]');
+  if(fin) fin.disabled = wc < min;
+  const next = document.querySelector('[data-act="expand-next"]');
+  if(next) next.disabled = !txt.trim();
 }
 
 /* ---------- file import (targets OR library OR full backup) ---------- */
@@ -2139,7 +2728,14 @@ $('#fileImport').addEventListener('change', async e => {
 
   /* ----- TARGETS / LIBRARY ----- */
   let items = [];
-  try { items = parseTargetsFile(file.name, text); }
+  let topic = '';
+  let openings = [];
+  try {
+    const parsed = parseTargetsFile(file.name, text);
+    items = parsed.items;
+    topic = parsed.topic || '';
+    openings = Array.isArray(parsed.openings) ? parsed.openings : [];
+  }
   catch(err){
     toast('Could not parse file: ' + err.message);
     e.target.value = ''; pendingImportMode = 'targets';
@@ -2174,15 +2770,64 @@ $('#fileImport').addEventListener('change', async e => {
       e.target.value = ''; pendingImportMode = 'targets';
       return;
     }
+
+    /* ---- Sentence Expansion: enforce topic + openings ---- */
+    if(isExpansionSession(s)){
+      const lower = file.name.toLowerCase();
+      const isJSON = lower.endsWith('.json') || text.trim().startsWith('{') || text.trim().startsWith('[');
+      if(!isJSON){
+        toast('Sentence Expansion requires a JSON file with "topic" and "openings". CSV is not accepted.');
+        e.target.value = ''; pendingImportMode = 'targets';
+        return;
+      }
+      if(!topic){
+        toast('JSON is missing the required "topic" field. Every Sentence Expansion file must include one.');
+        e.target.value = ''; pendingImportMode = 'targets';
+        return;
+      }
+      if(!openings.length){
+        toast('JSON is missing the required "openings" array (or it is empty). Every Sentence Expansion file must include at least one opening.');
+        e.target.value = ''; pendingImportMode = 'targets';
+        return;
+      }
+    }
+
+    // De-duplicate against what's already there
+    const existing = new Set(s.targets.map(t => t.kind + '::' + norm(t.text)));
+    let added = 0;
     items.forEach(it => {
+      const key = it.kind + '::' + norm(it.text);
+      if(existing.has(key)) return;
       s.targets.push({
         id: uid(), kind: it.kind, text: it.text,
         requirement: it.requirement,
         group: it.requirement === 'chooseOne' ? (it.group || 'Group 1') : ''
       });
+      existing.add(key);
+      added++;
     });
+
+    // Adopt topic + openings
+    let metaMsg = '';
+    if(topic){
+      const hadTopic = (s.topic || '').trim();
+      if(!hadTopic){
+        s.topic = topic;
+        metaMsg = ' · topic set';
+      } else if(hadTopic !== topic){
+        const useNew = confirm(`The file has a topic:\n\n"${topic}"\n\nYour session already has:\n\n"${hadTopic}"\n\nOK = replace with the file's topic\nCancel = keep the existing one`);
+        if(useNew){ s.topic = topic; metaMsg = ' · topic replaced'; }
+      }
+    }
+    if(openings.length){
+      s.openings = openings.slice();
+      metaMsg += (metaMsg ? ' ' : ' · ') + `${openings.length} opening${openings.length===1?'':'s'} set`;
+    }
+
     touch(s); render();
-    toast(`Imported ${items.length} item${items.length === 1 ? '' : 's'}`);
+    toast(added
+      ? `Imported ${added} item${added === 1 ? '' : 's'}${metaMsg}`
+      : `All items already in this session${metaMsg}`);
   }
 
   e.target.value = '';
@@ -2195,6 +2840,16 @@ document.addEventListener('keydown', e => {
     if(ui.step === 'write' && ui.view === 'session' && !currentSession()?.awaitingChoice){
       e.preventDefault();
       document.querySelector('[data-act="add-sentence"]')?.click();
+    }
+    if(ui.step === 'expand' && ui.view === 'session'){
+      const s = currentSession();
+      if(s && s.expansion && s.expansion.currentStage < EXPANSION_STAGES.length - 1){
+        e.preventDefault();
+        document.querySelector('[data-act="expand-next"]')?.click();
+      } else if(s && s.expansion && s.expansion.currentStage === EXPANSION_STAGES.length - 1){
+        e.preventDefault();
+        document.querySelector('[data-act="expand-finish"]')?.click();
+      }
     }
   }
 });
