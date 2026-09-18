@@ -373,8 +373,8 @@
   }
   .btn-toggle:hover{border-color:var(--accent);background:var(--accent-soft)}
 
-  /* --- FIX 1: the day list is scrollable, its columns are wide enough,
-         and task names are allowed to wrap instead of being cut off. --- */
+  /* FIX: the day list is scrollable, columns are wide enough,
+     and task names are allowed to wrap instead of being cut off. */
   #daySection{
     flex:0 0 auto;max-height:38vh;overflow-y:auto;
     padding:12px 16px;background:var(--faint);border-bottom:1px solid var(--line);
@@ -396,7 +396,6 @@
   .day-cat-head.w{color:var(--amber)}  .day-cat-head.p{color:var(--teal)}
   .day-cat-rows{display:flex;flex-direction:column;gap:6px}
 
-  /* rows inside the planner stay readable — long labels wrap to a 2nd line */
   #daySection .taskrow{align-items:flex-start;padding:8px 9px}
   #daySection .rmain{gap:2px;padding-top:1px}
   #daySection .rtitle{
@@ -548,12 +547,10 @@
     vocab:    'words30.v2',
     writepath:'writepath.v1',
     roadmap:  'hub-roadmap.v1',
-    /* Pace keeps its settings & phrase data in localStorage… */
     pacePhrases:  'pace-highlight-phrases',
     paceSpeech:   'pace-connected-speech',
     paceSettings: 'pace-settings',
     paceLastText: 'last-text'
-    /* …and its Library in IndexedDB (see PACE_DB below). */
   };
   const THEME_KEY = 'hub-theme';
 
@@ -573,17 +570,14 @@
     pace:       { text:'#library' }
   };
 
-  /* Pace's shared Library store — same DB the Pace module itself opens. */
   const PACE_DB    = 'pace-library-db';
   const PACE_DB_V  = 1;
   const PACE_STORE = 'texts';
 
-  /* Roadmap shape */
   const PHASE_COUNT = 4;
   const PHASE_DAYS  = 20;
   const PHASE_PRESETS = ['Foundations','Momentum','Expansion','Mastery'];
 
-  /* Which module feeds which kind of resource into a phase / day. */
   const RES_MODULES = {
     grammar:    { name:'Grammar',    icon:'📘', cls:'g', kind:'Topics'   },
     vocabulary: { name:'Vocabulary', icon:'📚', cls:'v', kind:'Review'   },
@@ -624,7 +618,6 @@
     const d = new Date(v);
     return isNaN(d) ? null : d.getTime();
   }
-  /* add N days to a YYYY-MM-DD key, DST-safe */
   function addDays(dayKeyStr, n){
     const ts = toTsFromDay(dayKeyStr);
     if(ts == null) return null;
@@ -664,12 +657,6 @@
   /* ============================================================
      DEEP LINKS
      ============================================================ */
-  /* Ref id prefixes used by collectSources():
-       grammar    → "topic:<id>"  |  "review:<id>"
-       vocabulary → "<id>"        (always a review word)
-       writepath  → "<id>"        (session)
-       pace       → "<id>"        (library text)
-     moduleTarget() turns that into the hash the module understands. */
   function moduleTarget(module, refId){
     const raw = String(refId == null ? '' : refId);
     const cut = raw.indexOf(':');
@@ -692,7 +679,7 @@
   }
 
   /* ============================================================
-     DATA LOADING (reads each app's own storage)
+     DATA LOADING
      ============================================================ */
   function readGrammar(){
     const d = safeParse(localStorage.getItem(KEYS.grammar), null);
@@ -728,7 +715,6 @@
     };
   }
 
-  /* ---------- Pace: read its Library straight out of IndexedDB ---------- */
   function readPaceLibrary(){
     return new Promise(resolve => {
       if(!window.indexedDB){ resolve([]); return; }
@@ -777,7 +763,6 @@
     return readPaceLibrary().then(library => Object.assign(local, { library: library }));
   }
 
-  /* Everything is loaded together; Pace's part is async. */
   let hubData = null;
   function loadAll(){
     return readPace().then(pace => {
@@ -852,7 +837,6 @@
           }))
         : [];
 
-      /* per-day task lists */
       const dayTasks = {};
       if(src.dayTasks && typeof src.dayTasks === 'object'){
         Object.keys(src.dayTasks).forEach(k => {
@@ -886,15 +870,12 @@
     try{ localStorage.setItem(KEYS.roadmap, JSON.stringify(rm)); }catch(e){}
   }
 
-  /* ---------- day helpers ---------- */
   function getDayTasks(phase, n){
     if(!phase.dayTasks) phase.dayTasks = {};
     const k = String(n);
     if(!Array.isArray(phase.dayTasks[k])) phase.dayTasks[k] = [];
     return phase.dayTasks[k];
   }
-  /* A day counts as done when it is explicitly ticked, or when it has
-     at least one task and every task on it is finished. */
   function isDayDone(phase, n){
     if(phase.completedDays.indexOf(n) >= 0) return true;
     const tasks = (phase.dayTasks && phase.dayTasks[String(n)]) || [];
@@ -905,7 +886,6 @@
     for(let n = 1; n <= phase.days; n++) if(isDayDone(phase, n)) c++;
     return c;
   }
-
   function togglePhaseDay(phase, day){
     const i = phase.completedDays.indexOf(day);
     if(i >= 0){
@@ -920,7 +900,7 @@
   }
 
   /* ============================================================
-     ROADMAP — collect pickable resources from every module
+     ROADMAP — pickable resources
      ============================================================ */
   function collectSources(data){
     data = data || {};
@@ -931,7 +911,6 @@
 
     const out = { grammar: [], vocabulary: [], writepath: [], pace: [] };
 
-    /* ---------- Grammar → Topics ---------- */
     (g.topics || []).forEach((t, i) => {
       const metaBits = [t.level, t.category, t.description ? String(t.description).slice(0,40) : ''].filter(Boolean);
       out.grammar.push({
@@ -942,7 +921,6 @@
       });
     });
 
-    /* ---------- Grammar → Review (falls back to materials) ---------- */
     const reviewArr = Array.isArray(g.review) ? g.review
       : (g.review && Array.isArray(g.review.items) ? g.review.items : []);
     const reviewSrc = reviewArr.length ? reviewArr : (g.materials || []);
@@ -958,7 +936,6 @@
       });
     });
 
-    /* ---------- Vocabulary → Review (words currently due) ---------- */
     const vToday = todayKey();
     (v.items || []).filter(it => !it.inbox && it.nextReview && it.nextReview <= vToday).forEach((it, i) => {
       out.vocabulary.push({
@@ -969,7 +946,6 @@
       });
     });
 
-    /* ---------- WritePath → Sessions ---------- */
     (w.sessions || []).forEach((s, i) => {
       const n = (s.sentences || []).length;
       out.writepath.push({
@@ -980,7 +956,6 @@
       });
     });
 
-    /* ---------- Pace → Library ---------- */
     (p.library || []).forEach((b, i) => {
       const wc  = Number(b.wordCount) || 0;
       const pos = Number(b.lastIndex) || 0;
@@ -1001,23 +976,20 @@
   }
 
   /* ============================================================
-     THE METRICS
+     METRICS
      ============================================================ */
   function grammarMetrics(g){
     return { topics: g.topics.length, materials: g.materials.length, exercises: g.exercises.length };
   }
-
   function vocabMetrics(v){
     const T = todayKey();
     const due   = v.items.filter(i => !i.inbox && i.nextReview && i.nextReview <= T).length;
     const inbox = v.items.filter(i => i.inbox).length;
     return { review: due, inbox };
   }
-
   function writingMetrics(w){
     return { sessions: w.sessions.length, library: w.library.length };
   }
-
   function paceMetrics(p){
     const lib = p.library || [];
     const words = lib.reduce((sum, it) => sum + (Number(it.wordCount) || 0), 0);
@@ -1029,7 +1001,6 @@
       words:      words
     };
   }
-
   function roadmapMetrics(rm){
     const totalDays = rm.phases.reduce((s,p)=>s+p.days, 0);
     let doneDays = 0;
@@ -1053,7 +1024,7 @@
   }
 
   /* ============================================================
-     UNIFIED ACTIVITY MAP + STREAK (across all modules)
+     UNIFIED ACTIVITY MAP + STREAK
      ============================================================ */
   function buildActivityMap(data){
     const map = {};
@@ -1078,7 +1049,6 @@
       add(toDayKey(it.updatedAt || it.savedAt));
     });
 
-    /* Hub roadmap — manually ticked days + finished day tasks */
     readRoadmap().phases.forEach(p => {
       p.completedDays.forEach(dn => {
         const stamped = p.completedOn && p.completedOn[String(dn)];
@@ -1116,7 +1086,7 @@
   }
 
   /* ============================================================
-     UNIFIED RECENT ACTIVITY FEED
+     FEED
      ============================================================ */
   function buildFeed(data){
     const items = [];
@@ -1159,7 +1129,6 @@
       });
     });
 
-    /* Pace — one event per saved library text */
     (data.pace.library||[]).forEach(it => {
       const ts = Number(it.updatedAt || it.savedAt) || null;
       if(!ts) return;
@@ -1177,7 +1146,7 @@
   }
 
   /* ============================================================
-     HEATMAP RENDERER
+     HEATMAP
      ============================================================ */
   function hmLevel(n){
     if(!n) return 0;
@@ -1240,14 +1209,14 @@
   }
 
   /* ============================================================
-     OVERVIEW RENDERER (async — Pace's library comes from IndexedDB)
+     OVERVIEW
      ============================================================ */
   let overviewToken = 0;
 
   function renderOverview(){
     const token = ++overviewToken;
     loadAll().then(function(data){
-      if(token !== overviewToken) return;   // a newer render superseded this one
+      if(token !== overviewToken) return;
       paintOverview(data);
     });
   }
@@ -1273,7 +1242,6 @@
                     || rmm.doneDays || rmm.allRes || rmm.allTasks
                     || allActiveDays;
 
-    /* ----- module cards ----- */
     const grammarCard = card({
       cls:'g', icon:'📘', title:'Grammar Study', sub:'Topics & exercises',
       metrics:[
@@ -1328,7 +1296,6 @@
       route:'pace'
     });
 
-    /* ----- roadmap strip ----- */
     const roadmapStripHTML = `
       <div class="section-head">
         <h2>Roadmap</h2>
@@ -1354,7 +1321,6 @@
         </div>
       </div>`;
 
-    /* ----- shared Pace library ----- */
     const paceLibSorted = (data.pace.library || []).slice().sort(function(a,b){
       return (Number(b.updatedAt)||Number(b.savedAt)||0) - (Number(a.updatedAt)||Number(a.savedAt)||0);
     });
@@ -1381,7 +1347,6 @@
         }).join('')}
       </div>` : '';
 
-    /* ----- unified recent feed ----- */
     const feedItems = buildFeed(data);
     const feedHTML = feedItems.length
       ? feedItems.map(f => `
@@ -1395,7 +1360,6 @@
         </div>`).join('')
       : `<div class="empty small">No activity yet — open a module to get started.</div>`;
 
-    /* ----- top stat strip ----- */
     const totalStudy = data.grammar.studySeconds;
 
     const html = `
@@ -1547,7 +1511,6 @@
     const m = roadmapMetrics(rm);
     const overall = pct(m.doneDays, m.totalDays);
 
-    /* cumulative day ranges: Phase 1 → Days 1–20, Phase 2 → 21–40, … */
     let acc = 1;
     const ranges = rm.phases.map(p => { const s = acc; acc += p.days; return [s, acc - 1]; });
 
@@ -1687,7 +1650,6 @@
     paintRoadmap(readRoadmap());
   }
 
-  /* ---- roadmap interactions ---- */
   function onRoadmapClick(e){
     const btn = e.target.closest('[data-act]');
     if(!btn) return;
@@ -1698,7 +1660,6 @@
     const phaseEl = btn.closest('[data-phase]');
     if(!phaseEl) return;
 
-    /* --- FIX 2: open the module at the right section --- */
     if(act === 'open'){
       go(btn.dataset.mod, moduleTarget(btn.dataset.mod, btn.dataset.ref));
       return;
@@ -1729,8 +1690,6 @@
     paintRoadmap(rm);
   }
 
-  /* Text / date inputs save on change. We deliberately avoid repainting here
-     so the click that follows a blur still lands on its original target. */
   function onRoadmapChange(e){
     const el = e.target.closest('[data-act]');
     if(!el) return;
@@ -1765,7 +1724,6 @@
 
     pickerPhaseId = phaseId;
 
-    /* open on the first module that still has something to add */
     const sources = collectSources(hubData);
     let pick = RES_ORDER.find(k =>
       (sources[k] || []).some(it =>
@@ -1846,18 +1804,18 @@
     });
 
     saveRoadmap(rm);
-    renderPicker();     // refresh "Added" states
-    paintRoadmap(rm);   // refresh the phase card behind the modal
+    renderPicker();
+    paintRoadmap(rm);
   }
 
   /* ============================================================
-     DAY PLANNER  —  click a day → Resources & Tasks tabs
+     DAY PLANNER
      ============================================================ */
   let dayPhaseId = null;
   let dayNum     = null;
-  let dayMode    = 'tasks';      // 'tasks' | 'resources'
+  let dayMode    = 'tasks';
   let dayModule  = 'grammar';
-  let dayPickerOpen = false;     // "Add task from" picker is collapsed by default
+  let dayPickerOpen = false;
 
   function openDayModal(phaseId, n){
     const rm = readRoadmap();
@@ -1871,7 +1829,6 @@
     dayPickerOpen = false;
     $('#daySearch').value = '';
 
-    /* make sure module data is loaded so the pickers can populate */
     if(hubData) openDayModalRender();
     else loadAll().then(openDayModalRender);
   }
@@ -1881,7 +1838,6 @@
     const phase = rm.phases.find(p => p.id === dayPhaseId);
     if(!phase) return;
 
-    /* open on the first module that still has something to add for the current mode */
     const sources = collectSources(hubData);
     const existing = dayMode === 'tasks'
       ? getDayTasks(phase, dayNum)
@@ -1901,14 +1857,12 @@
     dayNum = null;
   }
 
-  /* Generic row used for both day tasks and phase resources inside the modal */
   function dayRowHTML(item, kind){
     const mod = RES_MODULES[item.module] || { icon:'•', cls:'', name: item.module || 'Item', kind:'' };
     const toggleAct = kind === 'task' ? 'toggle-task' : 'toggle-res';
     const removeAct = kind === 'task' ? 'remove-task' : 'remove-res';
     const subBits = [mod.name, item.sub, item.meta].filter(Boolean).join(' · ');
 
-    /* --- FIX 2: carry the refId so the button can deep-link --- */
     const openBtn = mod.kind
       ? `<button type="button" class="taskopen" data-act="open-module"
                 data-mod="${esc(item.module)}" data-ref="${esc(item.refId)}"
@@ -1953,7 +1907,6 @@
     $('#daySub').textContent = phase.title
       + (realDate ? ' · ' + fmtDay(realDate) : ' · set a phase start date to see the calendar day');
 
-    /* ---------- mode tabs (Resources / Tasks) ---------- */
     $('#dayModeTabs').innerHTML = `
       <button type="button" class="tab${dayMode === 'tasks' ? ' active' : ''}" data-mode="tasks">
         ✅ Tasks <span class="cnt">${tasks.length}</span>
@@ -1962,7 +1915,6 @@
         📚 Resources <span class="cnt">${resources.length}</span>
       </button>`;
 
-    /* ---------- section header ---------- */
     $('#dayAddLabel').textContent = dayMode === 'tasks'
       ? "Today's tasks" : 'Phase resources';
     $('#dayAddHint').textContent = dayMode === 'tasks'
@@ -1973,7 +1925,6 @@
           ? resources.filter(r => r.done).length + ' of ' + resources.length + ' done'
           : 'none yet — these apply to the whole phase');
 
-    /* ---------- upper list (tasks or resources), grouped into columns by category ---------- */
     {
       const list = dayMode === 'tasks' ? tasks : resources;
       const kind = dayMode === 'tasks' ? 'task' : 'res';
@@ -2007,13 +1958,11 @@
       }
     }
 
-    /* ---------- "Add task from" picker — collapsed by default ---------- */
     const pickerToggle = $('#dayPickerToggle');
     pickerToggle.textContent = dayPickerOpen ? 'Hide' : 'Show';
     pickerToggle.setAttribute('aria-expanded', String(dayPickerOpen));
     $('#dayPickerBody').hidden = !dayPickerOpen;
 
-    /* ---------- module tabs ---------- */
     const sources = collectSources(hubData);
     $('#dayPickLabel').textContent = dayMode === 'tasks' ? 'Add task from' : 'Add resource from';
     $('#dayTabs').innerHTML = RES_ORDER.map(k => {
@@ -2024,7 +1973,6 @@
       </button>`;
     }).join('');
 
-    /* ---------- pickable items ---------- */
     const q = ($('#daySearch').value || '').trim().toLowerCase();
     const all = sources[dayModule] || [];
     const filtered = q
@@ -2054,7 +2002,6 @@
            Nothing available in ${esc(RES_MODULES[dayModule].name)} yet.
          </div>`;
 
-    /* ---------- footer toggle ---------- */
     const btn = $('#dayToggleComplete');
     btn.textContent = isDone ? 'Day complete ✓' : 'Mark day complete';
     btn.classList.toggle('on', isDone);
@@ -2064,7 +2011,6 @@
       : (isDone ? 'Un-tick this day' : 'Tick this day as complete');
   }
 
-  /* ---------- day task mutators ---------- */
   function addDayTask(module, refId){
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === dayPhaseId);
@@ -2124,7 +2070,6 @@
     paintRoadmap(rm);
   }
 
-  /* ---------- day resource mutators (phase-wide) ---------- */
   function addDayResource(module, refId){
     const rm = readRoadmap();
     const phase = rm.phases.find(p => p.id === dayPhaseId);
@@ -2185,6 +2130,402 @@
   }
 
   /* ============================================================
+     FLOATING TODAY-TASKS BUTTON  (injected into each module iframe)
+     ============================================================ */
+  const FAB_CSS = `
+#hub-fab-root{
+  position:fixed;right:18px;bottom:18px;z-index:2147483000;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;line-height:1.4;color:#12141a;
+}
+#hub-fab-root, #hub-fab-root *{box-sizing:border-box}
+#hub-fab-root button{
+  font:inherit;cursor:pointer;margin:0;border:0;background:transparent;color:inherit;
+  text-transform:none;letter-spacing:inherit;
+}
+#hub-fab-root .hub-fab-panel[hidden],
+#hub-fab-root .hub-fab-badge[hidden]{display:none !important}
+
+#hub-fab-root .hub-fab{
+  position:relative;width:52px;height:52px;border-radius:50%;
+  background:#4f46e5;color:#fff;
+  display:grid;place-items:center;font-size:20px;padding:0;
+  box-shadow:0 6px 20px rgba(79,70,229,.4), 0 2px 6px rgba(0,0,0,.15);
+  transition:transform .15s, box-shadow .15s, background .15s;
+}
+#hub-fab-root .hub-fab:hover{transform:translateY(-2px)}
+#hub-fab-root .hub-fab:active{transform:translateY(0)}
+#hub-fab-root .hub-fab.is-clear{
+  background:#047857;
+  box-shadow:0 6px 20px rgba(4,120,87,.35), 0 2px 6px rgba(0,0,0,.15);
+}
+#hub-fab-root .hub-fab-badge{
+  position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;
+  padding:0 5px;border-radius:999px;background:#b91c1c;color:#fff;
+  font-size:11px;font-weight:700;display:grid;place-items:center;
+  border:2px solid #fff;font-variant-numeric:tabular-nums;
+}
+
+#hub-fab-root .hub-fab-panel{
+  position:absolute;right:0;bottom:64px;
+  width:min(340px, calc(100vw - 36px));
+  max-height:min(460px, calc(100vh - 110px));
+  background:#fff;border:1px solid #e4e7ec;border-radius:16px;
+  box-shadow:0 20px 50px rgba(10,12,30,.22), 0 4px 12px rgba(10,12,30,.10);
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:hubFabIn .16s ease-out;
+}
+@keyframes hubFabIn{
+  from{opacity:0;transform:translateY(6px) scale(.98)}
+  to{opacity:1;transform:none}
+}
+
+#hub-fab-root .hub-fab-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  padding:12px 14px 10px;border-bottom:1px solid #eef0f4;
+}
+#hub-fab-root .hub-fab-title{font-weight:700;font-size:14px;letter-spacing:-.01em}
+#hub-fab-root .hub-fab-sub{font-size:11.5px;color:#6b7280;margin-top:2px}
+#hub-fab-root .hub-fab-x{
+  color:#9aa0ad;font-size:14px;line-height:1;padding:4px 7px;border-radius:6px;
+}
+#hub-fab-root .hub-fab-x:hover{background:#f3f4f6;color:#12141a}
+
+#hub-fab-root .hub-fab-list{
+  flex:1;min-height:0;overflow-y:auto;padding:8px;
+  display:flex;flex-direction:column;gap:6px;
+}
+#hub-fab-root .hub-task{
+  display:flex;align-items:flex-start;gap:9px;
+  background:#fafbfc;border:1px solid #e4e7ec;border-radius:12px;
+  padding:8px 10px;
+}
+#hub-fab-root .hub-task.done{opacity:.55}
+#hub-fab-root .hub-task.done .hub-task-label{text-decoration:line-through}
+#hub-fab-root .hub-task-check{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+  border:1.5px solid #c9cede;background:#fff;
+  display:grid;place-items:center;font-size:11px;color:transparent;
+  padding:0;margin-top:1px;
+}
+#hub-fab-root .hub-task.done .hub-task-check{
+  background:#047857;border-color:#047857;color:#fff;
+}
+#hub-fab-root .hub-task-ico{
+  flex:0 0 auto;width:22px;height:22px;border-radius:7px;
+  display:grid;place-items:center;font-size:12px;
+  background:#eef0ff;color:#4f46e5;margin-top:1px;
+}
+#hub-fab-root .hub-task-ico.g{background:#f0ebff;color:#6d28d9}
+#hub-fab-root .hub-task-ico.v{background:#e8f7f1;color:#047857}
+#hub-fab-root .hub-task-ico.w{background:#fdf2e3;color:#b45309}
+#hub-fab-root .hub-task-ico.p{background:#e6f5f2;color:#0d7a6f}
+#hub-fab-root .hub-task-main{min-width:0;flex:1}
+#hub-fab-root .hub-task-label{
+  font-size:13px;font-weight:600;line-height:1.35;overflow-wrap:anywhere;
+}
+#hub-fab-root .hub-task-meta{
+  font-size:11px;color:#6b7280;margin-top:2px;overflow-wrap:anywhere;
+}
+
+#hub-fab-root .hub-fab-empty{
+  padding:26px 16px;text-align:center;color:#6b7280;font-size:12.5px;
+}
+#hub-fab-root .hub-fab-empty .big{font-size:26px;margin-bottom:6px}
+
+#hub-fab-root .hub-fab-foot{
+  padding:8px 10px 10px;border-top:1px solid #eef0f4;
+  display:flex;justify-content:flex-end;
+}
+#hub-fab-root .hub-fab-openrm{
+  background:#eef0ff;color:#4f46e5;border:1px solid #c7c9ff;
+  border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;
+}
+#hub-fab-root .hub-fab-openrm:hover{
+  background:#4f46e5;color:#fff;border-color:#4f46e5;
+}
+
+/* ---------- dark ---------- */
+#hub-fab-root.dark{color:#e8eaef}
+#hub-fab-root.dark .hub-fab{
+  background:#818cf8;color:#0e1117;
+  box-shadow:0 6px 20px rgba(129,140,248,.35), 0 2px 6px rgba(0,0,0,.4);
+}
+#hub-fab-root.dark .hub-fab.is-clear{
+  background:#34d399;color:#0e1117;
+  box-shadow:0 6px 20px rgba(52,211,153,.35), 0 2px 6px rgba(0,0,0,.4);
+}
+#hub-fab-root.dark .hub-fab-badge{
+  background:#f87171;color:#1a0a0a;border-color:#161a22;
+}
+#hub-fab-root.dark .hub-fab-panel{
+  background:#161a22;border-color:#262b36;
+  box-shadow:0 20px 50px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
+}
+#hub-fab-root.dark .hub-fab-head{border-bottom-color:#262b36}
+#hub-fab-root.dark .hub-fab-sub{color:#8b93a3}
+#hub-fab-root.dark .hub-fab-x{color:#8b93a3}
+#hub-fab-root.dark .hub-fab-x:hover{background:#262b36;color:#e8eaef}
+#hub-fab-root.dark .hub-task{background:#12161d;border-color:#262b36}
+#hub-fab-root.dark .hub-task-check{border-color:#39414f;background:#161a22}
+#hub-fab-root.dark .hub-task.done .hub-task-check{
+  background:#34d399;border-color:#34d399;color:#0e1117;
+}
+#hub-fab-root.dark .hub-task-ico{background:#1e2138;color:#818cf8}
+#hub-fab-root.dark .hub-task-ico.g{background:#2c1f52;color:#c4b5fd}
+#hub-fab-root.dark .hub-task-ico.v{background:#12291f;color:#34d399}
+#hub-fab-root.dark .hub-task-ico.w{background:#2a2113;color:#fbbf24}
+#hub-fab-root.dark .hub-task-ico.p{background:#0e2a27;color:#5eead4}
+#hub-fab-root.dark .hub-task-meta{color:#8b93a3}
+#hub-fab-root.dark .hub-fab-foot{border-top-color:#262b36}
+#hub-fab-root.dark .hub-fab-openrm{
+  background:#1e2138;color:#818cf8;border-color:#3730a3;
+}
+#hub-fab-root.dark .hub-fab-openrm:hover{
+  background:#818cf8;color:#0e1117;border-color:#818cf8;
+}
+#hub-fab-root.dark .hub-fab-empty{color:#8b93a3}
+`;
+
+  /* What counts as "today": any task whose day's real calendar date is
+     today. Falls back to the next up day in the active phase. */
+  function resolveTodayTasks(){
+    const rm = readRoadmap();
+    const today = todayKey();
+    const items = [];
+
+    rm.phases.forEach((phase, pi) => {
+      if(!phase.startDate) return;
+      for(let n = 1; n <= phase.days; n++){
+        if(addDays(phase.startDate, n - 1) !== today) continue;
+        (phase.dayTasks[String(n)] || []).forEach(t => {
+          items.push({ phase, phaseIdx: pi, dayNum: n, task: t });
+        });
+      }
+    });
+
+    if(items.length){
+      const done = items.filter(x => x.task.done).length;
+      return {
+        mode: 'today',
+        label: "Today's tasks",
+        sublabel: done + ' of ' + items.length + ' done',
+        items: items
+      };
+    }
+
+    const activeIdx = rm.phases.findIndex(p => phaseDoneCount(p) < p.days);
+    if(activeIdx >= 0){
+      const phase = rm.phases[activeIdx];
+
+      for(let n = 1; n <= phase.days; n++){
+        const tasks = phase.dayTasks[String(n)] || [];
+        if(tasks.length && !tasks.every(t => t.done)){
+          const d2 = tasks.filter(t => t.done).length;
+          return {
+            mode: 'next',
+            label: 'Next up · Day ' + n,
+            sublabel: phase.title + ' · ' + d2 + ' of ' + tasks.length + ' done',
+            items: tasks.map(t => ({ phase, phaseIdx: activeIdx, dayNum: n, task: t }))
+          };
+        }
+      }
+
+      return {
+        mode: 'empty',
+        label: "Today's tasks",
+        sublabel: phase.title,
+        items: [],
+        emptyText: 'No tasks scheduled for today. Open the roadmap to plan a day.'
+      };
+    }
+
+    return {
+      mode: 'empty',
+      label: 'Roadmap',
+      sublabel: '',
+      items: [],
+      emptyText: 'Every phase is complete. 🎉'
+    };
+  }
+
+  function renderFabPanel(doc){
+    const info = resolveTodayTasks();
+    const titleEl = doc.getElementById('hub-fab-title');
+    const subEl   = doc.getElementById('hub-fab-sub');
+    const listEl  = doc.getElementById('hub-fab-list');
+    if(!titleEl || !subEl || !listEl) return;
+
+    titleEl.textContent = info.label;
+    subEl.textContent   = info.sublabel || '';
+
+    if(!info.items.length){
+      listEl.innerHTML = `<div class="hub-fab-empty">
+        <div class="big">🎉</div>
+        <div>${esc(info.emptyText || 'No tasks scheduled for today.')}</div>
+      </div>`;
+      return;
+    }
+
+    listEl.innerHTML = info.items.map(x => {
+      const mod = RES_MODULES[x.task.module] || { icon:'•', cls:'', name: x.task.module };
+      const metaBits = [mod.name, x.task.sub, x.task.meta].filter(Boolean).join(' · ');
+      return `<div class="hub-task${x.task.done ? ' done' : ''}">
+        <button type="button" class="hub-task-check"
+                data-fab-task="${esc(x.task.id)}"
+                data-phase="${esc(x.phase.id)}"
+                data-day="${x.dayNum}"
+                title="${x.task.done ? 'Mark as not done' : 'Mark as done'}">✓</button>
+        <span class="hub-task-ico ${esc(mod.cls)}">${mod.icon}</span>
+        <span class="hub-task-main">
+          <span class="hub-task-label">${esc(x.task.label)}</span>
+          ${metaBits ? `<span class="hub-task-meta">${esc(metaBits)}</span>` : ''}
+        </span>
+      </div>`;
+    }).join('');
+  }
+
+  function updateFabBadge(doc){
+    const badge = doc.getElementById('hub-fab-badge');
+    const fab   = doc.getElementById('hub-fab');
+    if(!badge || !fab) return;
+
+    const info = resolveTodayTasks();
+    const pending = info.items.filter(x => !x.task.done).length;
+
+    if(pending > 0){
+      badge.hidden = false;
+      badge.textContent = pending > 99 ? '99+' : String(pending);
+    }else{
+      badge.hidden = true;
+    }
+    fab.classList.toggle('is-clear', pending === 0 && info.items.length > 0);
+  }
+
+  function fabToggleTask(phaseId, dayNum2, taskId){
+    const rm = readRoadmap();
+    const phase = rm.phases.find(p => p.id === phaseId);
+    if(!phase) return;
+
+    const tasks = getDayTasks(phase, dayNum2);
+    const t = tasks.find(x => x.id === taskId);
+    if(!t) return;
+
+    t.done = !t.done;
+    t.doneAt = t.done ? todayKey() : null;
+    saveRoadmap(rm);
+
+    refreshAllFabs();
+    if(currentRoute === 'roadmap') paintRoadmap(rm);
+  }
+
+  function ensureFab(frame){
+    let doc;
+    try{ doc = frame.contentDocument; }catch(e){ return; }
+    if(!doc || !doc.body) return;
+
+    let root = doc.getElementById('hub-fab-root');
+
+    if(!root){
+      if(!doc.getElementById('hub-fab-style')){
+        const st = doc.createElement('style');
+        st.id = 'hub-fab-style';
+        st.textContent = FAB_CSS;
+        (doc.head || doc.documentElement).appendChild(st);
+      }
+
+      root = doc.createElement('div');
+      root.id = 'hub-fab-root';
+      root.className = 'hub-fab-root';
+      root.innerHTML = `
+        <div class="hub-fab-panel" id="hub-fab-panel" hidden>
+          <div class="hub-fab-head">
+            <div>
+              <div class="hub-fab-title" id="hub-fab-title">Today's tasks</div>
+              <div class="hub-fab-sub" id="hub-fab-sub"></div>
+            </div>
+            <button class="hub-fab-x" id="hub-fab-x" type="button" aria-label="Close">✕</button>
+          </div>
+          <div class="hub-fab-list" id="hub-fab-list"></div>
+          <div class="hub-fab-foot">
+            <button class="hub-fab-openrm" id="hub-fab-openrm" type="button">Open roadmap →</button>
+          </div>
+        </div>
+        <button class="hub-fab" id="hub-fab" type="button" aria-label="Today's tasks">
+          <span>✅</span>
+          <span class="hub-fab-badge" id="hub-fab-badge" hidden>0</span>
+        </button>`;
+      doc.body.appendChild(root);
+
+      const fabBtn = doc.getElementById('hub-fab');
+      const panel  = doc.getElementById('hub-fab-panel');
+
+      fabBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(panel.hidden){
+          renderFabPanel(doc);
+          panel.hidden = false;
+        }else{
+          panel.hidden = true;
+        }
+      });
+
+      doc.getElementById('hub-fab-x').addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.hidden = true;
+      });
+
+      doc.getElementById('hub-fab-openrm').addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.hidden = true;
+        go('roadmap');
+      });
+
+      doc.addEventListener('click', (e) => {
+        if(!panel || panel.hidden) return;
+        if(e.target.closest && e.target.closest('#hub-fab-root')) return;
+        panel.hidden = true;
+      });
+
+      doc.getElementById('hub-fab-list').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-fab-task]');
+        if(!btn) return;
+        e.stopPropagation();
+        fabToggleTask(btn.dataset.phase, Number(btn.dataset.day), btn.dataset.fabTask);
+        renderFabPanel(doc);
+        updateFabBadge(doc);
+      });
+    }
+
+    root.classList.toggle('dark',
+      document.documentElement.getAttribute('data-theme') === 'dark');
+
+    updateFabBadge(doc);
+
+    const panelEl = doc.getElementById('hub-fab-panel');
+    if(panelEl && !panelEl.hidden) renderFabPanel(doc);
+  }
+
+  function refreshAllFabs(){
+    const frame = $('#frame');
+    if(!frame) return;
+    if($('#moduleView').hidden) return;
+    ensureFab(frame);
+  }
+
+  function refreshFabTheme(){
+    const frame = $('#frame');
+    let doc;
+    try{ doc = frame.contentDocument; }catch(e){ return; }
+    if(!doc) return;
+    const root = doc.getElementById('hub-fab-root');
+    if(root){
+      root.classList.toggle('dark',
+        document.documentElement.getAttribute('data-theme') === 'dark');
+    }
+  }
+
+  /* ============================================================
      THEME
      ============================================================ */
   function applyTheme(t){
@@ -2195,6 +2536,7 @@
       btn.title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
     }
     try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+    refreshFabTheme();
   }
   function initialTheme(){
     try{
@@ -2211,8 +2553,8 @@
 
   let currentRoute = 'overview';
   let iframeLoadedFor = null;
-  let pendingTarget = null;       // hash to append to the module file
-  let pendingModuleMsg = null;    // postMessage payload for the embedded module
+  let pendingTarget = null;
+  let pendingModuleMsg = null;
 
   function go(route, target){
     pendingTarget = (target === undefined) ? null : (target || null);
@@ -2259,7 +2601,6 @@
     frame.dataset.route = route;
 
     if(frame.getAttribute('src') !== src){
-      /* a different document (or a different section) — reload it */
       pendingModuleMsg = target
         ? { type:'hub:open', module: route, target: target }
         : null;
@@ -2287,6 +2628,8 @@
         a.setAttribute('target', '_top');
       }
     });
+    /* inject the floating today-tasks button into the module */
+    ensureFab(frame);
   }
 
   /* ============================================================
@@ -2299,13 +2642,11 @@
     if(e.target.closest('#backBtn')){ go('overview'); return; }
   });
 
-  /* any element carrying data-route navigates (module cards, library rows, roadmap strip) */
   $('#overviewContent').addEventListener('click', e => {
     const el = e.target.closest('[data-route]');
     if(el) go(el.dataset.route);
   });
 
-  /* roadmap page */
   $('#roadmapContent').addEventListener('click', onRoadmapClick);
   $('#roadmapContent').addEventListener('change', onRoadmapChange);
 
@@ -2360,7 +2701,6 @@
     else if(act === 'toggle-res') toggleDayResource(btn.dataset.id);
     else if(act === 'remove-res') removeDayResource(btn.dataset.id);
     else if(act === 'open-module'){
-      /* --- FIX 2: deep-link straight to the item's section --- */
       const mod = btn.dataset.mod;
       const ref = btn.dataset.ref;
       closeDayModal();
@@ -2398,20 +2738,19 @@
     }
   });
 
-  /* Refresh numbers when the hub tab regains focus (e.g. coming back
-     from a module in another tab/window). */
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState !== 'visible') return;
     if(currentRoute === 'overview') renderOverview();
     else if(currentRoute === 'roadmap') renderRoadmap();
+    else refreshAllFabs();
   });
 
   window.addEventListener('focus', () => {
     if(currentRoute === 'overview') renderOverview();
     else if(currentRoute === 'roadmap') renderRoadmap();
+    else refreshAllFabs();
   });
 
-  /* If an embedded module saves something, refresh when we get back. */
   window.addEventListener('message', () => {
     if(currentRoute === 'overview') renderOverview();
     else if(currentRoute === 'roadmap') renderRoadmap();
